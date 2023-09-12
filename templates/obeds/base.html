@@ -1,0 +1,340 @@
+<!-- -------------------------------------Louvilla's Code------------------------------------------ -->
+<!-- 
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+</head>
+
+
+
+<body id="cback2" ></body>
+ 
+<style>
+
+  
+/* Sidebar*/
+
+  
+  /* Custom CSS to move the search bar to the rightmost and make it bigger */
+  #sbar {
+    position: absolute;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .form-control {
+    width: 400px; /* You can adjust the width as needed */
+    max-width: 100%;
+    padding: 8px; /* Increase the padding to make it bigger */
+    font-size: 18px; /* Increase the font size to make it bigger */
+  }
+
+  .btn {
+    padding: 8px 20px; /* Increase the padding to make the button bigger */
+    font-size: 18px; /* Increase the font size to make the button bigger */
+  }
+</style>
+
+  <div id="sbar" style="position: absolute; top: 10; right: 10;">
+  <nav class="navbar bg-body-tertiary text-center">
+    <div class="container-fluid">
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" >
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
+  </div>
+
+<div class="sidebar " style="position: relative; top: 180px; left: 50px;">
+  <style>
+      .sidebar img {
+        display: block;
+        margin-bottom: 10px;
+      }
+    </style>
+
+<a href="{% url 'Dboard' %}">
+  <img src="{% static 'images/nav1.png' %}" alt="Dboard" width="35" height="34">
+</a>
+
+<br>
+<br>
+
+<a href="{% url 'orphan' %}">
+  <img src="{% static 'images/nav2.png' %}" alt="Orphans" width="35" height="36">
+</a>
+
+<br>
+<br>
+
+<a href="{% url 'notes' %}">
+  <img src="{% static 'images/notes.png' %}" alt="Home" width="60" height="42" left="30" style="margin-left: -15px;">
+</a>
+
+<br>
+<br>
+
+<a href="{% url 'files' %}">
+  <img src="{% static 'images/nav3.png' %}" alt="Files" width="35" height="34">
+</a>
+
+<br>
+<br>
+
+<a href="{% url 'trash' %}">
+  <img src="{% static 'images/nav4.png' %}" alt="Trash" width="35" height="34">
+</a>
+
+<br>
+<br>
+
+<a href="{% url 'settings' %}">
+  <img src="{% static 'images/nav5.png' %}" alt="Settings" width="35" height="34">
+</a>
+
+<br>
+<br>
+
+<a href="/">
+  <img src="{% static 'images/nav6.png' %}" alt="Logout" width="35" height="34">
+</a>
+</div>
+
+{% block content %}
+
+{% endblock %} -->
+<!-- -------------------------------------Louvilla's Code------------------------------------------ -->
+
+<!-- alter code sa base.html -->
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<style>
+
+  body, html {
+      margin: 0;
+      padding: 1%;
+      height: 100%;
+  }
+  
+  .sidebar {
+      height: 100%;
+      width: 100px;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      background-color: rgb(146, 188, 250);
+      overflow-x: hidden;
+      padding-top: 16px;
+      border: solid black 1px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+  
+    }
+  
+  #cback2{
+      background-color: #9fb9ff;
+      background-position: left, center;
+      background-repeat: no-repeat, no-repeat;
+      background-size: cover, cover;
+      width: 10%;
+      height: 50%;
+      background-attachment: fixed,fixed;
+  }
+  
+  #iclink{
+      width: 10%;
+      padding-left: 20%;
+      padding-top: 3in;
+      height: 50%;
+  }
+  
+  #myx{
+      width: 100px;
+      height: 100px;
+  
+  }
+  
+  #sbar {
+     display: flex;
+     width: 95%;
+     justify-content: flex-end;
+  
+   }
+  
+   .form-control {
+     width: 400px; /* You can adjust the width as needed */
+     max-width: 100%;
+     padding: 8px; /* Increase the padding to make it bigger */
+     font-size: 18px; /* Increase the font size to make it bigger */
+   }
+  
+   .btn {
+     padding: 8px 20px; /* Increase the padding to make the button bigger */
+     font-size: 18px; /* Increase the font size to make the button bigger */
+   }
+  
+  #D1{
+      position: fixed;
+      width: 40%;
+      height: 10%;
+      left: 277px;
+      top: 130px;
+  }
+  
+  #D2{
+      position: fixed;
+      width: 40%;
+      height: 10%;
+      left: 663px;
+      top: 130px;
+  }
+  
+  #D3{
+      position: fixed;
+      width: 70%;
+      height: 30%;
+      left: 334px;
+      top: 500px;
+      padding: 10px;
+      margin-bottom: 10px;
+  }
+  
+  .body1 {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  .dashboard {
+    display: grid;
+    position: absolute;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    left: 20%;
+    right: 15%;
+    top: 15%;
+    padding-bottom: 2%;
+  
+  
+  }
+  
+  .dashboard-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 100px;
+    border-radius: 12px;
+    border: solid black 1px;
+  }
+  
+  .dashboard-item h2 {
+    margin-top: 0;
+  }
+  
+  @media (max-width: 768px) {
+        .sidebar {
+          width: 60px;
+          padding-top: 10%;
+        }
+        #cback2 {
+          background-size: auto;
+        }
+        #iclink {
+          padding-left: 10%;
+        }
+        #sbar {
+          left: 10%;
+          right: 10px;
+        }
+        #D1, #D2, #D3 {
+          position: relative;
+          width: 100%;
+          left: 0;
+          margin-bottom: 20px;
+        }
+        .dashboard {
+          grid-template-columns: 1fr;
+          left: 10%;
+          right: 10px;
+        }
+      }
+  
+  </style>
+
+
+<body id="cback2">
+  <div id="sbar" style="position: absolute; top: 10; right: 10; left: 20";>
+    <nav class="navbar bg-body-tertiary text-center">
+      <div class="container-fluid">
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+  </div>
+
+
+  <div class="sidebar">
+      <a class="navbar"  href="{% url 'Dboard' %}">
+          <img src="{% static 'images/nav1.png' %}" alt="Home" width="35" height="34">
+      </a>
+    <br>
+    <br>
+      <a class="navbar" href="{% url 'orphan' %}">
+          <img src="{% static 'images/nav2.png' %}" alt="Orphans" width="35" height="34">
+      </a>
+    <br>
+    <br>
+      <a class="navbar" href="{% url 'notes' %}">
+          <img src="{% static 'images/notes.png' %}" alt="Notes" width="50" height="40">
+      </a>
+    <br>
+    <br>
+      <a class="navbar" href="{% url 'files' %}">
+          <img src="{% static 'images/nav3.png' %}" alt="Files" width="35" height="34">
+      </a>
+    <br>
+    <br>
+      <a class="navbar" href="{% url 'trash' %}">
+          <img src="{% static 'images/nav4.png' %}" alt="Trash" width="35" height="34">
+      </a>
+    <br>
+    <br>
+      <a class="navbar" href="{% url 'settings' %}">
+          <img src="{% static 'images/nav5.png' %}" alt="Settings" width="35" height="34">
+      </a>
+    <br>
+    <br>
+      <a class="navbar" href="/">
+          <img src="{% static 'images/nav6.png' %}" alt="Logout" width="35" height="34">
+      </a>
+  </div>
+
+</div>
+</body>
+
+{% block content %}
+
+{% endblock %}
+
+<!-- alter code sa base.html -->

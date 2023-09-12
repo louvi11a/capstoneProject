@@ -1,0 +1,92 @@
+{% load static %}
+{% include 'obeds/base.html' %}
+
+{% block title %} <!-- Override the title block -->
+  <title>Notes Page</title>
+{% endblock %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Notes</title>
+    <style>
+        /* Sample CSS for styling the form */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Center the form container */
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center; /* Center text horizontally */
+        }
+
+        /* Center the form itself within the container */
+        .containerNote {
+            position: absolute;
+            left: 20%;
+            width:60%;
+            height: 70%;
+            top: 15%;
+            padding: 50px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left; /* Reset text alignment for form elements */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .button1[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button1[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Center the upload notes form -->
+<div class="center-container">
+    <div class="containerNote">
+        <h1>Upload Typed Notes</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="notes">Typed Notes:</label>
+                <textarea id="notes" name="notes" rows="5" required></textarea>
+            </div>
+            <div class="form-group">
+                <button class="button1" type="submit">Upload Notes</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

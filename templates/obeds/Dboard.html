@@ -1,0 +1,97 @@
+{% load static %}
+{% include 'obeds/base.html' %}
+
+
+{% block title %} <!-- Override the title block -->
+  <title>Dboard</title>
+{% endblock %}
+
+<style>
+
+
+.dashboard {
+  display: grid;
+  position: absolute;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  left: 20%;
+  right: 15%;
+  top: 15%;
+  padding-bottom: 2%;
+
+
+}
+
+.dashboard-item {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 100px;
+  border-radius: 12px;
+  border: solid black 1px;
+}
+
+.dashboard-item h2 {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+      .sidebar {
+        width: 60px;
+        padding-top: 10%;
+      }
+      #cback2 {
+        background-size: auto;
+      }
+      #iclink {
+        padding-left: 10%;
+      }
+      #sbar {
+        left: 10%;
+        right: 10px;
+      }
+      #D1, #D2, #D3 {
+        position: relative;
+        width: 100%;
+        left: 0;
+        margin-bottom: 20px;
+      }
+      .dashboard {
+        grid-template-columns: 1fr;
+        left: 10%;
+        right: 10px;
+      }
+    }
+
+</style>
+
+
+<div>
+    <div class="dashboard">
+        <div class="dashboard-item">
+          <h2>Orphan Total</h2>
+          <p>Content for Orphan Total</p>
+          <a href="https://example.com/orphan-total">Click to view details</a>
+        </div>
+        <div class="dashboard-item">
+          <h2>Ethnicity</h2>
+          <p>Content for Ethnicity</p>
+          <a href="https://example.com/orphan-total">Click to view details</a>
+        </div>
+        <div class="dashboard-item">
+          <h2>Gender</h2>
+          <p>Content for Gender</p>
+          <a href="https://example.com/orphan-total">Click to view details</a>
+        </div>
+        <div class="dashboard-item">
+          <h2>Age Group</h2>
+          <p>Content for Age Group</p>
+          <a href="https://example.com/orphan-total">Click to view details</a>
+        </div>
+    </div>
+</div>
+
+
+
+{% block content %}
+
+{% endblock %}
