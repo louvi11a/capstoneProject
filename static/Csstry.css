@@ -1,7 +1,7 @@
 
-/* Page 1*/
+/*----------------------------- Page 1*/
 #cback{
-    background-image: url('/static/images/bg_1.png'),url('/static/images/bg_2.png');
+    background-image: url(bg_1.png),url(bg_2.png);
     background-position: left, center;
     background-repeat: no-repeat, no-repeat;
     background-size: cover, cover;
@@ -9,6 +9,8 @@
     height: 100%;
     margin-top: 50%;
     background-attachment: fixed,fixed;
+    resize: none;
+    overflow: hidden;
 }
 
 #box_form{
@@ -30,514 +32,44 @@
 
 
 
-/* Page 2*/
+/* DROPDOWN---------------------------------------------- */
 
-
-
-#cback2{
-    background-color: rgb(88, 160, 218);
-    background-repeat: no-repeat, no-repeat;
-    background-size: cover, cover;
-    width: 10%;
-    height: 50%;
-    background-attachment: fixed,fixed;
-}
-
-#iclink{
-    width: 10%;
-    padding-left: 20%;
-    padding-top: 3in;
-    height: 50%;
-}
-
-#myx{
-    width: 100px;
-    height: 100px;
-    
-}
-
-#sbar{
-    position: absolute;
-    background-position-x: center;
-    background-position-y: center;
-    left: 50%;
-    right: 100px;
-}
-
-#D1{
-    position: fixed;
-    width: 40%;
-    height: 10%;
-    left: 277px;
-    top: 130px;
-}
-
-#D2{
-    position: fixed;
-    width: 40%;
-    height: 10%;
-    left: 663px;
-    top: 130px;
-}
-
-#D3{
-    position: fixed;
-    width: 70%;
-    height: 30%;
-    left: 334px;
-    top: 500px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.body1 {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-}
-
-.dashboard {
-  display: grid;
-  position: fixed;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 20px;
-  left: 15%;
-  right: 150px;
-  top: 100px;
-  
-}
-
-.dashboard-item {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 50px;
-  border-radius: 12px;
-  border: solid black 1px;
-}
-
-.dashboard-item h2 {
-  margin-top: 0;
-}
-
-/*----------------------------------------- Page 3*/
-.center-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  text-align: center; /* Center text horizontally */
-}
-
-
-.bodyt3 {
-  font-family: Arial, sans-serif;
-  margin-top: 40px;
-  padding: 30px;
-  display: flex;
-  position: fixed;
-  left: 15%;
-  justify-content: center;
-  align-items: center;
-  background-color: #cbf7ff;
-  border-radius: 12px;
-  border: solid black 1px;
-}
-
-.containert3 {
-  width: 700px;
-  height: 400px;
-  border: 1px solid #ccc;
-  overflow: auto;
-  padding: 20px;
-}
-
-.file-manager {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 20px;
-}
-
-.file {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 10px;
-  text-align: center;
-}
-
-.file-icon {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 10px;
-}
-
-.file-name {
-  font-weight: bold;
-}
-
-.crud-buttons {
-  text-align: center;
-  position: fixed;
-  top: 536px;
-  left: 450px;
-  padding: 20px;
-}
-
-.crud-buttons button {
-  margin-right: 10px;
-}
-
-
-/*----------------------------------------- Page 4*/
-
-#B1{
-    background-color: #4acafd;
-    position: fixed;
-    width: 800px;
-    height: 500px;
-    left: 15%;
-    top: 10%;
-    border: none;
-    color: rgb(0, 0, 0);
-    text-decoration: none;
-    display: inline-block;
-    padding: 0;
-    font-size: 16px;
-    margin: 4px 2px;
-    border-radius: 12px;
-    border: solid black 1px;
-  }
-
-  
-
-  .container {
-    margin: 0 0;
-    max-width: 300px;
-    padding: 20px;
-  }
-
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-    border: solid black 1px;
-  }
-
-  .form-group input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
-  }
-
-  .form-group input[type="submit"]:hover {
-    background-color: #45a049;
-  }
-
-.P1{
-  position: fixed;
-  width: 50%;
-  height: 50%;
-  left:  500px;
-  top: 150px;
-  text-align: center;
-}
-
-.P1 label{
-  text-align: center;
-  font: 100;
-  display: block;
-}
-.larger-image {
-  width: 400px;
-  height: 300px;
-}
- 
-.edit-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.edit-button:hover {
-  background-color: #45a049;
-}
-
-.close-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #00b327;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.close-button:hover {
-  background-color: #22b629;
-}
-
-#B2{
-  background-color: #4acafd;
-  position: fixed;
-  width: 800px;
-  height: 500px;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  border: none;
-  color: rgb(0, 0, 0);
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  border-radius: 12px;
-  border: solid black 1px;
-}
-
-.P2{
-  position: fixed;
-  width: 500px;
-  height: 50%;
-  left: 400px;
-  top: 100px;
-  text-align: center;
-}
-
-
-.body1 {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-  }
-  
-  .dashboard {
-    display: grid;
-    position: fixed;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 20px;
-    left: 15%;
-    right: 150px;
-    top: 100px;
-    
-  }
-  
-  .dashboard-item {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 50px;
-    border-radius: 12px;
-    border: solid black 1px;
-  }
-  
-  .dashboard-item h2 {
-    margin-top: 0;
-  }
-  
-  /*----------------------------------------- Page 3*/
-  
-  
-  .bodyt3 {
-    font-family: Arial, sans-serif;
-    margin-top: 40px;
-    padding: 30px;
-    display: flex;
-    position: fixed;
-    left: 15%;
-    justify-content: center;
-    align-items: center;
-    background-color: #cbf7ff;
-    border-radius: 12px;
-    border: solid black 1px;
-  }
-  
-  .containert3 {
-    width: 700px;
-    height: 400px;
-    border: 1px solid #ccc;
-    overflow: auto;
-    padding: 20px;
-  }
-  
-  .file-manager {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 20px;
-  }
-  
-  .file {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .file-icon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 10px;
-  }
-  
-  .file-name {
-    font-weight: bold;
-  }
-  
-  .crud-buttons {
-    text-align: center;
-    position: fixed;
-    top: 536px;
-    left: 450px;
-    padding: 20px;
-  }
-  
-  .crud-buttons button {
-    margin-right: 10px;
-  }
-  
-  
-  /*----------------------------------------- Page 4*/
-  
-  #B1{
-      background-color: #4acafd;
-      position: fixed;
-      width: 800px;
-      height: 500px;
-      left: 15%;
-      top: 10%;
-      border: none;
-      color: rgb(0, 0, 0);
-      text-decoration: none;
-      display: inline-block;
-      padding: 0;
-      font-size: 16px;
-      margin: 4px 2px;
-      border-radius: 12px;
-      border: solid black 1px;
+      /* Style for the button DROPWONS----------------------------------------------------*/
+      .dropdown-container {
+        position: relative;
+        display: inline-block;
     }
   
-    
-  
-    .container {
-      margin: 0 0;
-      max-width: 300px;
-      padding: 20px;
+  .dropdown-button {
+        background-color: #3498db;
+        color: #fff;
+        cursor: pointer;
+        position: relative;
+        bottom: 80px;
+        left: 0px;
     }
-  
-    .form-group {
-      margin-bottom: 20px;
+
+    /* Style for the dropdown content */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 120px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        top: 0px;
+        left: 30px;
     }
-  
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
+
+    /* Style for the dropdown items */
+    .dropdown-item {
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        color: #333;
     }
-  
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      border: solid black 1px;
+
+    /* Change the background color of the dropdown items when hovered */
+    .dropdown-item:hover {
+        background-color: #ddd;
     }
-  
-    .form-group input[type="submit"] {
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-  
-    .form-group input[type="submit"]:hover {
-      background-color: #45a049;
-    }
-  
-  .P1{
-    position: fixed;
-    width: 50%;
-    height: 50%;
-    left:  500px;
-    top: 150px;
-    text-align: center;
-  }
-  
-  .P1 label{
-    text-align: center;
-    font: 100;
-    display: block;
-  }
-  .larger-image {
-    width: 400px;
-    height: 300px;
-  }
-   
-  .edit-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .edit-button:hover {
-    background-color: #45a049;
-  }
-  
-  .close-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #00b327;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .close-button:hover {
-    background-color: #22b629;
-  }
-  
-  #B2{
-    background-color: #4acafd;
-    position: fixed;
-    width: 800px;
-    height: 500px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border: none;
-    color: rgb(0, 0, 0);
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    border-radius: 12px;
-    border: solid black 1px;
-  }
-  
-  .P2{
-    position: fixed;
-    width: 500px;
-    height: 50%;
-    left: 400px;
-    top: 100px;
-    text-align: center;
-  }
