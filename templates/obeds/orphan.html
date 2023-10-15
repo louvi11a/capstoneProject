@@ -5,6 +5,16 @@
   <title>Orphans Page</title>
 {% endblock %}
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="Csstry.css" type="text/css">
+    <title>Document</title>
+</head>
+
 <style>
 
 
@@ -19,10 +29,9 @@
   border-radius: 12px;
   border: solid black 1px;
   left: 20%;
-  top: 15%;
+  top: 10%;
   width: 60%;
   height: 70%;
-
 }
 
 .containert3 {
@@ -57,39 +66,47 @@
   font-weight: bold;
 }
 
+
 .crud-buttons {
   text-align: center;
   position: absolute;
+  top: 92%;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   padding: 20px;
-  top: 93%;
 }
 
+.crud-buttons button {
+  margin-right: 10px;
+}
 .page-buttonsR {
   text-align: center;
   position: absolute;
   bottom: 10px;
-  left: 10%;
+  left: 15%;
   transform: translateX(-50%);
   padding: 20px;
-  top: 93%;
+  top: 92%;
 }
 
 .page-buttonsL {
   text-align: center;
   position: absolute;
   bottom: 10px;
-  right: 3%;
+  right: 1%;
   transform: translateX(-50%);
   padding: 20px;
-  top: 93%;
+  top: 92%;
 }
 
-.crud-buttons button {
-  margin-right: 10px;
-}
+.dropdown{
+  text-align: left;
+  position: relative;
+  bottom: 80px;
+  right: 15px;
+  }
+
 
 /* Responsive styles */
 @media (max-width: 768px) {
@@ -114,45 +131,108 @@
         grid-gap: 20px;
     }
 }
-
 </style>
 
+<body id="cback2">
+    <div id="sbar">
+        <nav class="navbar bg-body-tertiary text-center">
+          <div class="container-fluid">
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </nav>
+    </div>
 
-<!DOCTYPE html>
-<div>
-    <div class="bodyt3">
-        <div class="containert3">
-            <div class="file-manager">
-            <div class="file">
-                <img class="file-icon" src="{% static 'images\profilepics\Profpic (6).png' %}" alt="Folder Icon">
-                <div class="file-name">Folder 1</div>
-            </div>
-            <div class="file">
-                <img class="file-icon" src="{% static 'images\profilepics\Profpic (7).png' %}" alt="File Icon">
-                <div class="file-name">File 1.txt</div>
-            </div>
-            <div class="file">
-                <img class="file-icon" src="{% static 'images\profilepics\Profpic (8).png' %}" alt="File Icon">
-                <div class="file-name">File 2.jpg</div>
-            </div>
-            <!-- More file items can be added here -->
+    <div class="sidebar">
+        <a class="navbar"  href="Dboard.html">
+            <img src="..\Pics\nav1.png" alt="Home" width="40" height="34">
+        </a>
+      <br>
+      <br>
+        <a class="navbar" href="Orphan.html">
+            <img src="..\Pics\nav2.png" alt="Orphans" width="40" height="34">
+        </a>
+      <br>
+      <br>
+        <a class="navbar" href="FileM.html">
+            <img src="..\Pics\nav3.png" alt="Files" width="40" height="34">
+        </a>
+      <br>
+      <br>
+        <a class="navbar" href="Trash.html">
+            <img src="..\Pics\nav4.png" alt="Trash" width="40" height="34">
+        </a>
+      <br>
+      <br>
+        <a class="navbar" href="Setting.html">
+            <img src="..\Pics\nav5.png" alt="Settings" width="40" height="34">
+        </a>
+      <br>
+      <br>
+        <a class="navbar" href="Login.html">
+            <img src="..\Pics\nav6.png" alt="Logout" width="40" height="34">
+        </a>
+    </div>
+
+    <div>
+        <div class="bodyt3">
+            <div class="containert3">
+                <div class="file-manager">
+                <div class="file">
+                    <div class="dropdown-container">
+                      <button class="dropdown-button" id="myButton"> ... </button>
+                          <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" href="notes.html">notes</a>
+                            <a class="dropdown-item" href="#">Item 2</a>
+                            <a class="dropdown-item" href="#">Item 3</a>
+                          </div>
+                      <img class="file-icon" src="..\ProfilePic\Profpic (7).png" alt="File Icon">
+                      <div class="file-name">File 1.txt</div>
+                      </div>
+                </div>
+                <div class="file">
+                    <div class="dropdown-container">
+                      <button class="dropdown-button" id="myButton"> ... </button>
+                          <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" href="notes.html">notes</a>
+                            <a class="dropdown-item" href="#">Item 2</a>
+                            <a class="dropdown-item" href="#">Item 3</a>
+                          </div>
+                      <img class="file-icon" src="..\ProfilePic\Profpic (8).png" alt="File Icon">
+                      <div class="file-name">File 1.txt</div>
+                      </div>
+                </div>
+                <div class="file">
+                    <div class="dropdown-container">
+                      <button class="dropdown-button" id="myButton"> ... </button>
+                          <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" href="notes.html">notes</a>
+                            <a class="dropdown-item" href="#">notes</a>
+                            <a class="dropdown-item" href="#">Item 3</a>
+                          </div>
+                      <img class="file-icon" src="..\ProfilePic\Profpic (9).png" alt="File Icon">
+                      <div class="file-name">File 1.txt</div>
+                      </div>
+                </div>
+                <!-- More file items can be added here -->
+                </div>
+                <div class="crud-buttons">
+                  <button>Add</button> 
+                  <button>Delete</button>  
+                  <button>Edit</button>
+                </div>
+                <div class="page-buttonsR">
+                  <button>previous</button>   
+                </div>
+                <div class="page-buttonsL">
+                  <button>next</button>   
+                </div> 
             </div>
         </div>
-        <div class="crud-buttons">
-          <button>Add</button> 
-          <button>Delete</button>  
-          <button>Edit</button>
-      </div>
-      <div class="page-buttonsR">
-        <button>previous</button>   
-      </div>
-      <div class="page-buttonsL">
-        <button>next</button>   
-      </div>
     </div>
-</div>
-
-
+<script src=".\script.js"></script>
 </body>
 </html>
 {% block content %}
