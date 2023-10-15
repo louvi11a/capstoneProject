@@ -4,7 +4,6 @@
 {% block title %} <!-- Override the title block -->
   <title>Notes Page</title>
 {% endblock %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,17 +28,22 @@
 
         /* Center the form itself within the container */
         .containerNote {
-            position: absolute;
-            left: 20%;
-            width:60%;
-            height: 70%;
-            top: 15%;
-            padding: 50px;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
-            border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: left; /* Reset text alignment for form elements */
+            position: absolute;
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #cbf7ff;
+            border-radius: 12px;
+            left: 20%;
+            top: 10%;
+            width: 60%;
+            height: 70%;
         }
 
         .form-group {
@@ -75,7 +79,7 @@
 <!-- Center the upload notes form -->
 <div class="center-container">
     <div class="containerNote">
-        <h1>Upload Typed Notes</h1>
+        <p>Upload Typed Notes</p>
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
