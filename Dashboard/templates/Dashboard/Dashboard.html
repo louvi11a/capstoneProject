@@ -1,0 +1,49 @@
+{% extends "Dashboard/base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'Css/Dboard.css' %}">
+{% endblock %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block content %}
+ <div class="container-fluid-charts">
+          <canvas class="chart" id="barChart" width="200" height="50"></canvas>
+          <canvas class="chart" id="pieChart" width="10" height="20"></canvas>
+
+          <div class="container-dashboard-notif">
+              <h3>Notifications</h3>
+                <div class="notification-log">
+                  <div class="notification">
+                      <h3>New Orphan has arrived</h3>
+                      <p>You have a new orphan registered</p>
+                      <span class="timestamp">2 minutes ago</span>
+                  </div>
+                  <div class="notification">
+                      <h3>Reminder</h3>
+                      <p>Your appointment is tomorrow at 3:00 PM.</p>
+                      <span class="timestamp">1 hour ago</span>
+                  </div>
+                  <div class="notification">
+                      <h3>Notification Title</h3>
+                      <p>This is a sample notification message.</p>
+                      <span class="timestamp">3 hours ago</span>
+                  </div>
+              </div>
+
+          </div>
+      </div>
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'JS/bar-chart.js' %}"></script>
+<script src="{% static 'JS/pie-chart.js' %}"></script>
+{% endblock %}
+
+</body>
+</html>

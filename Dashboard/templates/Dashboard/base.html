@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  
+  {% block css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'Css/Dboard.css' %}">
+  {% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
+
+  <title>{% block title %}Obed's Orphanage System{% endblock %}</title>
+
+</head>
+
+<body>
+  <div class="sbar ">
+    <div class="row-search ">
+        <div class="col-6">
+            <div class="input-size input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search...">
+                <button class="btn btn-primary" type="button">Search</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+  <div class="sidebar ">
+    <!-- Dashboard -->
+      <a class="navbar btn btn-outline-primary"  href="{% url 'Dashboard' %}">
+        <i class="icon fa-solid fa-chart-line"></i>
+      </a>
+      <br>
+      <!-- Orphan -->
+      <a class="navbar btn btn-outline-primary" href="{% url 'orphans' %}">
+        <i class="icon fa-solid fa-children" ></i>
+      </a>
+      <br>
+      
+      <!-- Files -->
+      <a class="navbar btn btn-outline-primary" href="{% url 'files' %}">
+        <i class="icon fa-solid fa-folder-open"></i>
+      </a>
+      <br>
+      <!-- Trash -->
+      <a class="navbar btn btn-outline-primary" href="{% url 'trash' %}">
+        <i class="icon fa-solid fa-trash-can"></i>
+      </a>
+      <br>
+      <!-- Setting -->
+      <a class="navbar btn btn-outline-primary" href="{% url 'settings' %}">
+        <i class="icon fa-solid fa-gears"></i>
+      </a>
+      <br>
+      <!-- Logout -->
+      <a class="navbar btn btn-outline-primary" href="{% url 'login' %}">
+        <i class="icon fa-solid fa-right-from-bracket"></i>
+      </a>
+  </div>
+
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+  {% block js %}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  {% endblock %}
+</body>
+</html>
