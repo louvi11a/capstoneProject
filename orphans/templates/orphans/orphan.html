@@ -1,0 +1,122 @@
+{% extends "Dashboard/base.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'Css/orphan.css' %}">
+{% endblock %}
+
+
+{% block title %}
+    Orphan List
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="container-fluid">
+        <div class="container-orphan">
+
+          <div class="container flex-grow-1 light-style container-p-y">
+            <div class="container-m-nx container-m-ny bg-lightest mb-3">
+                <hr class="m-0" />
+                    <div class="file-manager-actions container-p-x py-2">
+                        <div>
+                            <button type="button" class="btn btn-primary mr-2" type="file" id="formFile" onclick="openPopupForm1()"><i class="ion ion-md-cloud-upload" ></i>&nbsp; Add</button>
+                            <button type="button" class="btn btn-secondary icon-btn mr-2" ><i class="ion ion-md-cloud-download"></i> Download </button>
+                        </div>
+                    </div>
+                <hr class="m-0" />
+
+
+        
+<!-- REFLECT THE DATAABSE PROFILE PIC PA:  <img class="file-icon-orphan" src="{{ orphan.profile_picture.url }}" alt="File Icon"> -->
+
+
+
+            {% for orphan in orphans %}
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+              <div class="btn btn-outline-light file-orphan" >
+          
+                <div class="dropdown-container">
+                  <img class="file-icon-orphan" href="{% static 'images/D1' %}" alt="File Icon">
+                  <div class="file-name-orphan ">{{ orphan.firstName }} {{ orphan.lastName }}</div>
+                  <a class="icon-dropdown dropdown-button btn" id="myButton">
+                    <i class="fa-solid fa-ellipsis"></i>
+                  </a>
+                  <div class="dropdown-content" id="myDropdown">
+                    <a class="dropdown-item" onclick="openPopupForm()">Edit</a>
+                    <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                  </div>
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+          
+                  
+            
+            <div class="popup-form" id="popup-form">
+              <p>Popup Form</p>
+              <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">name</label>
+                <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+              </div>
+              
+
+                <div class="popup-btn"> 
+                <button class="btn btn-primary" type="submit" value="Submit"> Submit </button>
+                <button class="btn btn-primary" onclick="closePopupForm()">Close</button>
+                </div>
+          </div>
+
+
+
+          <div class="popup-form-add" id="popup-form-add">
+            <p>Add Orphan</p>
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">name</label>
+                <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+              </div>
+            <div class="mb-3">
+                <label for="formFile" class="form-label">Default file input example</label>
+                <input class="form-control" type="file" id="formFile">
+            </div>
+            
+
+              <div class="popup-btn"> 
+              <button class="btn btn-primary" type="submit" value="Submit"> Submit </button>
+              <button class="btn btn-primary" onclick="closePopupForm1()">Close</button>
+              </div>
+        </div>
+            
+        </div>
+          
+
+        
+            
+            <!-- More file items can be added here -->
+            
+            <!-- <div class="crud-buttons">
+              <button>Add</button> 
+              <button>Delete</button>  
+              <button>Edit</button>
+            </div>
+            <div class="page-buttonsR">
+              <button>previous</button>   
+            </div>
+            <div class="page-buttonsL">
+              <button>next</button>   
+            </div>  -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script src="../Js/note.js"></script>
+<script src="../Js/add-orphan.js"></script>
+<script src="../Js/file-dropdown.js"></script>
+{% endblock %}
+
+</body>
+</html>
