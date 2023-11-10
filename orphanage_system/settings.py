@@ -36,6 +36,10 @@ INSTALLED_APPS = [
     # my apps
     'debug_toolbar',
     'users',
+    'notes',
+    'Dashboard',
+    'behavior',
+    'orphans',
     # django apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -117,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_REDIRECT_URL = 'Dboard'  # 'home' is the name of the URL pattern for home.html
+LOGIN_REDIRECT_URL = 'Dashboard'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -137,6 +141,8 @@ USE_TZ = True
 
 # Define the URL prefix for static files
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Define the absolute filesystem path to the directory where static files will be collected.
 
