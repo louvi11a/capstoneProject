@@ -33,9 +33,7 @@
 
 
             {% for orphan in orphans %}
-            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
-              <div class="btn btn-outline-light file-orphan" >
-          
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{% url 'orphan_profile' orphan.orphanID %}">              <div class="btn btn-outline-light file-orphan" >          
                 <div class="dropdown-container">
                   <img class="file-icon-orphan" href="{% static 'images/D1' %}" alt="File Icon">
                   <div class="file-name-orphan ">{{ orphan.firstName }} {{ orphan.lastName }}</div>
