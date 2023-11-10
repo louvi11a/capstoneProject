@@ -3,6 +3,6 @@ from . import views
 
 urlpatterns = [
     path('', views.login_page_view, name='login'),
-    path('Dboard', views.Dboard_view, name='Dboard'),
+    path('settings/', views.settings_view, name='settings'),
     # Add other URL patterns related to the 'users' app if needed.
 ]
