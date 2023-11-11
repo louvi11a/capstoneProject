@@ -1,8 +1,11 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
+
+from orphans.forms import FilesForm
 from .models import Info
 from .models import Files
-from .forms import FilesForm
+# from .forms import FilesForm
+from django.contrib import messages
 
 # Create your views here.
 
@@ -25,10 +28,10 @@ def orphan_profile(request, orphanID):
 #     return render(request, "orphans/orphan-content.html", {})
 
 
-@login_required
-def files_view(request):
-    # Add any logic you need for the home view
-    return render(request, "orphans/Files.html", {})
+# @login_required
+# def files_view(request):
+#     # Add any logic you need for the home view
+#     return render(request, "orphans/Files.html", {})
 
 
 @login_required
@@ -38,17 +41,30 @@ def trash_view(request):
 
 
 def files_view(request):
-    # Fetch all non-archived Files records from the database
-    files = Files.objects.filter(is_archived=False)
-    return render(request, 'orphans/Files.html', {'files': files})
-
-
-def upload_file(request):
     if request.method == 'POST':
         form = FilesForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('success_url')  # replace with your success url
+            messages.success(request, "File uploaded successfully")
+            form = FilesForm()  # reset the form
     else:
         form = FilesForm()
-    return render(request, 'orphans/upload.html', {'form': form})
+
+    files = Files.objects.filter(is_archived=False)
+    return render(request, 'orphans/Files.html', {'files': files, 'form': form})
+# def files_view(request):
+#     # Fetch all non-archived Files records from the database
+#     files = Files.objects.filter(is_archived=False)
+#     return render(request, 'orphans/Files.html', {'files': files})
+
+
+# def upload_file(request):
+#     if request.method == 'POST':
+#         form = FilesForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "File uploaded successfully")
+#             return redirect('files')  # redirect back to the files view
+#     else:
+#         form = FilesForm()
+#     return render(request, 'Files.html', {'form': form})
