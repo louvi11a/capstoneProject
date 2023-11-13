@@ -37,7 +37,7 @@ def orphan_profile(request, orphanID):
 @login_required
 def trash_view(request):
     # Add any logic you need for the home view
-    return render(request, "obeds/trash.html", {})
+    return render(request, "orphans/Trash.html", {})
 
 
 def files_view(request):
@@ -52,19 +52,11 @@ def files_view(request):
 
     files = Files.objects.filter(is_archived=False)
     return render(request, 'orphans/Files.html', {'files': files, 'form': form})
-# def files_view(request):
-#     # Fetch all non-archived Files records from the database
-#     files = Files.objects.filter(is_archived=False)
-#     return render(request, 'orphans/Files.html', {'files': files})
 
 
-# def upload_file(request):
-#     if request.method == 'POST':
-#         form = FilesForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "File uploaded successfully")
-#             return redirect('files')  # redirect back to the files view
-#     else:
-#         form = FilesForm()
-#     return render(request, 'Files.html', {'form': form})
+def trash_view(request):
+    # Get all Files where is_archived is True
+    archived_files = Files.objects.filter(is_archived=True)
+
+    # Pass the files to the template
+    return render(request, 'orphans/Trash.html', {'files': archived_files})
