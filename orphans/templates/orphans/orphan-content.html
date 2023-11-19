@@ -24,9 +24,7 @@
                             <p>Orphan ID: {{ orphan.orphanID }}</p>
                         </div>
                         <div class="info-icon">
-                            <button class="btn btn-primary"> Edit </button>
-                            <br>
-                            <button class="btn btn-primary"> Delete </button>
+                            <button class="btn btn-primary"> Add Notes </button>
                         </div>
                     </div>
                 </div>
@@ -49,6 +47,50 @@
             {% else %}
                 <p>No physical health data available for this orphan.</p>
             {% endif %}
+
+            <div class="orphan-info-3">
+                <div class="info-1">
+                    <div>
+                        <h3>Files</h3>
+                    </div>
+                    <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                      <div class="btn btn-outline-light file-orphan" >
+                       
+                          <div class="dropdown-container">
+                              <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                              <div class="file-name-orphan">File 1.txt</div>
+                              <a class="icon-dropdown dropdown-button btn" id="myButton">
+                                  <i class="fa-solid fa-ellipsis"></i>
+                              </a>
+                              <div class="dropdown-content" id="myDropdown">
+                                  <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                                  <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                                  
+                              </div>
+                          </div>
+                    </div>
+                  </a>
+
+                  <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                    <div class="btn btn-outline-light file-orphan" >
+                     
+                        <div class="dropdown-container">
+                            <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                            <div class="file-name-orphan">File 1.txt</div>
+                            <a class="icon-dropdown dropdown-button btn" id="myButton">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </a>
+                            <div class="dropdown-content" id="myDropdown">
+                                <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                                <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                                
+                            </div>
+                        </div>
+                  </div>
+                </a>
+                    
+                </div>
+            </div>
                 
             {% endblock %}  
     </main>
