@@ -15,6 +15,7 @@ urlpatterns = [
     path('auth/', include('django.contrib.auth.urls')),
     path('users/', include('users.urls')),
     path('orphans/', include('orphans.urls')),
+    path('behavior/', include('behavior.urls')),
 
     # path('home/', home_view, name='home'),
     # path('orphan/', orphan_view, name='orphan'),

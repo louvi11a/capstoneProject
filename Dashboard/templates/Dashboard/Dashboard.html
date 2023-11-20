@@ -4,9 +4,19 @@
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'Css/Dboard.css' %}">
 <style>
-    #pieChart, #barChart {
-        width: 10px;
-        height: 10px;
+    #container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-left: 220px;  /* Adjust this value as needed */
+    }
+    #pieChartContainer, #barChartContainer {
+        width: 100%;
+        height: 300px;
+        position: relative;  /* Needed to position the switch button */
+    }
+    #barChartContainer {
+        display: none;
     }
 </style>
 {% endblock %}
@@ -16,23 +26,23 @@
 {% endblock %}
 
 {% block content %}
-<div id="container" style="display: flex;">
-    <div id="sidebar">
-        <!-- Your sidebar content goes here -->
+<div id="container">
+    <div id="pieChartContainer">
+        <canvas id="pieChart" style="width: 100%; height: 100%;"></canvas>
+        <button id="switchChartPie" style="position: absolute; bottom: 0; right: 0;">Switch to Bar Chart</button>
     </div>
-    <div style="width: 500px; height: 500px;">
-        <canvas id="pieChart"></canvas>
+    <div id="barChartContainer" style="display: none;">
+        <canvas id="barChart" style="width: 100%; height: 100%;"></canvas>
+        <button id="switchChartBar" style="position: absolute; bottom: 0; right: 0;">Switch to Pie Chart</button>
     </div>
-    <div style="width: 500px; height: 500px;">
-        <canvas id="barChart"></canvas>
-    </div>
+    <!-- Add more charts here -->
 </div>
 {% endblock %}
+
 
 {% block js %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     var orphans = {{ orphans|safe }};
     var sentiment_scores = {{ sentiment_scores|safe }};
@@ -44,33 +54,26 @@
             labels: orphans,
             datasets: [{
                 data: sentiment_scores,
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.2)',  // color for 'Positive'
-                    'rgba(255, 206, 86, 0.2)',  // color for 'Neutral'
-                    'rgba(255, 99, 132, 0.2)'   // color for 'Negative'
-                ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(255, 99, 132, 1)'
-                ],
-                borderWidth: 1
+                // ... rest of your pie chart configuration
             }]
         },
+        // ... rest of your pie chart options
         options: {
             responsive: true,
-            // aspectRatio: 1,  // Set the aspect ratio to 1 to make the chart square
-
             plugins: {
-                legend: {
-                    position: 'top',
-                },
                 title: {
                     display: true,
                     text: 'Sentiment Scores'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return orphans[tooltipItem.dataIndex] + ': ' + sentiment_scores[tooltipItem.dataIndex].toFixed(3);
+                        }
+                    }
                 }
             }
-        },
+        }
     });
 
     var ctxBar = document.getElementById('barChart').getContext('2d');
@@ -79,24 +82,24 @@
         data: {
             labels: orphans,
             datasets: [{
-                label: 'Sentiment Score',
                 data: sentiment_scores,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
+                // ... rest of your bar chart configuration
             }]
         },
+        // ... rest of your bar chart options
         options: {
             responsive: true,
-            // aspectRatio: 1,  // Set the aspect ratio to 2 to make the chart twice as wide as it is tall
-
             plugins: {
-                legend: {
-                    position: 'top',
-                },
                 title: {
                     display: true,
                     text: 'Sentiment Scores per Orphan'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return 'Sentiment Score: ' + tooltipItem.parsed.ytoFixed(3);
+                        }
+                    }
                 }
             },
             scales: {
@@ -104,7 +107,17 @@
                     beginAtZero: true
                 }
             }
-        },
+        }
+    });
+
+    document.getElementById('switchChartPie').addEventListener('click', function() {
+        document.getElementById('pieChartContainer').style.display = 'none';
+        document.getElementById('barChartContainer').style.display = 'block';
+    });
+
+    document.getElementById('switchChartBar').addEventListener('click', function() {
+        document.getElementById('barChartContainer').style.display = 'none';
+        document.getElementById('pieChartContainer').style.display = 'block';
     });
 </script>
 {% endblock %}
