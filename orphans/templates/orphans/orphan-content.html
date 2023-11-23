@@ -17,16 +17,16 @@
 
         <div class="container-orphan">
 
-            <div class="header">
-                <img class="file-icon" src="{% static 'Images/profilepics/Profpic (7).png' %}" alt="File Icon">
-                <div class="info">
-                    <div>
-                        <h3> {{ orphan.firstName }}  {{ orphan.middleName }} {{ orphan.lastName }}</h3>
-                        <!-- <p>192-2766-09-9</p> -->
-                    </div>
-                    <div class="info-icon" id="popupform">
-                        <!-- Modal Button -->
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#noteModal">Add Notes </button>
+                <div class="header">
+                    <img class="file-icon" src="{% static 'images\profilepics\Profpic (7).png' %}"  alt="File Icon">
+                    <div class="info">
+                        <div>
+                            <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
+                            <p>Orphan ID: {{ orphan.orphanID }}</p>
+                        </div>
+                        <div class="info-icon">
+                            <button class="btn btn-primary"> Add Notes </button>
+                        </div>
                     </div>
                 </div>
             </div>

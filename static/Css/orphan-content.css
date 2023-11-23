@@ -203,3 +203,11 @@ height: 60%;
     font-size: 14px;
     height: 100px;
 }
+
+.orphan-info-3{
+    position: absolute;
+    top: 75%;
+    width: 80%;
+    left: 3%;
+}
+
