@@ -1,112 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="..\Css\setting.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
-    <title>Document</title>
-</head>
+{% extends "Dashboard/base.html" %}
+{% load static %}
+
+{% block title %}
+    Settings
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Css/setting.css' %}">
+{% endblock %}
+
 <body>
-  
+    <main>
+        {% block content %}
 
+        <div class="container-orphan">
+            <div class="form-group container ">
+                <div class="form-container bg-light p-4 rounded">
+                  <form id="myForm" method="post" action="{% url 'update_user_info' %}">
+                    {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username:</label>
+                            <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly autocomplete="username">                        </div>
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">First Name:</label>
+                            <input type="text" class="form-control" id="firstName" value="{{ user.first_name }}" readonly>
+                        </div>
 
-  <div class="sbar ">
-    <div class="row-search ">
-        <div class="col-6">
-            <div class="input-size input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search...">
-                <button class="btn btn-primary" type="button">Search</button>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name:</label>
+                            <input type="text" class="form-control" id="lastName" value="{{ user.last_name }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="middleName" class="form-label">Email Address:</label>
+                            <input type="text" class="form-control" id="email" value="{{ user.email }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password:</label>
+                            <input type="password" class="form-control" id="password" placeholder="********" readonly autocomplete="current-password">                        </div>
+
+                            <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                              Change Password
+                            </button>
+                            
+                          </form>
+                    <div class="d-grid gap-2">     
+                    <button id="editButton" class="btn btn-primary btn-block">Edit</button>
+                    <div class="editbtn">
+                        <button id="saveButton" class="btn btn-success" style="display: none;">Save</button>
+                        <button id="cancelButton" class="btn btn-secondary" style="display: none;">Cancel</button>
+                    </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 
-
-  <div class="sidebar ">
-    <!-- Dashboard -->
-      <a class="navbar btn btn-outline-primary"  href="Dboard.html">
-        <i class="icon fa-solid fa-chart-line"></i>
-      </a>
-      <br>
-      <!-- Orphan -->
-      <a class="navbar btn btn-outline-primary" href="Orphan.html">
-        <i class="icon fa-solid fa-children" ></i>
-      </a>
-      <br>
-      <!-- Files -->
-      <a class="navbar btn btn-outline-primary" href="File.html">
-        <i class="icon fa-solid fa-folder-open"></i>
-      </a>
-      <br>
-      <!-- Trash -->
-      <a class="navbar btn btn-outline-primary" href="Trash.html">
-        <i class="icon fa-solid fa-trash-can"></i>
-      </a>
-      <br>
-      <!-- Setting -->
-      <a class="navbar btn btn-outline-primary" href="Setting.html">
-        <i class="icon fa-solid fa-gears"></i>
-      </a>
-      <br>
-      <!-- Logout -->
-      <a class="navbar btn btn-outline-primary" href="Login.html">
-        <i class="icon fa-solid fa-right-from-bracket"></i>
-      </a>
-  </div>
-
-
-
-
-
-      <div class="container-orphan">
-        <div class="form-group container ">
-          <div class="form-container bg-light p-4 rounded">
-            <form id="myForm">
-              <div class="mb-3">
-                <label for="firstName" class="form-label">First Name:</label>
-                <input type="text" class="form-control" id="firstName" value="John" readonly>
+            <!-- Change Password Modal -->
+        <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="mb-3">
-                <label for="middleName" class="form-label">Middle Name:</label>
-                <input type="text" class="form-control" id="middleName" value="Doe" readonly>
+              <div class="modal-body">
+                <form id="changePasswordForm" method="post" action="{% url 'change_password' %}">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label for="currentPassword" class="form-label">Current Password:</label>
+                    <input type="password" class="form-control" id="currentPassword" autocomplete="current-password">
+                  </div>
+                  <div class="mb-3">
+                    <label for="newPassword" class="form-label">New Password:</label>
+                    <input type="password" class="form-control" id="newPassword" autocomplete="new-password">
+                  </div>
+                  <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm New Password:</label>
+                    <input type="password" class="form-control" id="confirmPassword" autocomplete="new-password">
+                  </div>
+                </form>
               </div>
-              <div class="mb-3">
-                <label for="lastName" class="form-label">Last Name:</label>
-                <input type="text" class="form-control" id="lastName" value="Smith" readonly>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitChangePasswordForm()">Save changes</button>
               </div>
-              <div class="mb-3">
-                <label for="username" class="form-label">Username:</label>
-                <input type="text" class="form-control" id="username" value="johndoe123" readonly>
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" class="form-control" id="password" value="********" readonly>
-              </div>
-            </form>
-            <button id="editButton" class="btn btn-primary">Edit</button>
-            <div class="editbtn">
-            <button id="saveButton" class="btn btn-success" style="display: none;">Save</button>
-            <button id="cancelButton" class="btn btn-secondary" style="display: none;">Cancel</button>
             </div>
           </div>
+        </div>            
+            <div class="profile">
+                <img class="larger-image" src="{% static 'Images/Setting.png' %}" alt="Logout"><br>
+                <ul>
+                    <p><strong>
+                            Admin </strong>
+                    </p>
+                </ul>
+            </div>
         </div>
-        <div class="profile">
-          <img class="larger-image" src="..\Images\Setting.png" alt="Logout"><br>
-          <ul>
-            <p><strong>
-              Manager </strong>
-            </p>
-          </ul>
-        </div>
-    </div>
+        {% endblock %}
+{% block js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{% static 'Js/setting-popup.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-
-
-    <script src="..\Js\setting-popup.js"></script>
+{% endblock %}
 </body>
-</html>
 
+</html>

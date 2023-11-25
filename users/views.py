@@ -1,5 +1,9 @@
+from django.http import JsonResponse
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 
 
 def login_page_view(request):
@@ -19,35 +23,70 @@ def login_page_view(request):
     return render(request, "users/loginPage.html", {})
 
 
+@login_required
 def settings_view(request):
-    # Add any logic you need for the home view
-    return render(request, "users/Setting.html", {})
-
-# def home_view(request):
-#     # Add any logic you need for the home view
-#     return render(request, "obeds/home.html", {})
+    user = request.user
+    return render(request, 'users/Setting.html', {'user': user})
 
 
-# def orphan_view(request):
-#     # Add any logic you need for the home view
-#     return render(request, "obeds/orphan.html", {})
+@login_required
+def update_user_info(request):
+    print('update_user_info view was called')
+    if request.method == 'POST':
+        # Get the new user information from the request
+        username = request.POST.get('username')
+        first_name = request.POST.get('firstName')
+        last_name = request.POST.get('lastName')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        print('Received the following data:')
+        print('Username:', username)
+        print('First name:', first_name)
+        print('Last name:', last_name)
+        print('Email:', email)
+        print('Password:', password)
+
+        # Get the current user
+        user = User.objects.get(username=request.user.username)
+
+        # Update the user's information
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.set_password(password)
+        user.save()
+
+        print('Updated user information:')
+        print('Username:', user.username)
+        print('First name:', user.first_name)
+        print('Last name:', user.last_name)
+        print('Email:', user.email)
+        print('Password:', user.password)
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 
-# def notes_view(request):
-#     # Add any logic you need for the home view
-#     return render(request, "obeds/notes.html", {})
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('currentPassword')
+        new_password = request.POST.get('newPassword')
+        confirm_password = request.POST.get('confirmPassword')
 
+        if new_password != confirm_password:
+            return JsonResponse({'status': 'error', 'message': 'Passwords do not match'})
 
-# def files_view(request):
-#     # Add any logic you need for the home view
-#     return render(request, "obeds/files.html", {})
+        user = authenticate(
+            request, username=request.user.username, password=current_password)
 
+        if user is not None:
+            user.set_password(new_password)
+            user.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Incorrect current password'})
 
-# # def Dboard_view(request):
-# #     # Add any logic you need for the home view
-# #     return render(request, "Dashboard/Dashboard.html", {})
-
-
-# def trash_view(request):
-#     # Add any logic you need for the home view
-#     return render(request, "obeds/trash.html", {})
+    return render(request, 'users/Setting.html')
