@@ -48,27 +48,26 @@ body {
 
 
 .sidebar{
-    padding-top: 2%;
-    padding-left: 0.1%;
-    padding-right: 0.1%;
     width: 8%;
+    display: flex;
     height: 100%;
     position: absolute;
     border-radius: 8px;
     /* border: 1px solid blue; */
     background-color: #173B7E;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .navbar{
     border: 1px red;
     position: relative;
-    display: flex;
     background-color: none;
     color: #9FC3E5;
     align-items: center;
     justify-content: center;
     width: 60%;
-    left: 20%;
 }
 
 /* -----------------Icon size */
