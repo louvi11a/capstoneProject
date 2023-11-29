@@ -120,3 +120,38 @@ function submitChangePasswordForm() {
   const form = document.getElementById('changePasswordForm');
   form.submit();
 }
+
+// function togglePasswordVisibility(inputId) {
+//   var passwordInput = document.getElementById(inputId);
+//   var passwordType = passwordInput.getAttribute('type');
+//   var eyeIcon = passwordInput.nextElementSibling.children[0]; // get the eye icon
+
+//     console.log(eyeIcon); // Add this line
+
+//   if (passwordType == 'password') {
+//       passwordInput.setAttribute('type', 'text');
+//       eyeIcon.className = 'bi bi-eye-slash'; // set the class to eye-slash
+//       console.log(eyeIcon.className);
+//   } else {
+//       passwordInput.setAttribute('type', 'password');
+//       eyeIcon.className = 'bi bi-eye-fill'; // set the class to eye
+//   }
+//       console.log(eyeIcon.className);
+// }
+
+
+function togglePasswordVisibility(inputId, event) {
+  event.preventDefault();
+  const passwordInput = document.getElementById(inputId);
+  const icon = document.querySelector(`[data-toggle-password="${inputId}"] i`);
+
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    icon.classList.remove('bi-eye-fill');
+    icon.classList.add('bi-eye-slash-fill');
+  } else {
+    passwordInput.type = 'password';
+    icon.classList.remove('bi-eye-slash-fill');
+    icon.classList.add('bi-eye-fill');
+  }
+}

@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
 
 
 def login_page_view(request):
@@ -72,21 +75,17 @@ def update_user_info(request):
 @login_required
 def change_password(request):
     if request.method == 'POST':
-        current_password = request.POST.get('currentPassword')
-        new_password = request.POST.get('newPassword')
-        confirm_password = request.POST.get('confirmPassword')
-
-        if new_password != confirm_password:
-            return JsonResponse({'status': 'error', 'message': 'Passwords do not match'})
-
-        user = authenticate(
-            request, username=request.user.username, password=current_password)
-
-        if user is not None:
-            user.set_password(new_password)
-            user.save()
-            return JsonResponse({'status': 'success'})
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(
+                request, 'Your password was successfully updated!')
+            return redirect('settings')
         else:
-            return JsonResponse({'status': 'error', 'message': 'Incorrect current password'})
-
-    return render(request, 'users/Setting.html')
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'users/Setting.html', {
+        'form': form
+    })
