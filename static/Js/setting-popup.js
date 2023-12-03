@@ -15,8 +15,6 @@ function getCookie(name) {
 }
 
 
-
-
 console.log("Script loaded");
 
 const originalValues = {}; // Store original values
@@ -116,28 +114,7 @@ function resetForm() {
   passwordInput.value = originalValues.password;
 }
 
-function submitChangePasswordForm() {
-  const form = document.getElementById('changePasswordForm');
-  form.submit();
-}
 
-// function togglePasswordVisibility(inputId) {
-//   var passwordInput = document.getElementById(inputId);
-//   var passwordType = passwordInput.getAttribute('type');
-//   var eyeIcon = passwordInput.nextElementSibling.children[0]; // get the eye icon
-
-//     console.log(eyeIcon); // Add this line
-
-//   if (passwordType == 'password') {
-//       passwordInput.setAttribute('type', 'text');
-//       eyeIcon.className = 'bi bi-eye-slash'; // set the class to eye-slash
-//       console.log(eyeIcon.className);
-//   } else {
-//       passwordInput.setAttribute('type', 'password');
-//       eyeIcon.className = 'bi bi-eye-fill'; // set the class to eye
-//   }
-//       console.log(eyeIcon.className);
-// }
 
 
 function togglePasswordVisibility(inputId, event) {
@@ -154,4 +131,26 @@ function togglePasswordVisibility(inputId, event) {
     icon.classList.remove('bi-eye-slash-fill');
     icon.classList.add('bi-eye-fill');
   }
+}
+
+function submitChangePasswordForm() {
+  var form = document.getElementById('changePasswordForm');
+  var formData = new FormData(form);
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', form.action, true);
+  xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+  xhr.onreadystatechange = function () {
+      if (xhr.readyState == 4) {
+          var response = JSON.parse(xhr.responseText);
+          if (response.status == 'success') {
+              alert('Password changed successfully');
+          } else {
+              var errors = Object.values(response.errors).map(function(errorList) {
+                  return errorList.join('\n');
+              }).join('\n');
+              alert(response.message + '\n' + errors);
+          }
+      }
+  }
+  xhr.send(formData);
 }

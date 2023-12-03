@@ -1,3 +1,4 @@
+import hashlib
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
@@ -13,6 +14,8 @@ def login_page_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        # Print the hashed password
+        print(hashlib.sha256(password.encode()).hexdigest())
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -74,16 +77,21 @@ def update_user_info(request):
 
 @login_required
 def change_password(request):
+    print('change_password view was called')  # New print statement
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
+            print('Form is valid')  # New print statement
             user = form.save()
+            print(user.password)  # Print the hashed password
             update_session_auth_hash(request, user)  # Important!
             messages.success(
                 request, 'Your password was successfully updated!')
-            return redirect('settings')
+            return JsonResponse({'status': 'success'})
         else:
-            messages.error(request, 'Please correct the error below.')
+            print('Form is not valid')  # New print statement
+            print(form.errors)  # Print form errors
+            return JsonResponse({'status': 'error', 'message': 'Failed to change password. Please try again.', 'errors': form.errors}, status=400)
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'users/Setting.html', {
