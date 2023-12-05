@@ -9,6 +9,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from orphanage_system import settings
 from users.views import settings_view
+from Dashboard import views as dashboard_views
 
 urlpatterns = [
     path('__debug__/', include('debug_toolbar.urls')),
@@ -22,6 +23,10 @@ urlpatterns = [
     path('Dashboard/', include('Dashboard.urls')),
     path('trash/', trash_view, name='trash'),
     path('settings/', settings_view, name='settings'),
+    path('search/', dashboard_views.search, name='search'),
+    # path('search_suggestions/', dashboard_views.search_suggestions,
+    #      name='search_suggestions'),
+
 ]
 
 urlpatterns += staticfiles_urlpatterns() + static(settings.MEDIA_URL,

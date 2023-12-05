@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 
 
 # Create your models here.
@@ -9,10 +10,9 @@ class Files(models.Model):
     fileID = models.AutoField(primary_key=True)
     fileName = models.CharField(max_length=255, blank=True, null=True)
     fileDescription = models.TextField(blank=True, null=True)
-    filePath = models.CharField(max_length=255, blank=True, null=True)
     is_archived = models.BooleanField(default=False)
 
-    # new field for the uploaded file
+    # Field for the uploaded file
     file = models.FileField(upload_to='uploads/')
 
     class Meta:
@@ -20,6 +20,9 @@ class Files(models.Model):
 
     def __str__(self):
         return self.fileName
+
+    def get_absolute_url(self):
+        return reverse('files_view', args=[str(self.id)])
 
 
 class Info(models.Model):
@@ -34,11 +37,8 @@ class Info(models.Model):
     orphan_picture = models.ImageField(
         upload_to='orphan_pictures/',  blank=True, null=True)
 
-    # Define ForeignKey relationships
-    # orphanbehaviorID = models.ForeignKey(
-    #     'behavior.Notes', on_delete=models.PROTECT, db_column='orphanbehaviorID')
-    orphanFileID = models.ForeignKey(
-        'orphans.Files', on_delete=models.PROTECT, db_column='orphanFileID')
+    # Define ManyToMany relationship
+    files = models.ManyToManyField(Files, related_name='orphans')
 
     class Meta:
         db_table = 'orphan_infos'

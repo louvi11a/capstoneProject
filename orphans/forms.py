@@ -5,4 +5,5 @@ from .models import Files
 class FilesForm(forms.ModelForm):
     class Meta:
         model = Files
-        fields = ('fileName', 'fileDescription', )
+        # Add your file field here
+        fields = ('fileName', 'fileDescription', 'file', )

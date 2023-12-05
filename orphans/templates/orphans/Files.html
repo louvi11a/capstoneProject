@@ -62,10 +62,9 @@
                                     <form method="POST" action="/files/" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         {{ form.as_p }}
-                                        <div class="form-group">
-                                            <!-- <label for="file">File input</label> -->
+                                        <!-- <div class="form-group">
                                             <input type="file" class="form-control-file" id="file" name="file">
-                                        </div>
+                                        </div> -->
                                         <button type="submit" class="btn btn-primary mt-3">Upload</button>
                                     </form>
                                 </div>
@@ -122,9 +121,16 @@
                     <span class="custom-control-label"></span>
                 </label>
                 <div class="file-item-icon fab fa-js text-secondary"></div>
-        <a href="{{ file.filePath }}" class="file-item-name">
+        
+
+        <a href="{% url 'serve_file' file.fileID %}" class="file-item-name" target="_blank">
             {{ file.fileName }}
         </a>
+
+      
+        <!-- <a href="{{ file.filePath }}" class="file-item-name">
+            {{ file.fileName }}
+        </a> -->
         <div class="file-item-changed">{{ file.fileDescription }}</div>
                 <div class="file-item-actions btn-group">
                     <button type="button" class="btn btn-default btn-sm rounded-pill icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown"><i class="ion ion-ios-more"></i></button>
