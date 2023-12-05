@@ -159,8 +159,8 @@ body {
     left: 1%;
     border: 1px solid black;
     border-radius: 12px;
-    margin-bottom: 10px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
     background-color: white;
 }
 
@@ -169,9 +169,10 @@ body {
     height: 100%;
     width: 45%;
     position: absolute;
-    border: 1px solid black;
+    border: 1px solid rgba(0, 0, 0, 0.115);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     border-radius: 12px;
     left: 55%;
-    background-color: white;
+    background-color: azure;
     font-family: Arial, Helvetica, sans-serif;
 }
