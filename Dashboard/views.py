@@ -40,21 +40,20 @@ def search(request):
     return render(request, 'search_results.html', {'results': results})
 
 
-def autocomplete_search(request):
-    query = request.GET.get('q')
-    if query:
-        results1 = Files.objects.filter(
-            Q(fileName__icontains=query) | Q(fileDescription__icontains=query))
-        results2 = Info.objects.filter(Q(firstName__icontains=query) | Q(
-            middleName__icontains=query) | Q(lastName__icontains=query) | Q(dateAdmitted__icontains=query))
-        results = list(chain(results1, results2))
-        suggestions = [
-            {'name': str(result), 'url': result.get_absolute_url()} for result in results]
-    else:
-        suggestions = []
-    return JsonResponse(suggestions, safe=False)
-
-
 def files_detail(request, pk):
     file = get_object_or_404(Files, pk=pk)
     return render(request, 'files/detail.html', {'file': file})
+
+
+def search_suggestions(request):
+    query = request.GET.get('q', '')
+    orphan_results = Info.objects.filter(Q(firstName__icontains=query) | Q(
+        middleName__icontains=query) | Q(lastName__icontains=query))
+    file_results = Files.objects.filter(fileName__icontains=query)
+
+    results = {
+        'orphans': list(orphan_results.values('orphanID', 'firstName', 'middleName', 'lastName')),
+        'files': list(file_results.values('fileID', 'fileName')),
+    }
+
+    return JsonResponse(results)
