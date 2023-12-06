@@ -70,66 +70,6 @@ body {
     width: 60%;
 }
 
-/* -------------------bar chart---------- */
-.conatiner-bar{
-    width: 70%;
-}
-
-.container-fluid-charts{
-    align-items: center;
-    left: 12%;
-    top: 10%;
-    width: 85%;
-    height: 85%;
-    /* border: 1px solid black; */
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: center;
-
-}
-
-.chart{
-    
-    max-width: 50%;
-    max-height: 200px;
-    top: 1%;
-    left: 1%;
-    border: 1px solid black;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    background-color: white;
-    margin: 2%;
-}
-
-.chart1{
-    position: relative;
-    max-width: 30%;
-    max-height: 200px;
-    display: flex;
-    top: 3%;
-    left: 1%;
-    border: 1px solid black;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    background-color: white;
-}
-
-.container-dashboard-notif{
-    height: 100%;
-    width: 45%;
-    position: absolute;
-    border: 1px solid black;
-    border-radius: 12px;
-    left: 55%;
-    background-color: white;
-
-}
-
-/* -----------------Icon size */
 .icon{
     font-size: 33px;
 }
@@ -145,110 +85,15 @@ body {
 
 
 
+/* -----------------------content----------------------- */
 
-
-
-
-
-/* -----------------------------------upload popup------------------ */
-
-
-.popup-form {
-    position: fixed;
-    font-size: 10px;
-    width: 50%;
-    height: 45%;
-    display: none;
-    padding: 5px;
-    background-color: rgb(255, 255, 255);
-    z-index: 2;
-    border: 1px solid black;
-    border-radius: 12px;
-    left: 30%;
-    top: 25%;
-    box-shadow: 0px 8px 16px 500rem rgb(12 1 1 / 48%);
-}
-
-.form-control-popup{
-height: 60%;
-}
-
-.popup-form input[type="text"]{
-    width: 100%;
-    font-size: 20px;
-}
-
-.popup-btn{
-    display: flex;
-    justify-content: space-between;
-}
- 
-#comment {
-    font-size: 14px;
-    height: 100px;
-}
-
-
-/* ------------------------------------------dropdown-------/ */
-
-.dropdown{
-    text-align: left;
-    position: relative;
-    bottom: 80px;
-    right: 15px;
-    }
-
-/* Style for the button DROPWONS----------------------------------------------------*/
-.dropdown-container {
-  position: relative;
-  
-}
-
-.dropdown-button {
-  color: #0026ff;
-  cursor: pointer;
-  position: absolute;
-  bottom: 110px;
-  left: 0px;
-  border: none;
-}
-
-.dropdown-button:hover{
-  background-color: transparent;
-}
-
-/* Style for the dropdown content */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 120px;
-  box-shadow: 0px 8px 16px 0px rgba(12, 1, 1, 0.2);
-  z-index: 1;
-  top: 0px;
-  left: 30px;
-}
-
-/* Style for the dropdown items */
-.dropdown-item {
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  color: #333;
-}
-
-/* Change the background color of the dropdown items when hovered */
-.dropdown-item:hover {
-  background-color: #ddd;
-}
-
-/* -----------------------------orphan file------------------------ */
 
 
 .container-orphan{
     position: absolute;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   padding: 20px;
+  
   background-color: azure;
   border-radius: 12px;
   border: solid black 1px;
@@ -260,79 +105,8 @@ height: 60%;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
-/* ----------------------------pop-up----------------- */
 
-.popup-form {
-    position: fixed;
-    font-size: 12px;
-    width: 62%;
-    height: 45%;
-    display: none;
-    /* padding: 2px; */
-    background-color: rgb(255, 255, 255);
-    z-index: 2;
-    border: 1px solid black;
-    border-radius: 12px;
-    left: 25%;
-    top: 25%;
-    box-shadow: 0px 8px 16px 500rem rgb(12 1 1 / 48%);
-}
 
-.form-control-popup{
-height: 60%;
-}
-
-.popup-form input[type="text"]{
-    width: 100%;
-    font-size: 20px;
-}
-
-.popup-btn{
-    display: flex;
-    justify-content: space-between;
-}
- 
-#comment {
-    font-size: 14px;
-    height: 100px;
-}
-
-/* ----------------------------------------------------------- */
-.popup-form {
-    position: fixed;
-    font-size: 10px;
-    width: 50%;
-    height: 45%;
-    display: none;
-    padding: 5px;
-    background-color: rgb(255, 255, 255);
-    z-index: 2;
-    border: 1px solid black;
-    border-radius: 12px;
-    left: 30%;
-    top: 25%;
-    box-shadow: 0px 8px 16px 500rem rgb(12 1 1 / 48%);
-}
-
-.form-control-popup-add{
-height: 60%;
-}
-
-.popup-form-add input[type="text"]{
-    width: 100%;
-    font-size: 20px;
-}
-
-.popup-btn{
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-}
- 
-#comment {
-    font-size: 14px;
-    height: 100px;
-}
 
 /* ----------------------file manager */
 .file-manager-orphan {
@@ -366,10 +140,136 @@ height: 60%;
       font-weight: bold;
     }
 
+    
+    /* DROPDOWN---------------------------------------------- */
+    .dropdown{
+          text-align: left;
+          position: relative;
+          bottom: 80px;
+          right: 15px;
+          }
+    
+      /* Style for the button DROPWONS----------------------------------------------------*/
+      /* .dropdown-container {
+        position: relative;
+        
+    } */
+  
+  .dropdown-button {
+        color: #0026ff;
+        cursor: pointer;
+        position: absolute;
+        bottom: 110px;
+        left: 0px;
+        border: none;
+    }
 
-  /* ------------------------------file manager template---------------------- */
+    .dropdown-button:hover{
+        background-color: transparent;
+    }
+
+    /* Style for the dropdown content */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 120px;
+        box-shadow: 0px 8px 16px 0px rgba(12, 1, 1, 0.2);
+        z-index: 1;
+        top: 0px;
+        left: 30px;
+    }
+
+    /* Style for the dropdown items */
+    .dropdown-item {
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        color: #333;
+    }
+
+    /* Change the background color of the dropdown items when hovered */
+    .dropdown-item:hover {
+        background-color: #ddd;
+    }
+
+    /* * ----------------------------popup form template--------------- */ 
+
+    .popup-form {
+        position: fixed;
+        font-size: 12px;
+        width: 62%;
+        height: 45%;
+        display: none;
+        /* padding: 2px; */
+        background-color: rgb(255, 255, 255);
+        z-index: 2;
+        border: 1px solid black;
+        border-radius: 12px;
+        left: 25%;
+        top: 25%;
+        box-shadow: 0px 8px 16px 500rem rgb(12 1 1 / 48%);
+    }
+    
+.form-control-popup{
+    height: 60%;
+}
+    
+    .popup-form input[type="text"]{
+        width: 100%;
+        font-size: 20px;
+    }
+
+    .popup-btn{
+        display: flex;
+        justify-content: space-between;
+    }
+     
+    #comment {
+        font-size: 14px;
+        height: 100px;
+    }
+
+/* ----------------------------------------------------------- */
+    .popup-form-add {
+        position: fixed;
+        font-size: 10px;
+        width: 50%;
+        height: 45%;
+        display: none;
+        padding: 5px;
+        background-color: rgb(255, 255, 255);
+        z-index: 2;
+        border: 1px solid black;
+        border-radius: 12px;
+        left: 30%;
+        top: 25%;
+        box-shadow: 0px 8px 16px 500rem rgb(12 1 1 / 48%);
+}
+    
+.form-control-popup-add{
+    height: 60%;
+}
+    
+    .popup-form-add input[type="text"]{
+        width: 100%;
+        font-size: 20px;
+    }
+
+    .popup-btn{
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+    }
+     
+    #comment {
+        font-size: 14px;
+        height: 100px;
+    }
+
+ /* ------------------------------file manager template---------------------- */
  
-  .file-manager-actions {
+ .file-manager-actions {
     display: -ms-flexbox;
     display: flex;
     -ms-flex-wrap: wrap;
@@ -639,3 +539,6 @@ height: 60%;
     }
 }
 /* -----------------------------------------------------------end------------------------------ */
+
+
+    

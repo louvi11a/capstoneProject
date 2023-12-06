@@ -1,0 +1,182 @@
+/* -----------------------------------------background */
+body {
+    --dot-bg: #d4f1f8;
+    --dot-color: #03045e;
+    --dot-size: 1px;
+    --dot-space: 22px;
+      background:
+          linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+          linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+          var(--dot-color);
+  }
+/* ------------------------------------------------------------ */
+.row{
+    background-color: rgb(134, 134, 224);
+}
+
+
+.sbar{
+    background-color: none;
+    position: absolute;
+    /* border: 1px solid black; */
+    left: 60%;
+    width: 40%;
+    
+}
+.form-control{
+    width: 100%;
+    height: 40px;
+    padding: 5px;
+    position: relative;
+    /* border: 1px solid red; */
+}
+
+.col-6{
+    width: 100%;
+}
+
+.input-size{
+    width: 100%;
+    height: 40px;
+    padding: 5px;
+}
+
+.row-search{
+    background-color: none;
+    width: 100%;
+}
+
+
+.sidebar{
+    width: 8%;
+    display: flex;
+    height: 100%;
+    position: absolute;
+    border-radius: 8px;
+    /* border: 1px solid blue; */
+    background-color: #173B7E;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar{
+    border: 1px red;
+    position: relative;
+    background-color: none;
+    color: #9FC3E5;
+    align-items: center;
+    justify-content: center;
+    width: 60%;
+}
+
+/* -----------------Icon size */
+.icon{
+    font-size: 33px;
+}
+
+.icon-dropdown{
+    font-size: 20px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 80px;
+    
+    
+}
+
+/* --------------------notification---------------------- */
+.notification-log {
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.notification {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+
+.notification:last-child {
+    border-bottom: none;
+}
+
+.notification h3 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.notification p {
+    margin: 5px 0;
+}
+
+.timestamp {
+    color: #888;
+    font-size: 12px;
+}
+/* -------------------bar chart---------- */
+.conatiner-bar{
+    width: 70%;
+}
+
+.container-fluid-charts{
+    align-items: center;
+    left: 12%;
+    top: 10%;
+    width: 85%;
+    height: 85%;
+    background-color:azure;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    overflow-y: scroll;
+
+}
+
+.chart{
+    
+    max-width: 50%;
+    max-height: 200px;
+    top: 1%;
+    left: 1%;
+    border: 1px solid black;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    background-color: white;
+    margin: 2%;
+}
+
+.chart1{
+    position: relative;
+    max-width: 30%;
+    max-height: 200px;
+    display: flex;
+    top: 3%;
+    left: 1%;
+    border: 1px solid black;
+    border-radius: 12px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
+    background-color: white;
+}
+
+.container-dashboard-notif{
+    padding: 10px;
+    height: 100%;
+    width: 45%;
+    position: absolute;
+    border: 1px solid rgba(0, 0, 0, 0.115);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    left: 55%;
+    background-color: azure;
+    font-family: Arial, Helvetica, sans-serif;
+}
