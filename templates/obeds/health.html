@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Education Dashboard</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="/static/Css/Dboard.css">
+        <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
+        <style>
+        body {
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            /* border: 1px solid rgba(0, 0, 0, 0.115); */
+            border-radius: 12px;
+            padding-top: 10px;
+            width: 100%;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            width: 200px;
+        }
+
+        .chart-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #dashboard-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+  
+
+
+    <div class="sbar ">
+      <div class="row-search ">
+          <div class="col-6">
+              <div class="input-size input-group mb-3">
+                  <input type="text" class="form-control" placeholder="Search...">
+                  <button class="btn btn-primary" type="button">Search</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  
+    <div class="sidebar ">
+      <!-- Dashboard -->
+        <a class="navbar btn btn-outline-primary"  href="Dboard.html">
+          <i class="icon fa-solid fa-chart-line"></i>
+        </a>
+        <br>
+        <!-- Orphan -->
+        <a class="navbar btn btn-outline-primary" href="Orphan.html">
+          <i class="icon fa-solid fa-children" ></i>
+        </a>
+        <br>
+        <!-- Files -->
+        <a class="navbar btn btn-outline-primary" href="File.html">
+          <i class="icon fa-solid fa-folder-open"></i>
+        </a>
+        <br>
+        <!-- Trash -->
+        <a class="navbar btn btn-outline-primary" href="Trash.html">
+          <i class="icon fa-solid fa-trash-can"></i>
+        </a>
+        <br>
+        <!-- Setting -->
+        <a class="navbar btn btn-outline-primary" href="Setting.html">
+          <i class="icon fa-solid fa-gears"></i>
+        </a>
+        <br>
+        <!-- Logout -->
+        <a class="navbar btn btn-outline-primary" href="Login.html">
+          <i class="icon fa-solid fa-right-from-bracket"></i>
+        </a>
+    </div>
+
+<div class="container-fluid-charts">
+
+    <div id="dashboard-title">
+        <h2>Health Dashboard</h2>
+    </div>
+
+    <div id="dashboard">
+        <!-- Chart 1: Health - BMI (Bar Chart) -->
+        <div class="chart-placeholder" style="order: 1;">
+            <label class="chart-label">BMI Distribution</label>
+            <canvas id="bmiChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 2: Illness (Chronic, Acute) - Bar Chart -->
+        <div class="chart-placeholder" style="order: 2;">
+            <label class="chart-label">Illness Distribution</label>
+            <canvas id="illnessChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 3: Height - Bar Chart -->
+        <div class="chart-placeholder" style="order: 3;">
+            <label class="chart-label">Height Distribution</label>
+            <canvas id="heightChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 4: Weight - Bar Chart -->
+        <div class="chart-placeholder" style="order: 4;">
+            <label class="chart-label">Weight Distribution</label>
+            <canvas id="weightChart" width="200" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // Sample data (replace this with your actual data)
+        var bmiData = {
+            labels: ['Underweight', 'Normal', 'Overweight', 'Obese'],
+            datasets: [{
+                label: 'BMI',
+                data: [2, 5, 1, 0], // Replace with your actual data
+                backgroundColor: 'lightblue'
+            }]
+        };
+
+        var illnessData = {
+            labels: ['Chronic', 'Acute'],
+            datasets: [{
+                label: 'Illness',
+                data: [4, 3], // Replace with your actual data
+                backgroundColor: 'lightgreen'
+            }]
+        };
+
+        var heightData = {
+            labels: ['Male', 'Female'],
+            datasets: [{
+                label: 'Height',
+                data: [170, 160], // Replace with your actual data
+                backgroundColor: 'lightblue'
+            }]
+        };
+
+        var weightData = {
+            labels: ['Male', 'Female'],
+            datasets: [{
+                label: 'Weight',
+                data: [70, 60], // Replace with your actual data
+                backgroundColor: 'lightblue'
+            }]
+        };
+
+        // Chart 1: Health - BMI (Bar Chart)
+        var bmiChart = new Chart(document.getElementById('bmiChart'), {
+            type: 'bar',
+            data: bmiData
+        });
+
+        // Chart 2: Illness (Chronic, Acute) - Bar Chart
+        var illnessChart = new Chart(document.getElementById('illnessChart'), {
+            type: 'bar',
+            data: illnessData
+        });
+
+        // Chart 3: Height - Bar Chart
+        var heightChart = new Chart(document.getElementById('heightChart'), {
+            type: 'bar',
+            data: heightData
+        });
+
+        // Chart 4: Weight - Bar Chart
+        var weightChart = new Chart(document.getElementById('weightChart'), {
+            type: 'bar',
+            data: weightData
+        });
+    </script>
+</body>
+</html>

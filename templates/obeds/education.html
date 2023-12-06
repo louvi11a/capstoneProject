@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/static/Css/Dboard.css">
+    <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            /* border: 1px solid rgba(0, 0, 0, 0.115); */
+            border-radius: 12px;
+            padding-top: 10px;
+            width: 100%;
+            position: relative;
+    
+        }
+
+        .chart-placeholder {
+            margin-bottom: 20px;
+            /* border: 2px solid #ddd; */
+            border-radius: 10px;
+            padding: 15px;
+            width: 200px;
+        }
+
+        .chart-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #dashboard-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+
+
+
+
+<body>
+  
+
+
+  <div class="sbar ">
+    <div class="row-search ">
+        <div class="col-6">
+            <div class="input-size input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search...">
+                <button class="btn btn-primary" type="button">Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+  <div class="sidebar ">
+    <!-- Dashboard -->
+      <a class="navbar btn btn-outline-primary"  href="Dboard.html">
+        <i class="icon fa-solid fa-chart-line"></i>
+      </a>
+      <br>
+      <!-- Orphan -->
+      <a class="navbar btn btn-outline-primary" href="Orphan.html">
+        <i class="icon fa-solid fa-children" ></i>
+      </a>
+      <br>
+      <!-- Files -->
+      <a class="navbar btn btn-outline-primary" href="File.html">
+        <i class="icon fa-solid fa-folder-open"></i>
+      </a>
+      <br>
+      <!-- Trash -->
+      <a class="navbar btn btn-outline-primary" href="Trash.html">
+        <i class="icon fa-solid fa-trash-can"></i>
+      </a>
+      <br>
+      <!-- Setting -->
+      <a class="navbar btn btn-outline-primary" href="Setting.html">
+        <i class="icon fa-solid fa-gears"></i>
+      </a>
+      <br>
+      <!-- Logout -->
+      <a class="navbar btn btn-outline-primary" href="Login.html">
+        <i class="icon fa-solid fa-right-from-bracket"></i>
+      </a>
+  </div>
+
+<div class="container-fluid-charts">
+    <div id="dashboard-title">
+        <h2>Education Dashboard</h2>
+    </div>
+
+    <div id="dashboard">
+        <!-- Chart 1: Grade Level - Bar Chart (Elementary) -->
+        <div class="chart-placeholder" style="order: 1;">
+            <label class="chart-label">Grade Level - Elementary</label>
+            <canvas id="gradeLevelElementaryChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 2: Grade Level - Bar Chart (Junior High School) -->
+        <div class="chart-placeholder" style="order: 2;">
+            <label class="chart-label">Grade Level - Junior High School</label>
+            <canvas id="gradeLevelJuniorHighChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 3: Grade Level - Bar Chart (Senior High School) -->
+        <div class="chart-placeholder" style="order: 3;">
+            <label class="chart-label">Grade Level - Senior High School</label>
+            <canvas id="gradeLevelSeniorHighChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 4: Grades per Subject - Line Chart (Elementary) -->
+        <div class="chart-placeholder" style="order: 4;">
+            <label class="chart-label">Grades per Subject - Elementary</label>
+            <canvas id="gradesPerSubjectElementaryChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 5: Grades per Subject - Line Chart (Junior High School) -->
+        <div class="chart-placeholder" style="order: 5;">
+            <label class="chart-label">Grades per Subject - Junior High School</label>
+            <canvas id="gradesPerSubjectJuniorHighChart" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Chart 6: Grades per Subject - Line Chart (Senior High School) -->
+        <div class="chart-placeholder" style="order: 6;">
+            <label class="chart-label">Grades per Subject - Senior High School</label>
+            <canvas id="gradesPerSubjectSeniorHighChart" width="200" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // Sample data (replace this with your actual data)
+        var gradeLevelElementaryData = {
+            labels: Array.from({ length: 6 }, (_, i) => 'Grade ' + (i + 1)),
+            datasets: [{
+                label: 'Grade Level - Elementary',
+                data: [30, 25, 20, 15, 10, 18], // Replace with your actual data
+                backgroundColor: 'lightblue'
+            }]
+        };
+
+        var gradeLevelJuniorHighData = {
+            labels: Array.from({ length: 4 }, (_, i) => 'Grade ' + (i + 7)),
+            datasets: [{
+                label: 'Grade Level - Junior High School',
+                data: [22, 28, 32, 27], // Replace with your actual data
+                backgroundColor: 'lightblue'
+            }]
+        };
+
+        var gradeLevelSeniorHighData = {
+            labels: Array.from({ length: 2 }, (_, i) => 'Grade ' + (i + 11)),
+            datasets: [{
+                label: 'Grade Level - Senior High School',
+                data: [20, 15], // Replace with your actual data
+                backgroundColor: 'lightblue'
+            }]
+        };
+
+        var gradesPerSubjectElementaryData = {
+            labels: ['Math', 'Science', 'English', 'History', 'Art'],
+            datasets: [{
+                label: 'Grades per Subject - Elementary',
+                data: [80, 75, 90, 85, 70], // Replace with your actual data
+                borderColor: 'green',
+                fill: false
+            }]
+        };
+
+        var gradesPerSubjectJuniorHighData = {
+            labels: ['Math', 'Science', 'English', 'History', 'Art'],
+            datasets: [{
+                label: 'Grades per Subject - Junior High School',
+                data: [75, 70, 85, 80, 65], // Replace with your actual data
+                borderColor: 'green',
+                fill: false
+            }]
+        };
+
+        var gradesPerSubjectSeniorHighData = {
+            labels: ['Math', 'Science', 'English', 'History', 'Art'],
+            datasets: [{
+                label: 'Grades per Subject - Senior High School',
+                data: [85, 80, 95, 90, 75], // Replace with your actual data
+                borderColor: 'green',
+                fill: false
+            }]
+        };
+
+        // Chart 1: Grade Level - Bar Chart (Elementary)
+        var gradeLevelElementaryChart = new Chart(document.getElementById('gradeLevelElementaryChart'), {
+            type: 'bar',
+            data: gradeLevelElementaryData
+        });
+
+        // Chart 2: Grade Level - Bar Chart (Junior High School)
+        var gradeLevelJuniorHighChart = new Chart(document.getElementById('gradeLevelJuniorHighChart'), {
+            type: 'bar',
+            data: gradeLevelJuniorHighData
+        });
+
+        // Chart 3: Grade Level - Bar Chart (Senior High School)
+        var gradeLevelSeniorHighChart = new Chart(document.getElementById('gradeLevelSeniorHighChart'), {
+            type: 'bar',
+            data: gradeLevelSeniorHighData
+        });
+
+        // Chart 4: Grades per Subject - Line Chart (Elementary)
+        var gradesPerSubjectElementaryChart = new Chart(document.getElementById('gradesPerSubjectElementaryChart'), {
+            type: 'line',
+            data: gradesPerSubjectElementaryData
+        });
+
+        // Chart 5: Grades per Subject - Line Chart (Junior High School)
+        var gradesPerSubjectJuniorHighChart = new Chart(document.getElementById('gradesPerSubjectJuniorHighChart'), {
+            type: 'line',
+            data: gradesPerSubjectJuniorHighData
+        });
+
+        // Chart 6: Grades per Subject - Line Chart (Senior High School)
+        var gradesPerSubjectSeniorHighChart = new Chart(document.getElementById('gradesPerSubjectSeniorHighChart'), {
+            type: 'line',
+            data: gradesPerSubjectSeniorHighData
+        });
+    </script>
+</body>
+</html>
