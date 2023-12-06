@@ -53,15 +53,19 @@ body {
     height: 100%;
     position: absolute;
     border-radius: 8px;
-    /* border: 1px solid blue; */
+/*     border: 1px solid blue; */
     background-color: #173B7E;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-.navbar{
-    border: 1px red;
+.btn-outline-primary{
+  border: none;
+}
+
+.navbar1{
+  display: flex;
     position: relative;
     background-color: none;
     color: #9FC3E5;
@@ -72,7 +76,8 @@ body {
 
 /* -----------------Icon size */
 .icon{
-    font-size: 33px;
+    font-size: 33px; 
+
 }
 
 .icon-dropdown{
@@ -80,6 +85,7 @@ body {
     cursor: pointer;
     position: absolute;
     bottom: 80px;
+  
     
     
 }
@@ -127,16 +133,12 @@ body {
     top: 10%;
     width: 85%;
     height: 85%;
-    background-color:azure;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    border-radius: 12px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    /* border: 1px solid black; */
     position: absolute;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-content: center;
-    overflow-y: scroll;
 
 }
 
