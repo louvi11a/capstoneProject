@@ -31,20 +31,20 @@
                 </div>
            
                 <div class="orphan-info">
-                    <h2>Personal Information</h2>
-                        <p><strong>Gender:</strong> {{ orphan.gender }}</p>
-                        <p><strong>Birth Date:</strong> {{ orphan.birthDate }}</p>
-                        <p><strong>Date Admitted:</strong> {{ orphan.dateAdmitted }}</p>
-                        <p><strong>Ethnicity:</strong> {{ orphan.ethnicity }}</p>
-                </div>
+                  <h2>Personal Information</h2>
+                      <p><strong>Gender:</strong>  <input class="form-control" value="{{ orphan.gender }}" type="text" aria-label="Disabled input example"  readonly></p>
+                      <p><strong>Birth Date:</strong> <input class="form-control" value="{{ orphan.birthDate }}" type="text" aria-label="Disabled input example"  readonly></p>
+                      <p><strong>Date Admitted:</strong> <input class="form-control" value="{{ orphan.dateAdmitted }}" type="text" aria-label="Disabled input example"  readonly></p>
+                      <p><strong>Ethnicity:</strong> <input class="form-control" value="{{ orphan.ethnicity }}" type="text" aria-label="Disabled input example"  readonly></p>
+              </div>
                 
                 {% if orphan.physical_health %}
                 <div class="orphan-info-2">
-                    <h2>Physical Health</h2>
-                    <p><strong>Height:</strong> {{ orphan.physical_health.height }}</p>
-                    <p><strong>Weight:</strong> {{ orphan.physical_health.weight }}</p>
-                    <p><strong>BMI Category:</strong> {{ orphan.physical_health.bmi_category.category }}</p>
-                </div>
+                  <h2>Physical Health</h2>
+                  <p><strong>Height:</strong> <input class="form-control" value="{{ orphan.physical_health.height }}" type="text" aria-label="Disabled input example"  readonly></p>
+                  <p><strong>Weight:</strong> <input class="form-control" value="{{ orphan.physical_health.weight }}" type="text" aria-label="Disabled input example"  readonly></p>
+                  <p><strong>BMI Category:</strong> <input class="form-control" value="{{ orphan.physical_health.bmi_category.category }}" type="text" aria-label="Disabled input example"  readonly></p>
+              </div>
             {% else %}
                 <p>No physical health data available for this orphan.</p>
             {% endif %}
