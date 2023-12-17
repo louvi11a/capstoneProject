@@ -1,3 +1,5 @@
+from orphans.models import Info, Files
+from django.views import View
 from itertools import chain
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -27,33 +29,31 @@ def dashboard_view(request):
     return render(request, 'Dashboard/Dashboard.html', context)
 
 
-def search(request):
-    query = request.GET.get('q')
-    if query:
-        results1 = Files.objects.filter(
-            Q(fileName__icontains=query) | Q(fileDescription__icontains=query))
-        results2 = Info.objects.filter(Q(firstName__icontains=query) | Q(
-            middleName__icontains=query) | Q(lastName__icontains=query) | Q(dateAdmitted__icontains=query))
-        results = list(chain(results1, results2))
-    else:
-        results = None
-    return render(request, 'search_results.html', {'results': results})
-
-
 def files_detail(request, pk):
     file = get_object_or_404(Files, pk=pk)
     return render(request, 'files/detail.html', {'file': file})
 
 
-def search_suggestions(request):
-    query = request.GET.get('q', '')
-    orphan_results = Info.objects.filter(Q(firstName__icontains=query) | Q(
-        middleName__icontains=query) | Q(lastName__icontains=query))
-    file_results = Files.objects.filter(fileName__icontains=query)
-
-    results = {
-        'orphans': list(orphan_results.values('orphanID', 'firstName', 'middleName', 'lastName')),
-        'files': list(file_results.values('fileID', 'fileName')),
-    }
-
-    return JsonResponse(results)
+class SearchView(View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('q')
+        print("Received query:", query)  # Print the received query
+        if query:
+            infos = Info.objects.filter(Q(firstName__icontains=query) | Q(
+                middleName__icontains=query) | Q(lastName__icontains=query))
+            files = Files.objects.filter(fileName__icontains=query)
+            results = list(infos.values('firstName', 'middleName', 'lastName',
+                           'orphanID')) + list(files.values('fileName', 'fileID'))
+            results = [
+                {
+                    'label': item['firstName'] + ' ' + item['middleName'] + ' ' + item['lastName'] if 'firstName' in item else item['fileName'],
+                    'value': item['firstName'] + ' ' + item['middleName'] + ' ' + item['lastName'] if 'firstName' in item else item['fileName'],
+                }
+                for item in results
+            ]
+            print("Infos:", infos)
+            print("Files:", files)
+            print("Results:", results)
+            return JsonResponse(results, safe=False)
+        print("No query received")  # Print a message when no query is received
+        return JsonResponse({}, status=400)
