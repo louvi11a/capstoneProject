@@ -70,8 +70,10 @@
     /* border: 1px solid rgba(0, 0, 0, 0.115); */
     border-radius: 12px;
     padding-top: 10px;
-    width: 100%;
+    width: 50%;
+    float: right;
     position: relative;
+    border: 1px solid black;
     
 }
 
@@ -87,48 +89,74 @@
     font-weight: bold;
     margin-bottom: 10px;
 }
+
+.container-chart {
+        display: grid;
+        width: 50%;
+        height: 100%;
+        border: 1px solid black;
+        grid-template-columns: repeat(2, 1fr);
+       
+        
+   
+          /* Adjust this value as needed */
+    }
+    #pieChartContainer, #barChartContainer {
+        width: 500px;
+        height: 300px;
+        position: absolute;  /* Needed to position the switch button */
+    }
+    #barChartContainer {
+        display: none;
+    }
 </style>
 </head>
 <body >
 
 <div class="container-fluid-charts">
-<div id="dashboard">
-<!-- Chart 1: Number of Male and Female - Pie Chart -->
-<a class="chart-placeholder" style="order: 1;">
-    <label class="chart-label">Gender Distribution</label>
-    <canvas id="genderChart" width="230" height="200"></canvas>
-</a>
+  <!-- Chart 1: Number of Male and Female - Pie Chart -->
+  <div class="container-chart">
+    <div id="pieChartContainer">
+      <a>
+        <canvas id="pieChart" style="display: block  ; box-sizing: border-box; height: 300px; width: 500px; cursor: pointer;"  ></canvas>
+      </a>
+      <button id="switchChartPie" >Switch to Bar Chart</button>
+    </div>
+    <div  id="barChartContainer" style="display: none; box-sizing: border-box; height: 300px; width: 500px; cursor: pointer; top: 25%;">
+      <a>
+        <canvas id="barChart"  ></canvas>
+      </a>
+      <button id="switchChartBar" >Switch to Pie Chart</button>
+    </div>
+  </div>
 
-<!-- Chart 2: Age - Bar Chart -->
-<div class="chart-placeholder" style="order: 2;">
-    <label class="chart-label">Age Distribution</label>
-    <canvas id="ageChart" width="230" height="200"></canvas>
-</div>
+  <div id="dashboard">
+    <a class="chart-placeholder" style="order: 3;">
+        <label class="chart-label">Gender Distribution</label>
+        <canvas id="genderChart" width="230" height="200"></canvas>
+    </a>
 
-<!-- Chart 3: Health - BMI (Bar Chart) -->
-<a href=".\health.html" class="chart-placeholder" style="order: 3;">
-    <label class="chart-label">BMI Distribution</label>
-    <canvas id="bmiChart" width="230" height="200"></canvas>
-</a>
+    <!-- Chart 2: Age - Bar Chart -->
+    <div class="chart-placeholder" style="order: 4;">
+        <label class="chart-label">Age Distribution</label>
+        <canvas id="ageChart" width="230" height="200"></canvas>
+    </div>
 
-<!-- Chart 4: Education - Performance (Line Chart) -->
-<a href=".\education.html" class="chart-placeholder" style="order: 4;">
-    <label class="chart-label">Education Performance</label>
-    <canvas id="educationChart" width="230" height="200"></canvas>
-</a>
+    <!-- Chart 3: Health - BMI (Bar Chart) -->
+    <a href=".\health.html" class="chart-placeholder" style="order: 5;">
+        <label class="chart-label">BMI Distribution</label>
+        <canvas id="bmiChart" width="230" height="200"></canvas>
+    </a>
 
-<a href=".\education.html" class="chart-placeholder" style="order: 4;">
-  <label class="chart-label">Education Performance</label>
-  <canvas id="barChart" width="230" height="200"></canvas>
-</a>
-
-<a href=".\education.html" class="chart-placeholder" style="order: 4;">
-  <label class="chart-label">Education Performance</label>
-  <canvas id="pieChart" width="230" height="200"></canvas>
-</a>
+    <!-- Chart 4: Education - Performance (Line Chart) -->
+    <a href=".\education.html" class="chart-placeholder" style="order: 6;">
+        <label class="chart-label">Education Performance</label>
+        <canvas id="educationChart" width="230" height="200"></canvas>
+    </a>
 
 
-{% comment %} ^^^^^^^^^^^^ mag add lng ka ug new chart under ani, as long naa dri na section ^^^^^^^^^^^ {% endcomment %}
+    </a>
+  </div>
 </div>
   
 
@@ -199,8 +227,9 @@ var educationChart = new Chart(document.getElementById('educationChart'), {
 
 
 
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="..\Js\bar-chart.js"></script>
+<script src="..\Js\sentiment-chart.js"></script>
 <script src="..\Js\pie-chart.js"></script>
 </body>
 </html>
