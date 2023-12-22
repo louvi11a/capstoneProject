@@ -1,3 +1,4 @@
+from django import views
 from django.contrib import admin
 from django.urls import path, include
 from orphanage_system import settings
@@ -10,6 +11,7 @@ from django.conf.urls.static import static
 from orphanage_system import settings
 from users.views import settings_view
 from Dashboard import views as dashboard_views
+from orphans.views import restore_files
 
 urlpatterns = [
     path('__debug__/', include('debug_toolbar.urls')),
@@ -21,11 +23,8 @@ urlpatterns = [
     path('behavior/', include('behavior.urls')),
     path('files/', files_view, name='files'),
     path('Dashboard/', include('Dashboard.urls')),
-    path('trash/', trash_view, name='trash'),
     path('settings/', settings_view, name='settings'),
-    path('search/', dashboard_views.search, name='search'),
-    # path('search_suggestions/', dashboard_views.search_suggestions,
-    #      name='search_suggestions'),
+    path('files/deleted_files/', trash_view, name='trash_view'),
 
 ]
 

@@ -143,7 +143,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
+STATIC_ROOT = 'C:/Users/Louvilla/myProjects/capstoneProject/collected_static'
 # Define the absolute filesystem path to the directory where static files will be collected.
 
 

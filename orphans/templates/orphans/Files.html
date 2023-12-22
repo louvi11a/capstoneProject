@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'Css/file.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'Css/file.css' %}"> 
     <style>
         .modal-content {
             background-color: #f4f4f4;
@@ -28,6 +28,13 @@
             background-color: #007bff;
             border-color: #007bff;
         }
+
+        .dropdown-menu {
+            pointer-events: none;
+        }
+        #deleteOption {
+            pointer-events: all;
+        }
     </style>
 {% endblock %}
 
@@ -35,6 +42,8 @@
 
     <main>
     {% block content %}
+
+    <!-- Rest of your HTML -->
     {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
             {{ message }}
@@ -43,59 +52,57 @@
         <div class="container-orphan">
         <div class="container flex-grow-1 primary-style container-p-y">
         <div class="container-m-nx container-m-ny bg-primaryest mb-3">
-            
+    
 
-            <hr class="m-0" />
-
-            <div class="file-manager-actions container-p-x py-2">
-                <div>
-
-                    <button type="button" class="btn btn-primary mr-2" id="uploadBtn" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="ion ion-md-cloud-upload"></i>&nbsp; Upload</button>
-                    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form method="POST" action="/files/" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        {{ form.as_p }}
-                                        <!-- <div class="form-group">
-                                            <input type="file" class="form-control-file" id="file" name="file">
-                                        </div> -->
-                                        <button type="submit" class="btn btn-primary mt-3">Upload</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+<!-- upload files Modal-->
+<hr class="m-0" />
+<div class="file-manager-actions container-p-x py-2">
+    <div>
+        <button type="button" class="btn btn-primary mr-2" id="uploadBtn" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="ion ion-md-cloud-upload"></i>&nbsp; Upload</button>
+        <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
-
-
-
-
-                    <div class="btn-group mr-2">
-                        <button type="button" class="btn btn-default md-btn-flat dropdown-toggle px-2" data-bs-toggle="dropdown"><i class="ion ion-ios-settings"></i></button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:void(0)">Move</a>
-                            <a class="dropdown-item" href="javascript:void(0)">Copy</a>
-                            <a class="dropdown-item" href="javascript:void(0)">Remove</a>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="btn-group btn-group-toggle" data-bs-toggle="buttons">
-                        <label class="btn btn-default icon-btn md-btn-flat active"> <input type="radio" name="file-manager-view" value="file-manager-col-view" checked="" /> <span class="ion ion-md-apps"></span> </label>
-                        <label class="btn btn-default icon-btn md-btn-flat"> <input type="radio" name="file-manager-view" value="file-manager-row-view" /> <span class="ion ion-md-menu"></span> </label>
+                    <div class="modal-body">
+                        <form method="POST" action="/files/" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-primary mt-3">Upload</button>
+                        </form>
                     </div>
                 </div>
             </div>
-
-            <hr class="m-0" />
         </div>
 
+                    <!-- dropdown -->
+            <button type="button" class="btn btn-default md-btn-flat dropdown-toggle px-2" data-bs-toggle="dropdown"><i class="ion ion-ios-settings"></i></button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="javascript:void(0)">Move</a>
+                <a class="dropdown-item" href="javascript:void(0)">Copy</a>
+                <a id="deleteOption" class="dropdown-item" href="javascript:void(0)">Delete</a>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+    <div>
+        <div class="btn-group btn-group-toggle" data-bs-toggle="buttons">
+            <label class="btn btn-default icon-btn md-btn-flat active"> <input type="radio" name="file-manager-view" value="file-manager-col-view" checked="" /> <span class="ion ion-md-apps"></span> </label>
+            <label class="btn btn-default icon-btn md-btn-flat"> <input type="radio" name="file-manager-view" value="file-manager-row-view" /> <span class="ion ion-md-menu"></span> </label>
+        </div>
+    </div>
+</div>
+
+
+
+
+<hr class="m-0" />
         <div class="file-manager-container file-manager-col-view">
             <div class="file-manager-row-header">
                 <div class="file-item-name pb-2">Filename</div>
@@ -109,49 +116,62 @@
                 </a>
             </div>
 
-
-
-
-
-        {% for file in files %}
-            <div class="file-item">
-                <div class="file-item-select-bg bg-primary"></div>
-                <label class="file-item-checkbox custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" />
-                    <span class="custom-control-label"></span>
-                </label>
-                <div class="file-item-icon fab fa-js text-secondary"></div>
-        
-
-        <a href="{% url 'serve_file' file.fileID %}" class="file-item-name" target="_blank">
-            {{ file.fileName }}
-        </a>
-
-      
-        <!-- <a href="{{ file.filePath }}" class="file-item-name">
-            {{ file.fileName }}
-        </a> -->
-        <div class="file-item-changed">{{ file.fileDescription }}</div>
-                <div class="file-item-actions btn-group">
-                    <button type="button" class="btn btn-default btn-sm rounded-pill icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown"><i class="ion ion-ios-more"></i></button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="javascript:void(0)">Rename</a>
-                        <a class="dropdown-item" href="javascript:void(0)">Move</a>
-                        <a class="dropdown-item" href="javascript:void(0)">Copy</a>
-                        <a class="dropdown-item" href="javascript:void(0)">Remove</a>
+            <div class="file-container">
+            <form id="deleteForm" method="POST" action="{% url 'delete_files' %}">
+                {% csrf_token %}
+                {% for file in files %}
+                    <div class="file-item">
+                        <div class="file-item-select-bg bg-primary"></div>
+                        <div class="file-item-icon fab fa-js text-secondary"></div>
+                        <a href="{% url 'serve_file' file.fileID %}" class="file-item-name" target="_blank">
+                            {{ file.fileName }}
+                        </a>
+                        <div class="file-item-changed">{{ file.fileDescription }}</div>
+                        <div class="file-item-actions btn-group">
+                            <button type="button" class="btn btn-default btn-sm rounded-pill icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown"><i class="ion ion-ios-more"></i></button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="javascript:void(0)">Rename</a>
+                                <a class="dropdown-item" href="javascript:void(0)">Move</a>
+                                <a class="dropdown-item" href="javascript:void(0)">Copy</a>
+                                <a class="dropdown-item" href="javascript:void(0)">Remove</a>
+                            </div>
+                        </div>
+                        <!-- file details... -->
+                        <label class="file-item-checkbox custom-control custom-checkbox">
+                            <input type="checkbox" name="file_ids" value="{{ file.fileID }}" class="custom-control-input" />
+                            <span class="custom-control-label"></span>
+                        </label>
+                        <!-- Rest of the file details -->
                     </div>
-                </div>
-            </div>
-            {% empty %}
-            <p>No files found.</p>
-        {% endfor %}
-        </div>
-    {% endblock %}
+                {% empty %}
+                    <p>No files found.</p>
+                {% endfor %}
+                <input type="submit" id="submitForm" style="display: none;">
+            </form>
+    {% endblock %} 
+
     </main>
     </div>
     </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+
+{% block js %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#deleteOption').on('click', function(e) {
+        e.preventDefault();  // Prevent the default behavior of the link
+        console.log('Delete option clicked');
+        $('#deleteForm').submit();
+        console.log('Form submitted');
+
+    });
+});
+
+</script>
+{% endblock %}
 
 </body>
 </html>

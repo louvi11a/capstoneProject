@@ -22,7 +22,7 @@ class Files(models.Model):
         return self.fileName
 
     def get_absolute_url(self):
-        return reverse('files_view', args=[str(self.id)])
+        return reverse('files_detail', args=[str(self.fileID)])
 
 
 class Info(models.Model):
@@ -34,6 +34,7 @@ class Info(models.Model):
     birthDate = models.DateField(blank=True, null=True)
     dateAdmitted = models.DateField(blank=True, null=True)
     ethnicity = models.CharField(max_length=255, blank=True, null=True)
+
     orphan_picture = models.ImageField(
         upload_to='orphan_pictures/',  blank=True, null=True)
 
@@ -45,6 +46,9 @@ class Info(models.Model):
 
     def __str__(self):
         return self.firstName
+
+    def get_absolute_url(self):
+        return reverse('info_detail', args=[str(self.orphanID)])
 
 
 class BMICategory(models.Model):
