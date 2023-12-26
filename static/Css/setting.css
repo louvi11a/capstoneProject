@@ -116,7 +116,8 @@ body {
     border-radius: 12px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     width: 60%;
-    position: absolute;
+    position: relative;
+    float: left;
   }
 
   .form-group label {
@@ -164,10 +165,12 @@ body {
 .container-profile{
     border: 1px solid rgba(0, 0, 0, 0.329);
     height: 100%;
+    display: flex;
     width: 36%;
     float: right;
     border-radius: 12px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    align-items: center;
     
 }
 
