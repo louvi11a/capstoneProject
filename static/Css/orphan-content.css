@@ -149,8 +149,8 @@ font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida San
 
 .orphan-info{
     /* border: 1px solid black; */
-    position: absolute;
-    width: 45%;
+    position: relative;
+    width: 90%;
     height: 70%;
     padding: 10px;
     
@@ -158,15 +158,15 @@ font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida San
 
 .orphan-info-2{
     /* border: 1px solid black; */
-    position: absolute;
-    width: 45%;
+    position: relative;
+    width: 90%;
     height: 70%;
-    left: 50%;
+    /* left: 50%; */
     padding: 10px;
 }
 
 .orphan-info-3{
-    position: absolute;
+    position: relative;
     top: 75%;
     width: 80%;
     left: 3%;
