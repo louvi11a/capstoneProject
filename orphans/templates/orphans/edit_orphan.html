@@ -1,0 +1,22 @@
+{% extends "Dashboard/base.html" %}
+{% load static %}
+
+{% block title %}
+    Edit Orphan Profile
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan-content.css' %}">
+{% endblock %}
+
+<body>
+    <main>
+        {% block content %}
+
+        <div class="container-orphan">
+<form method="POST">
+    {% csrf_token %}
+    <!-- Add form fields here -->
+    <button type="submit">Save changes</button>
+</form>
+{% endblock %}

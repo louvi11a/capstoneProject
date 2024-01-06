@@ -8,18 +8,19 @@
 
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan-content.css' %}">
-    
 {% endblock %}
 
 <body>
     <main>
         {% block content %}
-
         <div class="container-orphan">
-
                 <div class="header">
-                    <img class="file-icon" src="{% static 'images\profilepics\Profpic (7).png' %}"  alt="File Icon">
-                    <div class="info">
+                  {% if orphan.orphan_picture %}
+                  <img class="file-icon" src="{{ orphan.orphan_picture.url }}" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+                  {% else %}
+                  <img class="file-icon" src="{% static 'images/default_orphan_picture.png' %}" alt="Default profile picture">
+                  {% endif %}                    
+                  <div class="info">
                         <div>
                             <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
                             <p>Orphan ID: {{ orphan.orphanID }}</p>
@@ -29,25 +30,74 @@
                         </div>
                     </div>
                 </div>
-           
-                <div class="orphan-info">
+
+                <div id="personal-info" class="orphan-info">
+                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('personal-info', globalOrphanId)" id="edit-personal-info"> Edit </button>
                   <h2>Personal Information</h2>
-                      <p><strong>Gender:</strong>  <input class="form-control" value="{{ orphan.gender }}" type="text" aria-label="Disabled input example"  readonly></p>
-                      <p><strong>Birth Date:</strong> <input class="form-control" value="{{ orphan.birthDate }}" type="text" aria-label="Disabled input example"  readonly></p>
-                      <p><strong>Date Admitted:</strong> <input class="form-control" value="{{ orphan.dateAdmitted }}" type="text" aria-label="Disabled input example"  readonly></p>
-                      <p><strong>Ethnicity:</strong> <input class="form-control" value="{{ orphan.ethnicity }}" type="text" aria-label="Disabled input example"  readonly></p>
+                  <p><strong>First Name:</strong> <input id="firstName" class="form-control" value="{{ orphan.firstName }}" type="text" aria-label="Disabled input example" readonly></p>
+                  <p><strong>Middle Name:</strong> <input id="middleName" class="form-control" value="{{ orphan.middleName }}" type="text" aria-label="Disabled input example" readonly></p>
+                  <p><strong>Last Name:</strong> <input id="lastName" class="form-control" value="{{ orphan.lastName }}" type="text" aria-label="Disabled input example" readonly></p>
+                  <p><strong>Gender:</strong> <input id="gender" class="form-control" value="{{ orphan.gender }}" type="text" aria-label="Disabled input example" readonly> </p>
+                  <p><strong>Birth Date:</strong> <input id="birthDate" class="form-control" value="{{ orphan.birthDate }}" type="text" aria-label="Disabled input example" readonly> </p>
+                  <p><strong>Date Admitted:</strong> <input id="dateAdmitted" class="form-control" value="{{ orphan.dateAdmitted }}" type="text" aria-label="Disabled input example" readonly> </p>
               </div>
-                
-                {% if orphan.physical_health %}
-                <div class="orphan-info-2">
+
+                <!-- <hr class="m-0" /> -->
+                <div id="family-info" class="orphan-info-2">
+                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('family-info', globalOrphanId)" id="edit-family-info"> Edit </button>
+                  <h2>Family Information</h2>
+                  <p><strong>Mother:</strong> <input id="mothersName" class="form-control" value="{{ orphan.mothersName }}" type="text" aria-label="Disabled input example" readonly> </p>
+                  <p><strong>Father:</strong> <input id="fathersName" class="form-control" value="{{ orphan.fathersName }}" type="text" aria-label="Disabled input example" readonly> </p>
+                  <p><strong>Home Address:</strong> <input id="homeAddress" class="form-control" value="{{ orphan.homeAddress }}" type="text" aria-label="Disabled input example" readonly> </p>
+              </div>
+                <!-- <hr class="m-0" /> -->
+
+                <div id="educational-background" class="orphan-info-3">
+                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('educational-background', globalOrphanId)" id="edit-educational-background"> Edit </button>
+                  <h2>Educational Background</h2>
+                  {% for education in orphan.educations.all %}
+                      <p><strong>Education Level:</strong> <input id="education_level" class="form-control" value="{{ education.get_education_level_display }}" type="text" aria-label="Disabled input example" readonly> </p>
+                      <p><strong>School Name:</strong> <input id="school_name" class="form-control" value="{{ education.school_name }}" type="text" aria-label="Disabled input example" readonly></p>
+                      <p><strong>Quarter:</strong></p>
+                      <div>
+                          <input type="radio" id="quarter1" name="quarter" value="1" {% if education.quarter == 1 %}checked{% endif %} disabled>
+                          <label for="quarter1">First Quarter</label>
+                          <input type="radio" id="quarter2" name="quarter" value="2" {% if education.quarter == 2 %}checked{% endif %} disabled>
+                          <label for="quarter2">Second Quarter</label>
+                          <input type="radio" id="quarter3" name="quarter" value="3" {% if education.quarter == 3 %}checked{% endif %} disabled>
+                          <label for="quarter3">Third Quarter</label>
+                          <input type="radio" id="quarter4" name="quarter" value="4" {% if education.quarter == 4 %}checked{% endif %} disabled>
+                          <label for="quarter4">Fourth Quarter</label>
+                      </div>
+                      <p class="gpa"><strong>Current GPA:</strong> <input id="current_gpa" class="form-control" value="{{ education.current_gpa }}" type="text" aria-label="Disabled input example" readonly></p>  
+
+                  {% empty %}
+                  <p><strong>Quarter:</strong></p>
+                  <div>
+                      <input type="radio" id="quarter1" name="quarter" value="1" disabled>
+                      <label for="quarter1">First Quarter</label>
+                      <input type="radio" id="quarter2" name="quarter" value="2" disabled>
+                      <label for="quarter2">Second Quarter</label>
+                      <input type="radio" id="quarter3" name="quarter" value="3" disabled>
+                      <label for="quarter3">Third Quarter</label>
+                      <input type="radio" id="quarter4" name="quarter" value="4" disabled>
+                      <label for="quarter4">Fourth Quarter</label>
+                  </div>
+                      <p><strong>School Year:</strong> <input class="form-control" value="" type="text" aria-label="Disabled input example" readonly></p>
+                      <p><strong>Education Level:</strong> <input class="form-control" value="" type="text" aria-label="Disabled input example" readonly></p>
+                      <p><strong>School Name:</strong> <input class="form-control" value="" type="text" aria-label="Disabled input example" readonly></p>
+
+                      <p class="gpa"><strong>Current GPA:</strong> <input class="form-control" value="{{ education.current_gpa }}" type="text" aria-label="Disabled input example" readonly></p>                  {% endfor %}
+              </div>
+
+                <!-- <hr class="m-0" /> -->
+                <div id="physical-health" class="orphan-info-4">
+                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('physical-health', globalOrphanId)" id="edit-physical-health"> Edit </button>
                   <h2>Physical Health</h2>
-                  <p><strong>Height:</strong> <input class="form-control" value="{{ orphan.physical_health.height }}" type="text" aria-label="Disabled input example"  readonly></p>
-                  <p><strong>Weight:</strong> <input class="form-control" value="{{ orphan.physical_health.weight }}" type="text" aria-label="Disabled input example"  readonly></p>
-                  <p><strong>BMI Category:</strong> <input class="form-control" value="{{ orphan.physical_health.bmi_category.category }}" type="text" aria-label="Disabled input example"  readonly></p>
+                  <p><strong>Height:</strong> <input id="height" class="form-control" value="{{ orphan.physical_health.height|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter height in cm" readonly></p>
+                  <p><strong>Weight:</strong> <input id="weight" class="form-control" value="{{ orphan.physical_health.weight|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter weight in kg" readonly></p>
+                  <p><strong>BMI Category:</strong> <input id="bmi_category" class="form-control" value="{{ orphan.physical_health.bmi_category|default:'' }}" type="text" aria-label="Disabled input example" readonly></p>
               </div>
-            {% else %}
-                <p>No physical health data available for this orphan.</p>
-            {% endif %}
              
             
  <!-- Modal -->
@@ -79,16 +129,20 @@
         </div>
       </div>
     </div>
-  </div>
+
 
           
             {% endblock %}  
     </main>
+{% block js %}
+
 <!-- Include jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-
 <!-- Include your custom JS -->
-<script src="{% static 'Css/note.js' %}"></script>
+<!-- <script src="{% static 'Js/note.js' %}"></script> -->
+<script src="{% static 'Js/orphan-content.js' %}"></script>
+
+{% endblock %}
+
 </body>
 </html>

@@ -1,5 +1,4 @@
-
-  {% extends "Dashboard/base.html" %}
+{% extends "Dashboard/base.html" %}
   
   {% load static %}
   
@@ -9,49 +8,82 @@
   
   {% block css %}
       <link rel="stylesheet" type="text/css" href="{% static 'Css/Trash.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan.css' %}">
+
   {% endblock %}
   
   <body>
       <main>
       {% block content %}
-  
-      <div class="container-orphan">
-          <div class="container flex-grow-1 primary-style container-p-y">
+      <div class="container-orphan">          
+        <div class="container flex-grow-1 primary-style container-p-y">
               <div class="container-m-nx container-m-ny bg-primaryest mb-3">
                 <hr class="m-0" />
-  
                 <form method="POST" action="{% url 'restore_files' %}">
                     {% csrf_token %}
                     <div class="file-manager-actions container-p-x py-2">
                         <div>
-                            <button type="submit" class="btn btn-secondary icon-btn mr-1"><i class="ion ion-md-cloud-restore"></i> Restore </button>
+                            <button type="submit" class="btn btn-primary icon-btn mr-2">Restore<i class="ion ion-md-cloud-download"></i></button>
                         </div>
                     </div>
-                
-                    <div class="file-manager-container file-manager-col-view">
-                        <div class="file-manager-row-header">
-                            <div class="file-item-name pb-2">Filename</div>
-                            <div class="file-item-changed pb-2">Changed</div>
+
+                        <hr class="m-0" />
+                    </div>
+
+                    
+                    <h3>Deleted Files</h3>
+                <div class="file-manager-container file-manager-col-view">
+                    <div class="file-manager-row-header">
+                        <div class="file-item-name pb-2">Filename</div>
+                        <div class="file-item-changed pb-2">Changed</div>
+                    </div>
+                    {% for file in files %}
+                        <div class="file-item">
+                            <div class="file-item-select-bg bg-primary"></div>
+                            <label class="file-item-checkbox custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="file_ids" value="{{ file.fileID }}" />
+                                <span class="custom-control-label"></span>
+                            </label>
+                            <div class="file-item-icon far fa-folder text-secondary"></div>
+                            <a href="javascript:void(0)" class="file-item-name">
+                                {{ file.fileName }}
+                            </a>
+                            <div class="file-item-changed">02/16/2018</div> <!-- Replace this with the actual file change date if you have it -->
+                            <div class="file-item-actions btn-group"></div>
                         </div>
-                
-                        {% for file in files %}
-                            <div class="file-item">
-                                <label class="file-item-checkbox custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" name="file_ids" value="{{ file.fileID }}" />
-                                    <span class="custom-control-label"></span>
-                                </label>
-                                <div class="file-item-select-bg bg-primary"></div>
-                                <div class="file-item-icon far fa-file-archive text-secondary"></div>
-                                <a href="javascript:void(0)" class="file-item-name">
-                                    {{ file.fileName }}
-                                </a>
-                                <div class="file-item-changed">02/16/2018</div> <!-- Replace this with the actual file change date if you have it -->
-                            </div>
+                    {% endfor %}
+                </div>
+
+
+                        <h3>Deleted Orphan</h3>                 
+                        {% for orphan in orphans %}
+                            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{% url 'orphan_profile' orphan.orphanID %}">
+                                <div class="btn btn-outline-light file-orphan">
+                                    <div class="dropdown-container">
+                                        {% if orphan.orphan_picture %}
+                                        <img class="file-icon-orphan" src="{{ orphan.orphan_picture.url }}" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+                                    {% else %}
+                                    <img class="file-icon-orphan" src="{% static 'images/default_orphan_picture.png' %}" alt="Default profile picture">
+                                    {% endif %}
+                                        <div class="file-name-orphan ">{{ orphan.firstName }} {{ orphan.lastName }}</div>
+                                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                                            <i class="fa-solid fa-ellipsis"></i>
+                                        </a>
+                                        <div class="dropdown-content" id="myDropdown">
+                                            <a class="dropdown-item" href="{% url 'edit_orphan' orphan.orphanID %}">Edit</a>
+                                            <form method="POST" action="{% url 'delete_orphan' orphan.orphanID %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
                         {% endfor %}
-                    </div>
-                </form>
-  
-      {% endblock %}
+                    </form>
+                </div>
+            </div>
+        {% endblock %}
       </main>
   </body>
   </html>

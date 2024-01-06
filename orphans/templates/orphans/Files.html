@@ -1,5 +1,5 @@
 {% extends "Dashboard/base.html" %}
-
+<!-- ssss -->
 {% load static %}
 
 {% block title %}
@@ -39,7 +39,6 @@
 {% endblock %}
 
 <body>
-
     <main>
     {% block content %}
 
@@ -51,7 +50,7 @@
     {% endfor %}
         <div class="container-orphan">
         <div class="container flex-grow-1 primary-style container-p-y">
-        <div class="container-m-nx container-m-ny bg-primaryest mb-3">
+        <div class="container-m-nx container-m-ny bg-primaryest ">
     
 
 <!-- upload files Modal-->
@@ -60,7 +59,7 @@
     <div>
         <button type="button" class="btn btn-primary mr-2" id="uploadBtn" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="ion ion-md-cloud-upload"></i>&nbsp; Upload</button>
         <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
@@ -68,6 +67,7 @@
                     </div>
                     <div class="modal-body">
                         <form method="POST" action="/files/" enctype="multipart/form-data">
+                            
                             {% csrf_token %}
                             {{ form.as_p }}
                             <button type="submit" class="btn btn-primary mt-3">Upload</button>
@@ -80,24 +80,14 @@
                     <!-- dropdown -->
             <button type="button" class="btn btn-default md-btn-flat dropdown-toggle px-2" data-bs-toggle="dropdown"><i class="ion ion-ios-settings"></i></button>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="javascript:void(0)">Move</a>
-                <a class="dropdown-item" href="javascript:void(0)">Copy</a>
+                <!-- <a class="dropdown-item" href="javascript:void(0)">Move</a>
+                <a class="dropdown-item" href="javascript:void(0)">Copy</a> -->
                 <a id="deleteOption" class="dropdown-item" href="javascript:void(0)">Delete</a>
             </div>
         </div>
 
-
-
-
     </div>
 
-    <div>
-        <div class="btn-group btn-group-toggle" data-bs-toggle="buttons">
-            <label class="btn btn-default icon-btn md-btn-flat active"> <input type="radio" name="file-manager-view" value="file-manager-col-view" checked="" /> <span class="ion ion-md-apps"></span> </label>
-            <label class="btn btn-default icon-btn md-btn-flat"> <input type="radio" name="file-manager-view" value="file-manager-row-view" /> <span class="ion ion-md-menu"></span> </label>
-        </div>
-    </div>
-</div>
 
 
 
@@ -109,15 +99,8 @@
                 <div class="file-item-changed pb-2">Changed</div>
             </div>
 
-            <div class="file-item">
-                <div class="file-item-icon file-item-level-up fas fa-level-up-alt text-secondary"></div>
-                <a href="javascript:void(0)" class="file-item-name">
-                    ..
-                </a>
-            </div>
-
             <div class="file-container">
-            <form id="deleteForm" method="POST" action="{% url 'delete_files' %}">
+            <form id="deleteForm" method="POST" action="{% url 'delete_files' %}" style="display: flex">
                 {% csrf_token %}
                 {% for file in files %}
                     <div class="file-item">
@@ -127,15 +110,7 @@
                             {{ file.fileName }}
                         </a>
                         <div class="file-item-changed">{{ file.fileDescription }}</div>
-                        <div class="file-item-actions btn-group">
-                            <button type="button" class="btn btn-default btn-sm rounded-pill icon-btn borderless md-btn-flat hide-arrow dropdown-toggle" data-toggle="dropdown"><i class="ion ion-ios-more"></i></button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="javascript:void(0)">Rename</a>
-                                <a class="dropdown-item" href="javascript:void(0)">Move</a>
-                                <a class="dropdown-item" href="javascript:void(0)">Copy</a>
-                                <a class="dropdown-item" href="javascript:void(0)">Remove</a>
-                            </div>
-                        </div>
+
                         <!-- file details... -->
                         <label class="file-item-checkbox custom-control custom-checkbox">
                             <input type="checkbox" name="file_ids" value="{{ file.fileID }}" class="custom-control-input" />

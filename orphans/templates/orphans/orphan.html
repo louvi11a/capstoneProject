@@ -1,10 +1,10 @@
+<!-- can you analyze this code theoroughly and tell me why the submit button for the add new orphan modal isnt working: -->
 {% extends "Dashboard/base.html" %}
 {% load static %}
 
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan.css' %}">
 {% endblock %}
-
 
 {% block title %}
     Orphan List
@@ -20,33 +20,37 @@
                 <hr class="m-0" />
                     <div class="file-manager-actions container-p-x py-2">
                         <div>
-                            <button type="button" class="btn btn-primary mr-2" type="file" id="formFile" onclick="openPopupForm1()"><i class="ion ion-md-cloud-upload" ></i>&nbsp; Add</button>
-                            <button type="button" class="btn btn-secondary icon-btn mr-2" ><i class="ion ion-md-cloud-download"></i> Download </button>
+                            <button type="button" class="btn btn-primary mr-2" type="file" id="formFile" onclick="openPopupForm1()"><i class="ion ion-md-cloud-upload" ></i>&nbsp; Add New Profile</button>
+                            <!-- <button type="button" class="btn btn-secondary icon-btn mr-2" ><i class="ion ion-md-cloud-download"></i> Download </button> -->
                         </div>
                     </div>
                 <hr class="m-0" />
 
-
-        
-<!-- REFLECT THE DATAABSE PROFILE PIC PA:  <img class="file-icon-orphan" src="{{ orphan.profile_picture.url }}" alt="File Icon"> -->
-
-
-
-            {% for orphan in orphans %}
-            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{% url 'orphan_profile' orphan.orphanID %}">              <div class="btn btn-outline-light file-orphan" >          
+          {% for orphan in orphans %}
+          <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{% url 'orphan_profile' orphan.orphanID %}">
+            <div class="btn btn-outline-light file-orphan">
                 <div class="dropdown-container">
-                  <img class="file-icon-orphan" href="{% static 'images/D1' %}" alt="File Icon">
-                  <div class="file-name-orphan ">{{ orphan.firstName }} {{ orphan.lastName }}</div>
-                  <a class="icon-dropdown dropdown-button btn" id="myButton">
-                    <i class="fa-solid fa-ellipsis"></i>
-                  </a>
-                  <div class="dropdown-content" id="myDropdown">
-                    <a class="dropdown-item" onclick="openPopupForm()">Edit</a>
-                    <a class="dropdown-item" href="#" id="openForm">Delete</a>
-                  </div>
+
+                    {% if orphan.orphan_picture %}
+                        <img class="file-icon-orphan" src="{{ orphan.orphan_picture.url }}" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+                    {% else %}
+                        <img class="file-icon-orphan" src="{% static 'images/default_orphan_picture.png' %}" alt="Default profile picture">
+                    {% endif %}
+
+                    <div class="file-name-orphan ">{{ orphan.firstName }} {{ orphan.lastName }}</div>
+                    <a class="icon-dropdown dropdown-button btn" id="myButton">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </a>
+                    <div class="dropdown-content" id="myDropdown">
+                        <a class="dropdown-item" href="{% url 'edit_orphan' orphan.orphanID %}">Edit</a>
+                        <form method="POST" action="{% url 'delete_orphan' orphan.orphanID %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">Delete</button>
+                        </form>
+                    </div>
                 </div>
-              </div>
-            </a>
+            </div>
+          </a>
           {% endfor %}
           
                   
@@ -65,74 +69,88 @@
                 </div>
           </div>
 
+<!-- ADDING NEW ORPHAN PROFILE -->
 
+<div class="container mt-5 popup-form-add" id="popup-form-add">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center text-primary font-weight-bold">Add New Orphan Profile</h5>
+                <button type="button" class="close" onclick="closePopupForm1()">
+                    <span>&times;</span>
+                </button>
+            </div>
 
-          <div class="container mt-5 popup-form-add" id="popup-form-add">
-            <form>
+        <form method="POST" action="{% url 'add_orphan' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
                 <div class="row mb-3 bg-transparent">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="firstName" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="firstName" required>
+                        <input type="text" class="form-control" id="firstName" name="firstName" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="lastName" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="lastName" required>
+                        <input type="text" class="form-control" id="lastName" name="lastName" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="middleName" class="form-label">Middle Name</label>
-                        <input type="text" class="form-control" id="middleName">
+                        <input type="text" class="form-control" id="middleName" name="middleName">
                     </div>
-                </div>
-    
-                <div class="row mb-3 bg-transparent">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="gender" class="form-label">Gender</label>
-                        <select class="form-select" id="gender" required>
+                        <select class="form-select" id="gender" name="gender" required>
                             <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label for="birthdate" class="form-label">Birthdate</label>
-                        <input type="date" class="form-control" id="birthdate" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="ethnicity" class="form-label">Ethnicity</label>
-                        <input type="text" class="form-control" id="ethnicity">
-                    </div>
                 </div>
-    
+
                 <div class="row mb-3 bg-transparent">
-                    <div class="col-md-4">
-                        <label for="dateAdmitted" class="form-label">Date Admitted</label>
-                        <input type="date" class="form-control" id="dateAdmitted" required>
+                    <div class="col-md-3">
+                        <label for="birthdate" class="form-label">Birthdate</label>
+                        <input type="date" class="form-control" id="birthdate" name="birthDate" required>
                     </div>
-                    <div class="col-md-8">
-                        <label for="file" class="form-label">Upload File</label>
-                        <input type="file" class="form-control" id="file">
+                    <div class="col-md-3">
+                        <label for="mothersName" class="form-label">Mother's Name</label>
+                        <input type="text" class="form-control" id="mothersName" name="mothersName">
                     </div>
+                    <div class="col-md-3">
+                        <label for="fathersName" class="form-label">Father's Name</label>
+                        <input type="text" class="form-control" id="fathersName" name="fathersName">
+                    </div>
+                        <div class="col-md-3">
+                            <label for="dateAdmitted" class="form-label">Date Admitted</label>
+                            <input type="date" class="form-control" id="dateAdmitted" name="dateAdmitted" required>
+                        </div>
+
                 </div>
-    
-                
+
+                <div class="col-md-12">
+                    <label for="homeAddress" class="form-label">Home Address</label>
+                    <input type="text" class="form-control" id="homeAddress" name="homeAddress">
+                </div>
+                    <div class="col-md-9">
+                        <label for="orphan_picture" class="form-label">Upload Profile Picture</label>
+                        <input type="file" class="form-control" id="orphan_picture" name="orphan_picture">
+                    </div>
+
+                <!-- <div class="modal-footer"> -->
                     <button class="btn btn-primary" type="submit" value="Submit"> Submit </button>
-                    <button class="btn btn-primary" onclick="closePopupForm1()">Close</button>
-                    
-            </form>
-        </div>
-            
-        </div>
+                </div>
+        </form>
         </div>
     </div>
 </div>
 
+
 {% endblock %}
 
 {% block js %}
-<!-- <script src="../Js/note.js"></script>
-<script src="../Js/add-orphan.js"></script>
-<script src="../Js/file-dropdown.js"></script> -->
+<script src="{% static 'Js/note.js' %}"></script>
+<script src="{% static 'Js/add-orphan.js' %}"></script>
+<script src="{% static 'Js/file-dropdown.js' %}"></script>
 {% endblock %}
 
 </body>
