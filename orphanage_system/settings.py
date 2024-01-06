@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'Dashboard',
     'behavior',
     'orphans',
+    'simple_history',
+
     # django apps
     'django.contrib.admin',
     'django.contrib.auth',

@@ -1,24 +1,10 @@
 {% extends "Dashboard/base.html" %}
 {% load static %}
 
+
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{% static 'Css/Dboard.css' %}">
-<style>
-    #container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-left: 220px;  /* Adjust this value as needed */
-    }
-    #pieChartContainer, #barChartContainer {
-        width: 100%;
-        height: 300px;
-        position: relative;  /* Needed to position the switch button */
-    }
-    #barChartContainer {
-        display: none;
-    }
-</style>
+
 {% endblock %}
 
 {% block title %}
@@ -26,125 +12,136 @@
 {% endblock %}
 
 {% block content %}
-<div id="container">
-    <div id="pieChartContainer">
-        <canvas id="pieChart" style="width: 100%; height: 100%;"></canvas>
-        <button id="switchChartPie" style="position: absolute; bottom: 0; right: 0;">Switch to Bar Chart</button>
-    </div>
-    <div id="barChartContainer" style="display: none;">
-        <canvas id="barChart" style="width: 100%; height: 100%;"></canvas>
-        <button id="switchChartBar" style="position: absolute; bottom: 0; right: 0;">Switch to Pie Chart</button>
-    </div>
-    <!-- Add more charts here -->
-</div>
 
-
-<!-- CHARTSSS -->
 <style>
     body {
       text-align: center;
   }
   
-  #dashboard {
+  #dashboard-cherry {
     display: flex;
       flex-wrap: wrap;
       justify-content: space-evenly;
-      /* border: 1px solid rgba(0, 0, 0, 0.115); */
+      border: 1px solid rgba(0, 0, 0, 0.115); 
       border-radius: 12px;
-      padding-top: 10px;
-      width: 100%;
+      /* padding-top: 10px; */
+      width: 40%;
+      float: right;
       position: relative;
-      
+      border: 1px solid black;
+      z-index: 1000; /* Ensure #dashboard-cherry is in the foreground */
+      margin-top: 95px; /* Adjust this value to move the container down */
+      margin-right: 80px;
+
   }
   
-  .chart-placeholder {
+  .chart-placeholder-cherry {
       margin-bottom: 10px;
       border: 2px solid rgba(221, 221, 221, 0.755)808; /* Add a border for visualization */
       border-radius: 10px; /* Rounded corners */
       padding: 10px; /* Add padding for better appearance */
       cursor: pointer; /* Add pointer cursor for clickable elements */
+
   }
   
-  .chart-label {
+  .chart-label-cherry {
       font-weight: bold;
       margin-bottom: 10px;
   }
+  
+  .container-chart {
+    display: grid;
+    width: 50%;
+    height: 100%;
+    /* {% comment %} border: 1px solid black; {% endcomment %} */
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* #pieChartContainer, */
+  #sentimentChartContainer {
+    width: 500px;
+    height: 500px;
+    position: relative; /* Changed to relative for better positioning */
+    margin-left: 60px;
+    margin-top: 50px; /* Adjust this value to move the container down */
+
+  }
+  
+  #barChartContainer {
+    display: none;
+  }
+  
   </style>
   </head>
   <body >
-  
-  <div class="container-fluid-charts">
-  <div id="dashboard">
 
-    <!-- Sentiment Charts -->
-    <div class="chart-placeholder" style="order: 1;">
-        <label class="chart-label">Sentiment Pie Chart</label>
-        <div id="pieChartContainer">
-            <canvas id="pieChart" style="width: 100%; height: 100%;"></canvas>
-            <button id="switchChartPie" style="position: absolute; bottom: 0; right: 0;">Switch to Bar Chart</button>
+
+    <!-- Chart 1: Sentiment Scores - Pie Chart -->
+
+<!-- <div class="container-fluid-charts">
+    <div class="container-chart">
+    <div id="sentimentChartContainer">
+        <canvas id="sentimentChart" width="500" height="300"></canvas>
+    </div>
+</div> -->
+
+<div id="sentiment-chart-container">
+    <div class="container-fluid-charts">
+        <div class="container-chart">
+            <a href="/Dashboard/sentiment_details/">
+                <div id="sentimentChartContainer">
+                    <canvas id="sentimentChart" width="500" height="300"></canvas>
+                </div>
+            </a>
         </div>
     </div>
-    <div class="chart-placeholder" style="order: 2;">
-        <label class="chart-label">Sentiment Bar Chart</label>
-        <div id="barChartContainer" style="display: none;">
-            <canvas id="barChart" style="width: 100%; height: 100%;"></canvas>
-            <button id="switchChartBar" style="position: absolute; bottom: 0; right: 0;">Switch to Pie Chart</button>
-        </div>
+</div>
+
+    <div id="dashboard-cherry">
+        <a href=".\health.html" class="chart-placeholder-cherry" style="order: 3;">
+            <label class="chart-label-cherry">Gender Distribution</label>
+            <canvas id="genderChart" width="230" height="200"></canvas>
+        </a>
+    
+        <!-- Chart 2: Age - Bar Chart -->
+        <a href=".\health.html" class="chart-placeholder-cherry" style="order: 4;">
+            <label class="chart-label-cherry">Age Distribution</label>
+            <canvas id="ageChart" width="230" height="200"></canvas>
+        <!-- </div> -->
+         </a>
+        <!-- Chart 3: Health - BMI (Bar Chart) -->
+        <a href=".\health.html" class="chart-placeholder-cherry" style="order: 5;">
+            <label class="chart-label-cherry">BMI Distribution</label>
+            <canvas id="bmiChart" width="230" height="200"></canvas>
+        </a>
+    
+        <!-- Chart 4: Education - Performance (Line Chart) -->
+        <a href=".\education.html" class="chart-placeholder-cherry" style="order: 5;">
+            <label class="chart-label-cherry">Education Performance</label>
+            <canvas id="educationChart" width="230" height="200"></canvas>
+        </a>
+    
     </div>
+<!-- </div> -->
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    
-  <!-- Chart 1: Number of Male and Female - Pie Chart -->
-  <a class="chart-placeholder" style="order: 1;">
-      <label class="chart-label">Gender Distribution</label>
-      <canvas id="genderChart" width="230" height="200"></canvas>
-  </a>
-  
-  <!-- Chart 2: Age - Bar Chart -->
-  <div class="chart-placeholder" style="order: 2;">
-      <label class="chart-label">Age Distribution</label>
-      <canvas id="ageChart" width="230" height="200"></canvas>
-  </div>
-  
-  <!-- Chart 3: Health - BMI (Bar Chart) -->
-  <a href=".\health.html" class="chart-placeholder" style="order: 3;">
-      <label class="chart-label">BMI Distribution</label>
-      <canvas id="bmiChart" width="230" height="200"></canvas>
-  </a>
-  
-  <!-- Chart 4: Education - Performance (Line Chart) -->
-  <a href=".\education.html" class="chart-placeholder" style="order: 4;">
-      <label class="chart-label">Education Performance</label>
-      <canvas id="educationChart" width="230" height="200"></canvas>
-  </a>
-  
-  <!-- <a href=".\education.html" class="chart-placeholder" style="order: 4;">
-    <label class="chart-label">Education Performance</label>
-    <canvas id="barChart" width="230" height="200"></canvas>
-  </a>
-  
-  <a href=".\education.html" class="chart-placeholder" style="order: 4;">
-    <label class="chart-label">Education Performance</label>
-    <canvas id="pieChart" width="230" height="200"></canvas>
-  </a> -->
-  
-  
-  {% comment %} ^^^^^^^^^^^^ mag add lng ka ug new chart under ani, as long naa dri na section ^^^^^^^^^^^ {% endcomment %}
-  </div>
-    
   <script>
+    // Dynamic sentiment data from the database
+    // Chart 1: Sentiment Scores - Pie Chart
+    var sentimentData = {
+        labels: {{ sentiment_labels|safe }},
+        datasets: [{
+            data: {{ sentiment_data|safe }},
+            backgroundColor: ['lightgreen', 'lightcoral', 'lightyellow']
+        }]
+    };
+
+    var sentimentChart = new Chart(document.getElementById('sentimentChart'), {
+        type: 'pie',
+        data: sentimentData
+    });
+
+
     // Sample data (replace this with your actual data)
     var data = {
         labels: ['Male', 'Female'],
@@ -207,28 +204,12 @@
     });
     </script>
     
-  
-
-
-
-
 
 
 {% endblock %}
 
 
-{% block js %}
-<script>
-    window.ORPHANS = {{ orphans|safe }};
-    window.SENTIMENT_SCORES = {{ sentiment_scores|safe }};
-</script>
-<script src="{% static 'js/sentiment.js' %}"></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    var orphans = {{ orphans|safe }};
-    var sentiment_scores = {{ sentiment_scores|safe }};
 
-    var ctxPie = document.getElementById('pieChart').getContext('2d');
-    
-</script> -->
+{% block js %}
+
 {% endblock %}

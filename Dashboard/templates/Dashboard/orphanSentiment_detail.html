@@ -1,0 +1,35 @@
+{% extends "Dashboard/base.html" %}
+{% load static %}
+
+{% block title %}
+    Orphan Sentiment Detail
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Css/orphanSentiment_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+<div class="container-orphan">
+    <div class="orphan-detail">
+        <h2>{{ orphan.firstName }} {{ orphan.lastName }}</h2>
+        {% if orphan.orphan_picture %}
+            <img src="{{ orphan.orphan_picture.url }}" alt="{{ orphan }}'s profile picture">
+        {% else %}
+            <img src="{% static 'images/default_orphan_picture.jpg' %}" alt="Default profile picture">
+        {% endif %}
+    </div>
+
+    <div class="notes-history">
+        <h3>Notes History</h3>
+        {% for note in orphan.notes.all %}
+            <div class="note">
+                <p>{{ note.timestamp }}: {{ note.text }}</p>
+            </div>
+        {% empty %}
+            <p>No notes found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

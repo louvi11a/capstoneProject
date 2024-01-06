@@ -20,23 +20,3 @@ class Notes(models.Model):
 
     class Meta:
         db_table = "OrphanBehavior_notes"
-
-
-# class NLPResult(models.Model):
-#     notes = models.ForeignKey(
-#         Notes, on_delete=models.CASCADE, related_name='nlp_results')
-#     noun_phrase = models.CharField(max_length=255, blank=True, null=True)
-#     verb = models.CharField(max_length=255, blank=True, null=True)
-
-#     def __str__(self):
-#         return f"NLP Result for Note #{self.notes.id}"
-
-
-# class prac_notes(models.Model):
-#     text = models.TextField()
-#     translated_text = models.TextField(
-#         blank=True, null=True)  # New field for translated text
-#     sentiment = models.FloatField(null=True, blank=True)
-
-#     class Meta:
-#         db_table = 'practice_notes'
