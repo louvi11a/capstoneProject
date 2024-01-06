@@ -368,19 +368,13 @@ height: 60%;
  
 
 
-.file-container {
+  .file-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: space-between;
 }
-.file-item {
-    position: relative;
-    z-index: 1;
-    -ms-flex: 0 0 auto;
-    flex: 0 0 auto;
-    border: 1px solid #eee;
-    cursor: pointer;
-}
+
+
   .file-manager-actions {
     display: -ms-flexbox;
     display: flex;
@@ -401,7 +395,14 @@ height: 60%;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
 }
-
+.file-item {
+    position: relative;
+    z-index: 1;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    border: 1px solid #eee;
+    cursor: pointer;
+}
 .file-item:hover,
 .file-item.focused {
     border-color: rgba(0, 0, 0, 0.05);

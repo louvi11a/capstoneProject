@@ -180,25 +180,3 @@ body {
     background-color: azure;
     font-family: Arial, Helvetica, sans-serif;
 }
-
-#search-suggestions-dropdown {
-    position: absolute;
-    background-color: #f6f6f6;
-    min-width: 230px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-  }
-  
-  #search-suggestions-dropdown a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
-
-  .ui-autocomplete
-  {
-      position:absolute;
-      cursor:default;
-      z-index:1001 !important
-  }
