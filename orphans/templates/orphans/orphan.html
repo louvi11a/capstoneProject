@@ -1,4 +1,3 @@
-<!-- can you analyze this code theoroughly and tell me why the submit button for the add new orphan modal isnt working: -->
 {% extends "Dashboard/base.html" %}
 {% load static %}
 
@@ -18,12 +17,21 @@
           <div class="container flex-grow-1 light-style container-p-y">
             <div class="container-m-nx container-m-ny bg-lightest mb-3">
                 <hr class="m-0" />
-                    <div class="file-manager-actions container-p-x py-2">
+                    <!-- <div class="file-manager-actions container-p-x py-2">
                         <div>
                             <button type="button" class="btn btn-primary mr-2" type="file" id="formFile" onclick="openPopupForm1()"><i class="ion ion-md-cloud-upload" ></i>&nbsp; Add New Profile</button>
-                            <!-- <button type="button" class="btn btn-secondary icon-btn mr-2" ><i class="ion ion-md-cloud-download"></i> Download </button> -->
+                        </div>
+                    </div> -->
+
+
+                    <div class="file-manager-actions container-p-x py-2">
+                        <div>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                Add New Profile
+                            </button>
                         </div>
                     </div>
+                    
                 <hr class="m-0" />
 
           {% for orphan in orphans %}
@@ -52,10 +60,75 @@
             </div>
           </a>
           {% endfor %}
-          
-                  
+
+          {{ form }}
+
+
+<!-- Modal -->
+        <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Create new profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'add_orphan' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                     <div class="col-xl-12">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="middleName" class="form-label">Middle Name</label>
+                        <input type="text" class="form-control" id="middleName" name="middleName">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" name="lastName" required>
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select class="form-select" id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="birthDate" class="form-label">Birth Date</label>
+                        <input type="date" class="form-control" id="birthDate" name="birthDate" required>
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="dateAdmitted" class="form-label">Date Admitted</label>
+                        <input type="date" class="form-control" id="dateAdmitted" name="dateAdmitted" required>
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="mothersName" class="form-label">Mother's Name</label>
+                        <input type="text" class="form-control" id="mothersName" name="mothersName">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="fathersName" class="form-label">Father's Name</label>
+                        <input type="text" class="form-control" id="fathersName" name="fathersName">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="homeAddress" class="form-label">Home Address</label>
+                        <input type="text" class="form-control" id="homeAddress" name="homeAddress">
+                    </div>
+                    <div class="col-xl-12">
+                        <label for="orphan_picture" class="form-label">Profile Picture</label>
+                        <input type="file" class="form-control" id="orphan_picture" name="orphan_picture">
+                    </div> 
+
+                     <!-- Repeat for other fields -->                    <!-- {{ form }} -->
+                    <button type="submit" class="btn btn-primary" style="float:right;">Submit</button>
+                </form>
+                </div>
+            </div>
+            </div>
+        </div>
             
-            <div class="popup-form" id="popup-form">
+            <!-- <div class="popup-form" id="popup-form">
               <p>Popup Form</p>
               <div class="mb-3">
                 <label for="exampleFormControlInput1" class="form-label">name</label>
@@ -67,10 +140,20 @@
                 <button class="btn btn-primary" type="submit" value="Submit"> Submit </button>
                 <button class="btn btn-primary" onclick="closePopupForm()">Close</button>
                 </div>
-          </div>
+          </div> -->
 
 <!-- ADDING NEW ORPHAN PROFILE -->
+<!-- <div class="container mt-5 popup-form-add" id="popup-form-add">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center text-primary font-weight-bold">Add New Orphan Profile</h5>
+                <button type="button" class="close" onclick="closePopupForm1()">
+                    <span>&times;</span>
+                </button>
+            </div> -->
 
+<!-- 
 <div class="container mt-5 popup-form-add" id="popup-form-add">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -136,22 +219,24 @@
                         <input type="file" class="form-control" id="orphan_picture" name="orphan_picture">
                     </div>
 
-                <!-- <div class="modal-footer"> -->
-                    <button class="btn btn-primary" type="submit" value="Submit"> Submit </button>
-                </div>
-        </form>
-        </div>
-    </div>
-</div>
+                 <div class="modal-footer"> 
+           <button class="btn btn-primary" type="submit" value="Submit"> Submit </button>
+                </div> 
+          </form>
+        </div> 
+   </div>
+</div> -->
 
 
 {% endblock %}
 
 {% block js %}
-<script src="{% static 'Js/note.js' %}"></script>
-<script src="{% static 'Js/add-orphan.js' %}"></script>
-<script src="{% static 'Js/file-dropdown.js' %}"></script>
-{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-</body>
+<script src="{% static 'Js/note.js' %}"></script>
+<!-- <script src="{% static 'Js/add-orphan.js' %}"></script> -->
+ {% endblock %}
+
+ </body>
 </html>

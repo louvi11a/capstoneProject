@@ -15,44 +15,83 @@ function getOrphanId() {
     return orphanId;
 }
 
- function toggleEdit(sectionId, orphanId) {
+function toggleEdit(sectionId, orphanId) {
     console.log('toggleEdit is called with sectionId:', sectionId);
- 
+
     // Get the edit button and input fields in the section
     var editButton = document.getElementById('edit-' + sectionId);
     var inputs = document.getElementById(sectionId).getElementsByTagName('input');
- 
-    // Check if the input fields are readonly
-    if (inputs[0].hasAttribute('readonly')) {
-        // If the input fields are readonly, make them editable and change the button text to "Save"
+
+    // Check if the first input field is readonly or disabled
+    if (inputs[0].hasAttribute('readonly') || inputs[0].hasAttribute('disabled')) {
+        // If the input fields are readonly or disabled, make them editable and change the button text to "Save"
         for (var i = 0; i < inputs.length; i++) {
             inputs[i].removeAttribute('readonly');
+            inputs[i].removeAttribute('disabled');
         }
         editButton.textContent = 'Save';
     } else {
-        // If the input fields are editable, make them readonly and change the button text to "Edit"
+        // If the input fields are editable, make them readonly or disabled and change the button text to "Edit"
         for (var i = 0; i < inputs.length; i++) {
-            inputs[i].setAttribute('readonly', true);
+            if (inputs[i].type === "radio" || inputs[i].type === "checkbox") {
+                inputs[i].setAttribute('disabled', true);
+            } else {
+                inputs[i].setAttribute('readonly', true);
+            }
         }
         editButton.textContent = 'Edit';
- 
+
         // Call a function to save the changes
         saveChanges(sectionId, orphanId);
     }
- }
+}
 
-function saveChanges(sectionId, orphanId) {
-    // Get the input fields in the section
-    var inputs = document.getElementById(sectionId).getElementsByTagName('input');
- 
-    // Create an object to store the new data
+function collectData(sectionId) {
     var data = {};
-    for (var i = 0; i < inputs.length; i++) {
-        data[inputs[i].id] = inputs[i].value;
+
+    // Collect data based on the section being edited
+    switch (sectionId) {
+        case 'personal-info':
+            // Collect personal info fields
+            data['firstName'] = document.getElementById('firstName').value;
+            data['middleName'] = document.getElementById('middleName').value;
+            data['lastName'] = document.getElementById('lastName').value;
+            data['gender'] = document.getElementById('gender').value;
+            data['birthDate'] = document.getElementById('birthDate').value;
+            data['dateAdmitted'] = document.getElementById('dateAdmitted').value;
+            break;
+        case 'family-info':
+            // Collect family info fields
+            data['mothersName'] = document.getElementById('mothersName').value;
+            data['fathersName'] = document.getElementById('fathersName').value;
+            data['homeAddress'] = document.getElementById('homeAddress').value;
+            break;
+        case 'educational-background':
+            // Collect educational background fields
+            data['quarter'] = document.getElementById('quarter').value;
+            data['school_year'] = document.getElementById('school_year').value;
+            data['education_level'] = document.getElementById('education_level').value;
+            data['school_name'] = document.getElementById('school_name').value;
+            data['current_gpa'] = document.getElementById('current_gpa').value;
+            break;
+        case 'physical-health':
+            // Collect physical health fields
+            data['height'] = document.getElementById('height').value;
+            data['weight'] = document.getElementById('weight').value;
+            break;
+        // Add more cases as needed for other sections
     }
 
+    return data;
+}
+
+
+function saveChanges(sectionId, orphanId) {
+    // Call collectData to get the form data for the specific section
+    var data = collectData(sectionId); // Pass sectionId to collectData
+
     // Check if birthDate and dateAdmitted are in the correct format
-    var datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    var datePattern = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
     if ('birthDate' in data && !datePattern.test(data['birthDate'])) {
         console.error('birthDate is not in the correct format');
         return;
@@ -62,21 +101,22 @@ function saveChanges(sectionId, orphanId) {
         return;
     }
     console.log('Dates are in the correct format');
- 
+
     // Get the CSRF token from a cookie
     var csrftoken = getCookie('csrftoken');
- 
+
     // Send a POST request to the Django view
     var xhr = new XMLHttpRequest();
-    console.log('globalOrphanId:', globalOrphanId);
-    xhr.open('POST', '/orphans/save_changes/' + globalOrphanId + '/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');  // Set the Content-Type header to 'application/json'
+    console.log('globalOrphanId:', orphanId);
+    xhr.open('POST', '/orphans/save_changes/' + orphanId + '/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json'); // Set the Content-Type header to 'application/json'
     xhr.setRequestHeader('X-CSRFToken', csrftoken);
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) { // The request is complete
             if (xhr.status == 200) { // The request was successful
                 console.log('Changes saved successfully');
+                // You may want to reload the page or update the UI to reflect the changes
             } else {
                 console.error('Failed to save changes');
             }
@@ -101,41 +141,47 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Get the height, weight, and bmi_category fields
-var heightField = document.getElementById('height');
-var weightField = document.getElementById('weight');
-var bmiCategoryField = document.getElementById('bmi_category');
-
-// Define a mapping from BMI ranges to BMI categories
-var bmiCategories = {
-    '< 18.5': 'Underweight',
-    '18.5 - 24.9': 'Normal Weight',
-    '25 - 29.9': 'Overweight',
-    '30 or more': 'Obesity',
-};
-
-// Define a function to calculate the BMI category
-function calculateBmiCategory() {
-    var height = parseFloat(heightField.value);
-    var weight = parseFloat(weightField.value);
-    if (!isNaN(height) && !isNaN(weight)) {
-        var heightM = height / 100;  // convert cm to m
-        var bmi = weight / (heightM ** 2);
-        var bmiRange;
-        if (bmi < 18.5) {
-            bmiRange = '< 18.5';
-        } else if (bmi < 25) {
-            bmiRange = '18.5 - 24.9';
-        } else if (bmi < 30) {
-            bmiRange = '25 - 29.9';
-        } else {
-            bmiRange = '30 or more';
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to calculate BMI
+    function calculateBMI(height, weight) {
+        if (height > 0 && weight > 0) {
+            let heightInMeters = height / 100; // Convert height from cm to meters
+            return weight / (heightInMeters ** 2); // BMI formula
         }
-        var bmiCategory = bmiCategories[bmiRange];
-        bmiCategoryField.value = bmiCategory;
+        return null;
     }
-}
 
-// Add event listeners to the height and weight fields to call calculateBmiCategory when their values change
-heightField.addEventListener('input', calculateBmiCategory);
-weightField.addEventListener('input', calculateBmiCategory);
+    // Function to determine BMI category
+    function getBMICategory(bmi) {
+        if (bmi < 18.5) {
+            return 'Underweight';
+        } else if (bmi >= 18.5 && bmi < 25) {
+            return 'Normal weight';
+        } else if (bmi >= 25 && bmi < 30) {
+            return 'Overweight';
+        } else if (bmi >= 30) {
+            return 'Obesity';
+        }
+        return '';
+    }
+
+    // Function to update BMI category on the page
+    function updateBMICategory() {
+        var height = parseFloat(document.getElementById('height').value);
+        var weight = parseFloat(document.getElementById('weight').value);
+        var bmi = calculateBMI(height, weight);
+        var bmiCategory = getBMICategory(bmi);
+        document.getElementById('bmi_category').value = bmiCategory;
+    }
+
+    // Add event listeners to the height and weight input fields
+    var heightElement = document.getElementById('height');
+    var weightElement = document.getElementById('weight');
+
+    if (heightElement && weightElement) {
+        heightElement.addEventListener('input', updateBMICategory);
+        weightElement.addEventListener('input', updateBMICategory);
+    } else {
+        console.error('Height or weight element not found');
+    }
+});

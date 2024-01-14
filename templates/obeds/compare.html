@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/static/Css/orphan.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/4.5.6/css/ionicons.min.css" integrity="sha512-0/rEDduZGrqo4riUlwqyuHDQzp2D1ZCgH/gFIfjMIL5az8so6ZiXyhf1Rg8i6xsjv+z/Ubc4tt1thLigEcu6Ug==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+    
+    <div class="sbar ">
+        <div class="row-search ">
+            <div class="col-6">
+                <div class="input-size input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Search...">
+                    <button class="btn btn-primary" type="button">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+  <div class="sidebar ">
+    <!-- Dashboard -->
+      <a class="navbar btn btn-outline-primary"  href="Dboard.html">
+        <i class="icon fa-solid fa-chart-line"></i>
+      </a>
+      <br>
+      <!-- Orphan -->
+      <a class="navbar btn btn-outline-primary" href="Orphan.html">
+        <i class="icon fa-solid fa-children" ></i>
+      </a>
+      <br>
+      <!-- Files -->
+      <a class="navbar btn btn-outline-primary" href="File.html">
+        <i class="icon fa-solid fa-folder-open"></i>
+      </a>
+      <br>
+      <!-- Trash -->
+      <a class="navbar btn btn-outline-primary" href="Trash.html">
+        <i class="icon fa-solid fa-trash-can"></i>
+      </a>
+      <br>
+      <!-- Setting -->
+      <a class="navbar btn btn-outline-primary" href="Setting.html">
+        <i class="icon fa-solid fa-gears"></i>
+      </a>
+      <br>
+      <!-- Logout -->
+      <a class="navbar btn btn-outline-primary" href="Login.html">
+        <i class="icon fa-solid fa-right-from-bracket"></i>
+      </a>
+  </div>
+
+
+
+<div>
+    <div class="container-fluid">
+        <div class="container-orphan">
+
+          <div class="container flex-grow-1 light-style container-p-y">
+            <div class="container-m-nx container-m-ny bg-lightest mb-3">
+                
+          
+                <hr class="m-0" />
+
+                    <div class="file-manager-actions container-p-x py-2">
+                        <div>
+                            <button type="button" class="btn btn-primary mr-2" id="uploadBtn" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="ion ion-md-cloud-upload"></i>&nbsp; Upload</button>
+                            <button type="button" class="btn btn-secondary icon-btn mr-2" ><i class="ion ion-md-cloud-download"></i> Download </button>
+                            
+                        </div>
+                        
+                    </div>
+
+                <hr class="m-0" />
+
+                
+
+            <div class="">
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan " >Matthew</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+                
+                    
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">Mark</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">Luke</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">John</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan" >Philemon</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+
+            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="orphan-content.html">
+                <div class="btn btn-outline-light file-orphan" >
+                 
+                    <div class="dropdown-container">
+                        <img class="file-icon-orphan" src="../Images/Profpic (7).png" alt="File Icon">
+                        <div class="file-name-orphan">File 1.txt</div>
+                        <a class="icon-dropdown dropdown-button btn" id="myButton">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
+                        <div class="dropdown-content" id="myDropdown">
+                            <a class="dropdown-item" onclick="openPopupForm()"  >Edit</a>
+                            <a class="dropdown-item" href="#" id="openForm">Delete</a>
+                            
+                        </div>
+                    </div>
+              </div>
+            </a>
+                  
+            
+            <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content ">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="uploadModalLabel">Create new profile</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" >
+                          <div>
+                            <form>
+                                <div class="row mb-3 bg-transparent">
+                                    <div class="col-xl-12">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label for="lastName" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label for="middleName" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="middleName">
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3 bg-transparent">
+                                    <div class="col-md-6">
+                                        <label for="gender" class="form-label">Gender</label>
+                                        <select class="form-select" id="gender" required>
+                                            <option value="">Select Gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="birthdate" class="form-label">Birthdate</label>
+                                        <input type="date" class="form-control" id="birthdate" required>
+                                    </div>
+                                </div>
+                
+                                <div class="row mb-3 bg-transparent">
+                                    <div class="col-md-6">
+                                        <label for="FatherName" class="form-label">Father's Name</label>
+                                        <input type="input" class="form-control" id="text" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="MotherName" class="form-label">Mother's Name</label>
+                                        <input type="input" class="form-control" id="text" required>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label for="middleName" class="form-label">Home Address</label>
+                                        <input type="input" class="form-control" id="text">
+                                    </div>
+                                </div>
+                    
+                                <div class="row mb-3 bg-transparent">
+                                    <div class="col-md-4">
+                                        <label for="dateAdmitted" class="form-label">Date Admitted</label>
+                                        <input type="date" class="form-control" id="dateAdmitted" required>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="file" class="form-label">Upload File</label>
+                                        <input type="file" class="form-control" id="file">
+                                    </div>
+                                </div>
+                    
+                                
+                                  
+                                    <button class="btn btn-primary" type="submit" value="Submit" style="float:right;"> Submit </button>
+                                    
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    
+        
+        
+    </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-eo9QT3lrkVN5eZ2IhHwn5SKLf3ypPb4MbqYlO/FlFzJjC2I09H1uLRh3hFMf7SR"
+    crossorigin="anonymous"></script>
+<script src="../Js/note.js"></script>
+<script src="../Js/add-orphan.js"></script>
+<script src="../Js/file-dropdown.js"></script>
+</body>
+</html>

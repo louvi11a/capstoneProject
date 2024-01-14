@@ -25,12 +25,19 @@ class Files(models.Model):
         return reverse('files_detail', args=[str(self.fileID)])
 
 
+GENDER_CHOICES = [
+    ('M', 'Male'),
+    ('F', 'Female'),
+]
+
+
 class Info(models.Model):
     orphanID = models.AutoField(primary_key=True)
     firstName = models.CharField(max_length=255, blank=True, null=True)
     middleName = models.CharField(max_length=255, blank=True, null=True)
     lastName = models.CharField(max_length=255, blank=True, null=True)
-    gender = models.CharField(max_length=1, blank=True, null=True)
+    gender = models.CharField(
+        max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
     birthDate = models.DateField(blank=True, null=True)
     dateAdmitted = models.DateField(blank=True, null=True)
     mothersName = models.CharField(max_length=255, blank=True, null=True)
@@ -125,9 +132,9 @@ class PhysicalHealth(models.Model):
 
 class Education(models.Model):
     EDUCATION_LEVEL_CHOICES = [
-        ('E', 'Elementary'),
-        ('H', 'High School'),
-        ('C', 'College'),
+        ('Elementary', 'Elementary'),
+        ('High School', 'High School'),
+        ('College', 'College'),
     ]
 
     QUARTER_CHOICES = [
@@ -140,10 +147,16 @@ class Education(models.Model):
     orphan = models.ForeignKey(
         Info, on_delete=models.CASCADE, related_name='educations')
     education_level = models.CharField(
-        max_length=1, choices=EDUCATION_LEVEL_CHOICES)
+        max_length=20,  # Adjust the max_length to fit the longest choice
+        choices=EDUCATION_LEVEL_CHOICES,
+        blank=True,
+        null=True
+    )
     school_name = models.CharField(max_length=255)
-    current_gpa = models.DecimalField(max_digits=3, decimal_places=2)
+    current_gpa = models.DecimalField(
+        max_digits=5, decimal_places=3, null=True, blank=True)
     date_recorded = models.DateField(auto_now_add=True)
-    quarter = models.IntegerField(choices=QUARTER_CHOICES)
+    quarter = models.IntegerField(
+        choices=QUARTER_CHOICES, null=True, blank=True)
     school_year = models.CharField(max_length=9)  # Add this line
     history = HistoricalRecords()

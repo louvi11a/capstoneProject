@@ -8,6 +8,8 @@
 
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan-content.css' %}">
+    <script src="{% static 'Js/orphan-content.js' %}"></script>
+
 {% endblock %}
 
 <body>
@@ -37,10 +39,15 @@
                   <p><strong>First Name:</strong> <input id="firstName" class="form-control" value="{{ orphan.firstName }}" type="text" aria-label="Disabled input example" readonly></p>
                   <p><strong>Middle Name:</strong> <input id="middleName" class="form-control" value="{{ orphan.middleName }}" type="text" aria-label="Disabled input example" readonly></p>
                   <p><strong>Last Name:</strong> <input id="lastName" class="form-control" value="{{ orphan.lastName }}" type="text" aria-label="Disabled input example" readonly></p>
-                  <p><strong>Gender:</strong> <input id="gender" class="form-control" value="{{ orphan.gender }}" type="text" aria-label="Disabled input example" readonly> </p>
-                  <p><strong>Birth Date:</strong> <input id="birthDate" class="form-control" value="{{ orphan.birthDate }}" type="text" aria-label="Disabled input example" readonly> </p>
-                  <p><strong>Date Admitted:</strong> <input id="dateAdmitted" class="form-control" value="{{ orphan.dateAdmitted }}" type="text" aria-label="Disabled input example" readonly> </p>
-              </div>
+                  <p><strong>Gender:</strong>
+                    <select id="gender" class="form-control" aria-label="Gender">
+                        <option value="">Select Gender</option>
+                        <option value="M" {% if orphan.gender == "M" %}selected{% endif %}>Male</option>
+                        <option value="F" {% if orphan.gender == "F" %}selected{% endif %}>Female</option>
+                    </select>
+                </p>                  <p><strong>Birth Date:</strong> <input id="birthDate" class="form-control" value="{{ orphan.birthDate|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly> </p>
+                  <p><strong>Date Admitted:</strong> <input id="dateAdmitted" class="form-control" value="{{ orphan.dateAdmitted|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly> </p>
+                </div>
 
                 <!-- <hr class="m-0" /> -->
                 <div id="family-info" class="orphan-info-2">
@@ -53,42 +60,34 @@
                 <!-- <hr class="m-0" /> -->
 
                 <div id="educational-background" class="orphan-info-3">
-                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('educational-background', globalOrphanId)" id="edit-educational-background"> Edit </button>
+                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('educational-background', globalOrphanId)" id="edit-educational-background">Edit</button>
                   <h2>Educational Background</h2>
-                  {% for education in orphan.educations.all %}
-                      <p><strong>Education Level:</strong> <input id="education_level" class="form-control" value="{{ education.get_education_level_display }}" type="text" aria-label="Disabled input example" readonly> </p>
-                      <p><strong>School Name:</strong> <input id="school_name" class="form-control" value="{{ education.school_name }}" type="text" aria-label="Disabled input example" readonly></p>
-                      <p><strong>Quarter:</strong></p>
-                      <div>
-                          <input type="radio" id="quarter1" name="quarter" value="1" {% if education.quarter == 1 %}checked{% endif %} disabled>
-                          <label for="quarter1">First Quarter</label>
-                          <input type="radio" id="quarter2" name="quarter" value="2" {% if education.quarter == 2 %}checked{% endif %} disabled>
-                          <label for="quarter2">Second Quarter</label>
-                          <input type="radio" id="quarter3" name="quarter" value="3" {% if education.quarter == 3 %}checked{% endif %} disabled>
-                          <label for="quarter3">Third Quarter</label>
-                          <input type="radio" id="quarter4" name="quarter" value="4" {% if education.quarter == 4 %}checked{% endif %} disabled>
-                          <label for="quarter4">Fourth Quarter</label>
-                      </div>
-                      <p class="gpa"><strong>Current GPA:</strong> <input id="current_gpa" class="form-control" value="{{ education.current_gpa }}" type="text" aria-label="Disabled input example" readonly></p>  
-
-                  {% empty %}
-                  <p><strong>Quarter:</strong></p>
-                  <div>
-                      <input type="radio" id="quarter1" name="quarter" value="1" disabled>
-                      <label for="quarter1">First Quarter</label>
-                      <input type="radio" id="quarter2" name="quarter" value="2" disabled>
-                      <label for="quarter2">Second Quarter</label>
-                      <input type="radio" id="quarter3" name="quarter" value="3" disabled>
-                      <label for="quarter3">Third Quarter</label>
-                      <input type="radio" id="quarter4" name="quarter" value="4" disabled>
-                      <label for="quarter4">Fourth Quarter</label>
+                  <div class="education-record">
+                      <p><strong>Quarter:</strong>
+                          <select id="quarter" class="form-control" aria-label="Quarter">
+                              <option value="">Select Quarter</option>
+                              <option value="1" {% if latest_education.quarter == 1 %}selected{% endif %}>1</option>
+                              <option value="2" {% if latest_education.quarter == 2 %}selected{% endif %}>2</option>
+                              <option value="3" {% if latest_education.quarter == 3 %}selected{% endif %}>3</option>
+                              <option value="4" {% if latest_education.quarter == 4 %}selected{% endif %}>4</option>
+                          </select>
+                      </p>
+                      <p><strong>School Year:</strong> <input id="school_year" class="form-control" value="{{ latest_education.school_year|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
+                      <p><strong>Education Level:</strong>
+                          <select id="education_level" class="form-control" aria-label="Education Level">
+                              <option value="">Select Education Level</option>
+                              <option value="Elementary" {% if latest_education.education_level == "Elementary" %}selected{% endif %}>Elementary</option>
+                              <option value="High School" {% if latest_education.education_level == "High School" %}selected{% endif %}>High School</option>
+                              <option value="College" {% if latest_education.education_level == "College" %}selected{% endif %}>College</option>
+                          </select>
+                      </p>
+                      <p><strong>School Name:</strong> <input id="school_name" class="form-control" value="{{ latest_education.school_name|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
+                      <p class="gpa"><strong>Current GPA:</strong> <input id="current_gpa" class="form-control" value="{{ latest_education.current_gpa|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
                   </div>
-                      <p><strong>School Year:</strong> <input class="form-control" value="" type="text" aria-label="Disabled input example" readonly></p>
-                      <p><strong>Education Level:</strong> <input class="form-control" value="" type="text" aria-label="Disabled input example" readonly></p>
-                      <p><strong>School Name:</strong> <input class="form-control" value="" type="text" aria-label="Disabled input example" readonly></p>
-
-                      <p class="gpa"><strong>Current GPA:</strong> <input class="form-control" value="{{ education.current_gpa }}" type="text" aria-label="Disabled input example" readonly></p>                  {% endfor %}
-              </div>
+                  {% if not latest_education %}
+                      <p>No education records found.</p>
+                  {% endif %}
+                </div>
 
                 <!-- <hr class="m-0" /> -->
                 <div id="physical-health" class="orphan-info-4">
@@ -140,7 +139,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Include your custom JS -->
 <!-- <script src="{% static 'Js/note.js' %}"></script> -->
-<script src="{% static 'Js/orphan-content.js' %}"></script>
 
 {% endblock %}
 
