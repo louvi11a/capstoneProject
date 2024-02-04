@@ -56,25 +56,28 @@ def files_detail(request, pk):
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         query = request.GET.get('q')
-        print("Received query:", query)  # Print the received query
         if query:
             infos = Info.objects.filter(Q(firstName__icontains=query) | Q(
                 middleName__icontains=query) | Q(lastName__icontains=query))
             files = Files.objects.filter(fileName__icontains=query)
-            results = list(infos.values('firstName', 'middleName', 'lastName',
-                           'orphanID')) + list(files.values('fileName', 'fileID'))
-            results = [
-                {
-                    'label': item['firstName'] + ' ' + item['middleName'] + ' ' + item['lastName'] if 'firstName' in item else item['fileName'],
-                    'value': item['firstName'] + ' ' + item['middleName'] + ' ' + item['lastName'] if 'firstName' in item else item['fileName'],
-                }
-                for item in results
-            ]
-            print("Infos:", infos)
-            print("Files:", files)
-            print("Results:", results)
+            results = []
+
+            # Add URLs for orphan profiles
+            for info in infos:
+                results.append({
+                    'label': f"{info.firstName} {info.middleName} {info.lastName}",
+                    'value': request.build_absolute_uri(f'/orphans/profile/{info.orphanID}/')
+                })
+
+            # Add a general URL for files
+            files_url = request.build_absolute_uri('/files/')
+            for file in files:
+                results.append({
+                    'label': file.fileName,
+                    'value': files_url
+                })
+
             return JsonResponse(results, safe=False)
-        print("No query received")  # Print a message when no query is received
         return JsonResponse({}, status=400)
 
 
@@ -102,6 +105,9 @@ def sentiment_details(request):
             'score': avg_score,
             'sentiment': sentiment,
             'orphan_picture': orphan.orphan_picture,
+            'firstName': orphan.firstName,
+            'middleName': orphan.middleName,
+            'lastName': orphan.lastName,
         }
         print(orphan_dict)  # Print the dictionary for debugging
         orphans_notes.append(orphan_dict)

@@ -1,31 +1,34 @@
-{% extends "Dashboard/base.html" %}
-{% load static %}
+{% extends "Dashboard/base.html" %} {% load static %} {% block title %}
+Sentiment Details {% endblock %} {% block css %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'Css/sentiment_details.css' %}"
+/>
 
-{% block title %}
-    Sentiment Details
-{% endblock %}
 
-{% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'Css/sentiment_details.css' %}">
-{% endblock %}
-
+{% endblock %} 
 {% block content %}
-<div class="main-content">
-    
+  <div class="main-content">
     <div class="container-orphan">
-        {% for item in orphans_notes %}
-            <div class="file-orphan">
-                {% if item.orphan_picture %}
-                    <img src="{{ item.orphan_picture.url }}" alt="{{ item.orphan }}'s profile picture">
-                {% else %}
-                    <img src="{% static 'images/default_orphan_picture.jpg' %}" alt="Default profile picture">
-                {% endif %}
-                <h2><a href="{% url 'orphanSentiment_detail' item.orphanID %}">{{ item.orphan }}</a></h2>
-                <p>Score: {{ item.score }}</p>
-                <p class="{{ item.sentiment }}">Sentiment: {{ item.sentiment }}</p>
-                <!-- Include your sentiment chart here -->
-            </div>
-        {% endfor %}
+      {% for item in orphans_notes %}
+        <div class="file-orphan">
+          {% if item.orphan_picture %}
+            <img src="{{ item.orphan_picture.url }}" alt="{{ item.full_name }}'s profile picture" />
+          {% else %}
+            <img src="{% static 'images/default_orphan_picture.png' %}" alt="Default profile picture" />
+          {% endif %}
+          <h2>
+            <a href="{% url 'orphanSentiment_detail' item.orphanID %}">
+              {{ item.firstName }}{% if item.middleName %} {{ item.middleName }}{% endif %} {{ item.lastName }}
+            </a>
+          </h2>
+      <!-- <p>Score: {{ item.score }}</p> -->
+      <p class="{{ item.sentiment }}">Sentiment: {{ item.sentiment }}</p>
     </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}
+
+

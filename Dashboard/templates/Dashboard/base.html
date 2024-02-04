@@ -1,38 +1,26 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-  <script type="text/javascript" src="http://dev.jquery.com/view/trunk/plugins/autocomplete/jquery.autocomplete.js"></script>
-
-
-
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+   -->
+    
+    {% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Css/Dboard.css' %}">
+    {% endblock %}
+    
+    <title>{% block title %}Obed's Orphanage System{% endblock %}</title>
+  </head>
 
 
-  {% block css %}
-  <link rel="stylesheet" type="text/css" href="{% static 'Css/Dboard.css' %}">
-  {% endblock %}
-
-  
-
-  <title>{% block title %}Obed's Orphanage System{% endblock %}</title>
-  
-
-</head>
 <body>
   <div class="sbar ">
     <div class="row-search ">
@@ -40,7 +28,7 @@
             <form action="{% url 'search' %}" method="get">
                 <div class="input-size input-group mb-3">
                   <input type="text" name="q" id="searchBox" class="form-control" placeholder="Search...">
-                  <button class="btn btn-primary" type="submit">Search</button>
+                  <!-- <button class="btn btn-primary" type="submit">Search</button> -->
                   <div id="search-suggestions-dropdown"></div>  <!-- Add this line -->
                 </div>
             </form>
@@ -82,46 +70,62 @@
       </a>
   </div>
 
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    $(document).ready(function(){
+      console.log("Document is ready."); // Confirm that the document is ready
+  
+      $('#searchBox').autocomplete({
+        source: function(request, response) {
+          console.log("Autocomplete source function called."); // Confirm source function is called
+          console.log("Making AJAX request with query:", request.term);
+          $.ajax({
+            url: "{% url 'search' %}",
+            dataType: 'json',
+            data: {
+              'q': request.term
+            },
+            success: function(data) {
+              console.log("Received data:", data); // Log received data
+              var suggestions = [];
+              data.forEach(function(item) {
+                suggestions.push({
+                  label: item.label,
+                  value: item.value
+                });
+              });
+              response(suggestions);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.error("AJAX Error:", textStatus, errorThrown); // Log any AJAX errors
+            }
+          });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+          console.log("Selected item:", ui.item); // Log the selected item
+          window.location.href = ui.item.value;
+        }
+      });
+  
+      // Additional log to confirm the autocomplete has been initialized
+      console.log("Autocomplete has been initialized on #searchBox.");
+    });
+  </script>
+  
   <main>
     {% block content %}
     {% endblock %}
   </main>
 
   {% block js %}
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <script>
-    $(document).ready(function(){
-        $('#searchBox').autocomplete({
-            source: function(request, response) {
-                console.log("Making AJAX request with query:", request.term);
-                $.ajax({
-                    url: "{% url 'search' %}",
-                    dataType: 'json',
-                    data: {
-                        'q': request.term
-                    },
-                    success: function(data) {
-                        console.log("Received data:", data);
-                        var suggestions = [];
-                        data.forEach(function(item) {
-                            suggestions.push({
-                                label: item.label,
-                                value: item.value
-                            });
-                        });
-                        response(suggestions);
-                    }
-                });
-            },
-            minLength: 2,
-            select: function(event, ui) {
-                console.log("Selected item:", ui.item);
-                window.location.href = ui.item.value;
-            }
-        });
-    });
-  </script>
+
   {% endblock %}
 
 </body>

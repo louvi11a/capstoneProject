@@ -10,16 +10,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
+<!-- <div class="main-content"> -->
 <div class="container-orphan">
-    <div class="orphan-detail">
-        <h2>{{ orphan.firstName }} {{ orphan.lastName }}</h2>
+    <div class="header">
         {% if orphan.orphan_picture %}
-            <img src="{{ orphan.orphan_picture.url }}" alt="{{ orphan }}'s profile picture">
+            <img class="file-icon-orphan" src="{{ orphan.orphan_picture.url }}" alt="{{ orphan }}'s profile picture">
         {% else %}
-            <img src="{% static 'images/default_orphan_picture.jpg' %}" alt="Default profile picture">
+            <img class="file-icon-orphan" src="{% static 'images/default_orphan_picture.png' %}" alt="Default profile picture">
         {% endif %}
     </div>
+    <div class="info">
+        <div>
+            <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
+            <p>Orphan ID: {{ orphan.orphanID }}</p>
+        </div>
+
 
     <div class="notes-history">
         <h3>Notes History</h3>
