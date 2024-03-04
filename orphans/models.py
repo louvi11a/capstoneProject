@@ -7,10 +7,13 @@ from simple_history.models import HistoricalRecords
 
 
 class Files(models.Model):
+    uploaded_at = models.DateTimeField(auto_now_add=True)
     fileID = models.AutoField(primary_key=True)
     fileName = models.CharField(max_length=255, blank=True, null=True)
     fileDescription = models.TextField(blank=True, null=True)
     is_archived = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(
+        null=True, blank=True)  # New field for time deletion
 
     # Field for the uploaded file
     file = models.FileField(upload_to='uploads/')

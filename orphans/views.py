@@ -1,3 +1,4 @@
+from django.http import Http404
 from .models import Info, PhysicalHealth, Education
 from decimal import Decimal, InvalidOperation
 from .models import Info, Education, PhysicalHealth
@@ -18,6 +19,12 @@ from django.http import JsonResponse
 import json
 # Create your views here.
 from django.utils.dateparse import parse_date
+import logging
+from django.views.decorators.csrf import csrf_exempt
+
+from django.http import JsonResponse
+from .models import Files  # Make sure to import your Files model
+from django.views.decorators.http import require_POST
 
 
 @login_required
@@ -67,19 +74,67 @@ def delete_orphan(request, orphan_id):
     orphan.save()
     return redirect('orphans')
 
+# files
+
 
 def files_view(request):
-    if request.method == 'POST':
-        form = FilesForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "File uploaded successfully")
-            return redirect('files')  # Redirect after POST
-    else:
-        form = FilesForm()
-
     files = Files.objects.filter(is_archived=False)
-    return render(request, 'orphans/Files.html', {'files': files, 'form': form})
+    return render(request, 'orphans/files.html', {'files': files})
+
+
+def upload_file(request):
+    if request.method != 'POST':
+        return JsonResponse({'message': 'Invalid request method.'}, status=405)
+
+    try:
+        file = request.FILES.get('file')
+        file_name = request.POST.get('fileName', '')
+
+        if not file:
+            return JsonResponse({'message': 'No file uploaded.'}, status=400)
+
+        file_instance = Files(fileName=file_name, file=file)
+        file_instance.save()
+        return JsonResponse({'message': 'File uploaded successfully.'})
+    except Exception as e:
+        return JsonResponse({'message': 'Server error: ' + str(e)}, status=500)
+
+
+@require_POST
+def rename_file(request):
+    # Parse the JSON body of the request
+    data = json.loads(request.body)
+    file_id = data.get('fileId')
+    new_name = data.get('newFileName')
+
+    try:
+        file_obj = Files.objects.get(id=file_id)
+        file_obj.fileName = new_name
+        file_obj.save()
+        return JsonResponse({'success': True, 'message': 'File renamed successfully.'})
+    except Files.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'File not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'An error occurred: {str(e)}'}, status=500)
+
+
+def file_details(request, file_id):
+    try:
+        file = Files.objects.get(fileID=file_id)
+    except Files.DoesNotExist:
+        raise Http404("File not found")
+
+    try:
+        data = {
+            'fileName': file.fileName,
+            'fileType': file.file.url.split('.')[-1],
+            'fileSize': file.file.size,
+            'dateUploaded': file.uploaded_at.strftime('%Y-%m-%d'),
+        }
+    except ValueError:
+        return JsonResponse({'error': 'No file associated with this object'}, status=400)
+
+    return JsonResponse(data)
 
 
 def serve_file(request, file_id):
@@ -93,15 +148,6 @@ def serve_file(request, file_id):
         return response
     else:
         raise PermissionDenied
-
-
-def trash_view(request):
-    # Get all Files where is_archived is True
-    archived_files = Files.objects.filter(is_archived=True)
-    # Get all orphan profiles where is_deleted is True
-    deleted_orphans = Info.objects.filter(is_deleted=True)
-    # Pass the files and orphan profiles to the template
-    return render(request, 'orphans/Trash.html', {'files': archived_files, 'orphans': deleted_orphans})
 
 
 def restore_files(request):
@@ -119,54 +165,41 @@ def delete_files(request):
     if request.method == 'POST':
         file_ids = request.POST.getlist('file_ids')
         print('Received file IDs:', file_ids)  # Debug print
-        result = Files.objects.filter(
-            fileID__in=file_ids).update(is_archived=True)
-        print('Number of files archived:', result)  # Debug print
 
-        if result > 0:
-            messages.success(request, f"{result} files archived successfully")
-        else:
-            messages.warning(request, "No files were archived")
+        files_to_delete = Files.objects.filter(fileID__in=file_ids)
+        for file in files_to_delete:
+            file.is_archived = True
+            file.deleted_at = timezone.now()
+            file.save()
 
-    return redirect('files')
+        print('Number of files deleted:', files_to_delete.count())  # Debug print
+        messages.success(request, "Files deleted successfully")
+    return redirect('trash_view')
 
 
-# def add_orphan(request):
-#     if request.method == 'POST':
-#         # Get data from form
-#         first_name = request.POST.get('firstName')
-#         last_name = request.POST.get('lastName')
-#         middle_name = request.POST.get('middleName')
-#         gender = request.POST.get('gender')
-#         birth_date = request.POST.get('birthDate')
-#         mothers_name = request.POST.get('mothersName')
-#         fathers_name = request.POST.get('fathersName')
-#         date_admitted = request.POST.get('dateAdmitted')
-#         home_address = request.POST.get('homeAddress')
-#         orphan_picture = request.FILES.get(
-#             'orphan_picture')  # Get the uploaded file
+def trash_view(request):
+    # Get all Files where is_archived is True
+    archived_files = Files.objects.filter(is_archived=True)
+    # Get all orphan profiles where is_deleted is True
+    # Print deleted_at for each archived file
+    for file in archived_files:
+        print(f"File ID: {file.fileID}, Deleted at: {file.deleted_at}")
+    deleted_orphans = Info.objects.filter(is_deleted=True)
+    # Pass the files and orphan profiles to the template
+    return render(request, 'orphans/Trash.html', {'files': archived_files, 'orphans': deleted_orphans})
 
-#         # Create new Info object and save it to the database
-#         orphan = Info(
-#             firstName=first_name,
-#             lastName=last_name,
-#             middleName=middle_name,
-#             gender=gender,
-#             birthDate=birth_date,
-#             mothersName=mothers_name,
-#             fathersName=fathers_name,
-#             dateAdmitted=date_admitted,
-#             homeAddress=home_address,
-#             # Assign the uploaded file to the orphan_picture field
-#             orphan_picture=orphan_picture,
-#         )
-#         orphan.save()
 
-#         # Redirect to the page that shows the list of orphans
-#         return redirect('orphans')
+def download_file(request, file_id):
+    file = Files.objects.get(fileID=file_id)
+    file_path = os.path.join(settings.MEDIA_ROOT, str(file.file))
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file.fileName)
+    else:
+        messages.error(request, "File not found")
+        return redirect('files')
 
-#     # If the request method is not POST, render the form
-#     return render(request, 'orphans/orphan.html')
+# trash
+
 
 # # this is for editing the orphan content.html
 
@@ -278,3 +311,55 @@ def addOrphanForm(request):
         form = OrphanProfileForm()
 
     return render(request, 'orphans/orphan.html', {'form': form})
+# def delete_files(request):
+#     if request.method == 'POST':
+#         file_ids = request.POST.getlist('file_ids')
+#         print('Received file IDs:', file_ids)  # Debug print
+#         result = Files.objects.filter(
+#             fileID__in=file_ids).update(is_archived=True)
+#         print('Number of files archived:', result)  # Debug print
+
+#         if result > 0:
+#             messages.success(request, f"{result} files archived successfully")
+#         else:
+#             messages.warning(request, "No files were archived")
+
+#     return redirect('files')
+
+
+# def add_orphan(request):
+#     if request.method == 'POST':
+#         # Get data from form
+#         first_name = request.POST.get('firstName')
+#         last_name = request.POST.get('lastName')
+#         middle_name = request.POST.get('middleName')
+#         gender = request.POST.get('gender')
+#         birth_date = request.POST.get('birthDate')
+#         mothers_name = request.POST.get('mothersName')
+#         fathers_name = request.POST.get('fathersName')
+#         date_admitted = request.POST.get('dateAdmitted')
+#         home_address = request.POST.get('homeAddress')
+#         orphan_picture = request.FILES.get(
+#             'orphan_picture')  # Get the uploaded file
+
+#         # Create new Info object and save it to the database
+#         orphan = Info(
+#             firstName=first_name,
+#             lastName=last_name,
+#             middleName=middle_name,
+#             gender=gender,
+#             birthDate=birth_date,
+#             mothersName=mothers_name,
+#             fathersName=fathers_name,
+#             dateAdmitted=date_admitted,
+#             homeAddress=home_address,
+#             # Assign the uploaded file to the orphan_picture field
+#             orphan_picture=orphan_picture,
+#         )
+#         orphan.save()
+
+#         # Redirect to the page that shows the list of orphans
+#         return redirect('orphans')
+
+#     # If the request method is not POST, render the form
+#     return render(request, 'orphans/orphan.html')

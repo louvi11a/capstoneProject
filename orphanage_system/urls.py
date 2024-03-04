@@ -4,15 +4,12 @@ from django.urls import path, include
 from orphanage_system import settings
 # from users.views import notes_view, settings_view, trash_view, files_view, login_page_view, home_view, orphan_view
 from users.views import login_page_view
-from orphans.views import files_view, trash_view
+from orphans.views import trash_view
 # Import staticfiles_urlpatterns
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from orphanage_system import settings
 from users.views import settings_view
-from Dashboard import views as dashboard_views
-from orphans.views import restore_files
-
 urlpatterns = [
     path('__debug__/', include('debug_toolbar.urls')),
     path('admin/', admin.site.urls),
@@ -21,7 +18,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('orphans/', include('orphans.urls')),
     path('behavior/', include('behavior.urls')),
-    path('files/', files_view, name='files'),
+    # path('files/', files_view, name='files'),
     path('Dashboard/', include('Dashboard.urls')),
     path('settings/', settings_view, name='settings'),
     path('files/deleted_files/', trash_view, name='trash_view'),

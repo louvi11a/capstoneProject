@@ -1,15 +1,274 @@
-{% extends "Dashboard/base.html" %}
-{% load static %}
+{% extends "Dashboard/base.html" %} 
+{% load static %} 
 
 {% block css %}
-<link rel="stylesheet" type="text/css" href="{% static 'Css/orphan.css' %}">
-{% endblock %}
+{% endblock %} 
 
+{% block extra_meta %}
+{% endblock %}
 {% block title %}
-    Orphan List
-{% endblock %}
-
+Orphan List 
+{% endblock %} 
 {% block content %}
+<!-- content -->
+
+<div class="container-fluid row p-2 bg-light sticky-top">
+  <div class="col d-flex justify-content-between align-items-center">
+    <input
+      class="form-control me-2"
+      type="search"
+      placeholder="Search"
+      aria-label="Search"
+    />
+    <button class="btn btn-outline-success" type="submit">Search</button>
+  </div>
+  <div class="col text-end">
+    <div>
+      <button
+        type="button"
+        class="btn btn-primary mx-1"
+        id="uploadBtn"
+        data-bs-toggle="modal"
+        data-bs-target="#uploadModal">
+        <i class="ion ion-md-cloud-upload"></i>
+        Add Orphan Profile
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Line to separate sections -->
+<hr><div>
+  {% for orphan in orphans %}
+  <div class="container-fluid">
+    <div class="">
+      <div class="flex-grow-1 light-style">
+        <div class="container-m-nx container-m-ny bg-lightest mb-3">
+          <div class="row border justify-content-center text-center">
+
+            <!-- orphan profile -->
+            <a
+              class="card m-2 btn btn-light align-items-center orphancard"
+              href="./orphan-content.html">
+              {% if orphan.orphan_picture %}
+                <img
+                  class="file-icon-orphan"
+                  src="{{ orphan.orphan_picture.url }}"
+                  width="100px"
+                  alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"
+                />
+                {% else %}
+                <img
+                  class="file-icon-orphan"
+                  src="{% static 'images/default_orphan_picture.png' %}"
+                  width="100px"
+                  alt="Default profile picture"
+                />
+              {% endif %}
+              <div class="card-body">
+                <h3 class="card-title">
+                  {{ orphan.firstName }} {{ orphan.lastName }}
+                </h3>
+                <!-- Info model does not have age yet -->
+                <!-- <p class="card-text">{{ orphan.age }}</p> -->
+                <p class="card-text">Age</p>
+              </div>
+            </a>
+            {% endfor %}
+
+            <!-- modal for upload -->
+            <div
+              class="modal fade"
+              id="uploadModal"
+              tabindex="-1"
+              aria-labelledby="uploadModalLabel"
+              aria-hidden="true">
+
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 
+                    class="modal-title" 
+                    id="uploadModalLabel">
+                      Create new profile
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close">
+                  </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="text-start">
+                      <form>
+                        <div class="row mb-3 bg-transparent">
+                          <div class="col-xl-6">
+                            <label 
+                            for="firstName" 
+                            class="form-label">
+                            First Name
+                            </label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="firstName" required/>
+                          </div>
+                          <div class="col-xl-6">
+                            <label for="middleName" 
+                            class="form-label">
+                            Middle Name
+                            </label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="middleName"/>
+                          </div>
+                          <div class="col-xl-12">
+                            <label for="lastName" class="form-label"
+                              >Last Name</label
+                            >
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="lastName" required/>
+                          </div>
+                        </div>
+
+                        <div class="row mb-3 bg-transparent">
+                          <div class="col-md-6">
+                            <label for="gender" class="form-label">
+                              Gender
+                            </label>
+                            <select class="form-select" id="gender" required>
+                              <option value="">Select Gender</option>
+                              <option value="male">Male</option>
+                              <option value="female">Female</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                          <div class="col-md-6">
+                            <label for="birthdate" class="form-label"
+                              >Birthdate</label
+                            >
+                            <input
+                              type="date"
+                              class="form-control"
+                              id="birthdate"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div class="row mb-3 bg-transparent">
+                          <div class="col-md-6">
+                            <label for="FatherName" class="form-label"
+                              >Father's Name</label
+                            >
+                            <input
+                              type="input"
+                              class="form-control"
+                              id="text"
+                              required
+                            />
+                          </div>
+                          <div class="col-md-6">
+                            <label for="MotherName" class="form-label"
+                              >Mother's Name</label
+                            >
+                            <input
+                              type="input"
+                              class="form-control"
+                              id="text"
+                              required
+                            />
+                          </div>
+                          <div class="col-xl-12">
+                            <label for="middleName" class="form-label"
+                              >Home Address</label
+                            >
+                            <input
+                              type="input"
+                              class="form-control"
+                              id="text"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="row mb-3 bg-transparent">
+                          <div class="col-md-4">
+                            <label for="dateAdmitted" class="form-label"
+                              >Date Admitted</label
+                            >
+                            <input
+                              type="date"
+                              class="form-control"
+                              id="dateAdmitted"
+                              required
+                            />
+                          </div>
+                          <div class="col-md-8">
+                            <label for="file" class="form-label"
+                              >Upload Profile Picture</label
+                            >
+                            <input type="file" class="form-control" id="file" />
+                          </div>
+                          <div class="col-md-4">
+                            <label for="file" class="form-label"
+                              >Upload Medical Certificate</label
+                            >
+                            <input type="file" class="form-control" id="file" />
+                          </div>
+                          <div class="col-md-8">
+                            <label for="file" class="form-label"
+                              >Upload File</label
+                            >
+                            <input type="file" class="form-control" id="file" />
+                          </div>
+                        </div>
+
+                        <button
+                          class="btn btn-primary"
+                          type="submit"
+                          value="Submit"
+                          style="float: right"
+                        >
+                          Submit
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+            <footer
+              class="d-flex justify-content-between p-3 bg-light sticky-bottom"
+            >
+              <button class="btn btn-primary" id="previous-page">
+                Previous
+              </button>
+              <span class="mx-3"
+                >Page <span id="current-page">1</span> of
+                <span id="total-pages">10</span></span
+              >
+              <button class="btn btn-primary" id="next-page">Next</button>
+            </footer>
+          </div>
+        </div>
+      </div>
+
+    {% endblock %} {% block js %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'Js/note.js' %}"></script>
+    <script src="{% static 'Js/add-orphan.js' %}"></script>
+    {% endblock %}
+
+    <!-- 
 <div>
     <div class="container-fluid">
         <div class="container-orphan">
@@ -17,11 +276,11 @@
           <div class="container flex-grow-1 light-style container-p-y">
             <div class="container-m-nx container-m-ny bg-lightest mb-3">
                 <hr class="m-0" />
-                    <!-- <div class="file-manager-actions container-p-x py-2">
+                    <div class="file-manager-actions container-p-x py-2">
                         <div>
                             <button type="button" class="btn btn-primary mr-2" type="file" id="formFile" onclick="openPopupForm1()"><i class="ion ion-md-cloud-upload" ></i>&nbsp; Add New Profile</button>
                         </div>
-                    </div> -->
+                    </div>
 
 
                     <div class="file-manager-actions container-p-x py-2">
@@ -64,7 +323,7 @@
           {{ form }}
 
 
-<!-- Modal -->
+
         <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -120,15 +379,15 @@
                         <input type="file" class="form-control" id="orphan_picture" name="orphan_picture">
                     </div> 
 
-                     <!-- Repeat for other fields -->                    <!-- {{ form }} -->
+                    Repeat for other fields                 {{ form }} 
                     <button type="submit" class="btn btn-primary" style="float:right;">Submit</button>
                 </form>
                 </div>
             </div>
             </div>
-        </div>
+        </div> 
             
-            <!-- <div class="popup-form" id="popup-form">
+            <div class="popup-form" id="popup-form">
               <p>Popup Form</p>
               <div class="mb-3">
                 <label for="exampleFormControlInput1" class="form-label">name</label>
@@ -142,8 +401,8 @@
                 </div>
           </div> -->
 
-<!-- ADDING NEW ORPHAN PROFILE -->
-<!-- <div class="container mt-5 popup-form-add" id="popup-form-add">
+    <!-- ADDING NEW ORPHAN PROFILE -->
+    <!-- <div class="container mt-5 popup-form-add" id="popup-form-add">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -153,7 +412,7 @@
                 </button>
             </div> -->
 
-<!-- 
+    <!-- 
 <div class="container mt-5 popup-form-add" id="popup-form-add">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -227,16 +486,3 @@
    </div>
 </div> -->
 
-
-{% endblock %}
-
-{% block js %}
-<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-
-<script src="{% static 'Js/note.js' %}"></script>
-<!-- <script src="{% static 'Js/add-orphan.js' %}"></script> -->
- {% endblock %}
-
- </body>
-</html>
