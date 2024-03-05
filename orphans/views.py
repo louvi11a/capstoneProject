@@ -1,9 +1,9 @@
 from django.http import Http404
-from .models import Info, PhysicalHealth, Education
+from .forms import OrphanProfileForm, FamilyForm
+from .models import Info, PhysicalHealth, Education, Family
 from decimal import Decimal, InvalidOperation
 from .models import Info, Education, PhysicalHealth
 from django.shortcuts import get_object_or_404
-from .forms import OrphanProfileForm
 from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404, render, redirect
@@ -301,16 +301,22 @@ def save_changes(request, orphan_id):
 
 
 @login_required
+# def addOrphanForm(request):
 def addOrphanForm(request):
     if request.method == 'POST':
-        form = OrphanProfileForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('orphans')  # Replace with your orphan list URL
+        info_form = OrphanProfileForm(request.POST, request.FILES)
+        family_form = FamilyForm(request.POST)
+        if info_form.is_valid() and family_form.is_valid():
+            family = family_form.save()
+            info = info_form.save(commit=False)
+            info.family = family
+            info.save()
+            return redirect('orphan_list_view')
     else:
-        form = OrphanProfileForm()
+        info_form = OrphanProfileForm()
+        family_form = FamilyForm()
+    return render(request, 'orphans/orphan_form.html', {'info_form': info_form, 'family_form': family_form})
 
-    return render(request, 'orphans/orphan.html', {'form': form})
 # def delete_files(request):
 #     if request.method == 'POST':
 #         file_ids = request.POST.getlist('file_ids')

@@ -34,6 +34,25 @@ GENDER_CHOICES = [
 ]
 
 
+class Family(models.Model):
+    mother_name = models.CharField(max_length=255, blank=True, null=True)
+    mother_dob = models.DateField(blank=True, null=True)
+    mother_contact = models.CharField(max_length=255, blank=True, null=True)
+    mother_occupation = models.CharField(max_length=255, blank=True, null=True)
+    mother_address = models.CharField(max_length=255, blank=True, null=True)
+    mother_status = models.CharField(max_length=255, blank=True, null=True)
+
+    father_name = models.CharField(max_length=255, blank=True, null=True)
+    father_dob = models.DateField(blank=True, null=True)
+    father_contact = models.CharField(max_length=255, blank=True, null=True)
+    father_occupation = models.CharField(max_length=255, blank=True, null=True)
+    father_address = models.CharField(max_length=255, blank=True, null=True)
+    father_status = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        db_table = 'family_infos'
+
+
 class Info(models.Model):
     orphanID = models.AutoField(primary_key=True)
     firstName = models.CharField(max_length=255, blank=True, null=True)
@@ -43,12 +62,14 @@ class Info(models.Model):
         max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
     birthDate = models.DateField(blank=True, null=True)
     dateAdmitted = models.DateField(blank=True, null=True)
-    mothersName = models.CharField(max_length=255, blank=True, null=True)
-    fathersName = models.CharField(max_length=255, blank=True, null=True)
-    homeAddress = models.CharField(max_length=255, blank=True, null=True)
+    # mothersName = models.CharField(max_length=255, blank=True, null=True)
+    # fathersName = models.CharField(max_length=255, blank=True, null=True)
+    # homeAddress = models.CharField(max_length=255, blank=True, null=True)
 
     orphan_picture = models.ImageField(
         upload_to='orphan_pictures/',  blank=True, null=True)
+    family = models.ForeignKey(
+        Family, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_deleted = models.BooleanField(default=False)
 

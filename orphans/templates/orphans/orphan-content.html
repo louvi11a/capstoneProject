@@ -12,127 +12,291 @@
 
 {% endblock %}
 
-<body>
-    <main>
-        {% block content %}
-        <div class="container-orphan">
-                <div class="header">
-                  {% if orphan.orphan_picture %}
-                  <img class="file-icon" src="{{ orphan.orphan_picture.url }}" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
-                  {% else %}
-                  <img class="file-icon" src="{% static 'images/default_orphan_picture.png' %}" alt="Default profile picture">
-                  {% endif %}                    
-                  <div class="info">
-                        <div>
-                            <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
-                            <p>Orphan ID: {{ orphan.orphanID }}</p>
-                        </div>
-                        <div class="info-icon">
-                          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#noteModal"> Add Notes </button>
-                        </div>
-                    </div>
-                </div>
+{% block content %}
+<div class="">
+  <form class="">
+    <div class="container-fluid m-2" >
+      <div class="">
+          <a href="{% url 'orphans' %}"  class="btn btn-primary mt-3">
+              <i class="fa-solid fa-arrow-left"></i>
+          </a>
+      </div>
 
-                <div id="personal-info" class="orphan-info">
-                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('personal-info', globalOrphanId)" id="edit-personal-info"> Edit </button>
-                  <h2>Personal Information</h2>
-                  <p><strong>First Name:</strong> <input id="firstName" class="form-control" value="{{ orphan.firstName }}" type="text" aria-label="Disabled input example" readonly></p>
-                  <p><strong>Middle Name:</strong> <input id="middleName" class="form-control" value="{{ orphan.middleName }}" type="text" aria-label="Disabled input example" readonly></p>
-                  <p><strong>Last Name:</strong> <input id="lastName" class="form-control" value="{{ orphan.lastName }}" type="text" aria-label="Disabled input example" readonly></p>
-                  <p><strong>Gender:</strong>
-                    <select id="gender" class="form-control" aria-label="Gender">
-                        <option value="">Select Gender</option>
-                        <option value="M" {% if orphan.gender == "M" %}selected{% endif %}>Male</option>
-                        <option value="F" {% if orphan.gender == "F" %}selected{% endif %}>Female</option>
-                    </select>
-                </p>                  <p><strong>Birth Date:</strong> <input id="birthDate" class="form-control" value="{{ orphan.birthDate|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly> </p>
-                  <p><strong>Date Admitted:</strong> <input id="dateAdmitted" class="form-control" value="{{ orphan.dateAdmitted|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly> </p>
-                </div>
-
-                <!-- <hr class="m-0" /> -->
-                <div id="family-info" class="orphan-info-2">
-                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('family-info', globalOrphanId)" id="edit-family-info"> Edit </button>
-                  <h2>Family Information</h2>
-                  <p><strong>Mother:</strong> <input id="mothersName" class="form-control" value="{{ orphan.mothersName }}" type="text" aria-label="Disabled input example" readonly> </p>
-                  <p><strong>Father:</strong> <input id="fathersName" class="form-control" value="{{ orphan.fathersName }}" type="text" aria-label="Disabled input example" readonly> </p>
-                  <p><strong>Home Address:</strong> <input id="homeAddress" class="form-control" value="{{ orphan.homeAddress }}" type="text" aria-label="Disabled input example" readonly> </p>
-              </div>
-                <!-- <hr class="m-0" /> -->
-
-                <div id="educational-background" class="orphan-info-3">
-                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('educational-background', globalOrphanId)" id="edit-educational-background">Edit</button>
-                  <h2>Educational Background</h2>
-                  <div class="education-record">
-                      <p><strong>Quarter:</strong>
-                          <select id="quarter" class="form-control" aria-label="Quarter">
-                              <option value="">Select Quarter</option>
-                              <option value="1" {% if latest_education.quarter == 1 %}selected{% endif %}>1</option>
-                              <option value="2" {% if latest_education.quarter == 2 %}selected{% endif %}>2</option>
-                              <option value="3" {% if latest_education.quarter == 3 %}selected{% endif %}>3</option>
-                              <option value="4" {% if latest_education.quarter == 4 %}selected{% endif %}>4</option>
-                          </select>
-                      </p>
-                      <p><strong>School Year:</strong> <input id="school_year" class="form-control" value="{{ latest_education.school_year|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
-                      <p><strong>Education Level:</strong>
-                          <select id="education_level" class="form-control" aria-label="Education Level">
-                              <option value="">Select Education Level</option>
-                              <option value="Elementary" {% if latest_education.education_level == "Elementary" %}selected{% endif %}>Elementary</option>
-                              <option value="High School" {% if latest_education.education_level == "High School" %}selected{% endif %}>High School</option>
-                              <option value="College" {% if latest_education.education_level == "College" %}selected{% endif %}>College</option>
-                          </select>
-                      </p>
-                      <p><strong>School Name:</strong> <input id="school_name" class="form-control" value="{{ latest_education.school_name|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
-                      <p class="gpa"><strong>Current GPA:</strong> <input id="current_gpa" class="form-control" value="{{ latest_education.current_gpa|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
-                  </div>
-                  {% if not latest_education %}
-                      <p>No education records found.</p>
-                  {% endif %}
-                </div>
-
-                <!-- <hr class="m-0" /> -->
-                <div id="physical-health" class="orphan-info-4">
-                  <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('physical-health', globalOrphanId)" id="edit-physical-health"> Edit </button>
-                  <h2>Physical Health</h2>
-                  <p><strong>Height:</strong> <input id="height" class="form-control" value="{{ orphan.physical_health.height|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter height in cm" readonly></p>
-                  <p><strong>Weight:</strong> <input id="weight" class="form-control" value="{{ orphan.physical_health.weight|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter weight in kg" readonly></p>
-                  <p><strong>BMI Category:</strong> <input id="bmi_category" class="form-control" value="{{ orphan.physical_health.bmi_category|default:'' }}" type="text" aria-label="Disabled input example" readonly></p>
-              </div>
-             
-            
- <!-- Modal -->
-
-<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="noteModalLabel">Upload Typed Notes</h5>
-          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+      <div class="row info ">
+        {% if orphan.orphan_picture %}
+        <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}" height="100px" width="100px" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+        {% else %}
+        <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
+        {% endif %}                  
+        <div class="col-5 mt-3">
+            <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
+            <p>Orphan ID: {{ orphan.orphanID }}</p>
         </div>
-        <div class="modal-body">
-          <div class="center-container">
-            <div class="containerNote">
-              <h1>Upload Typed Notes</h1>
-              <form method="POST" action="{% url 'add_note' orphan.orphanID %}" enctype="multipart/form-data">
-                {% csrf_token %}
-              <label for="notes">Typed Notes:</label>
-                      <textarea id="notes" name="text" rows="5" class="form-control" required></textarea>
-                  </div>
-                  <div class="form-group">
-                      <button class="btn btn-primary" type="submit">Upload Notes</button>                    
-                  </div>
-              </form>
+        <div class="col text-end align-items-end justify-content-end">
+          <div class="row mt-3 text-end px-0 mx-5 info-icon">
+            <a class="btn btn-primary" href="./academic.html"> 
+              Academic Information </a>
+          </div>
+          <div class="row mt-3 text-end px-0 mx-5 info-icon">
+            <a class="btn btn-primary" href="./health.html"> 
+              Health Information </a>
+          </div>
+          <div class="row mt-3 text-end px-0 mx-5 info-icon">
+            <!-- <a class="btn btn-primary  " data-bs-toggle="modal" data-bs-target="#noteModal"> Add                                                                                           Notes </a> -->
+            <a class="btn btn-primary" href="./orphanSentiment_detail.html"> See
+              Notes </a>
+          </div>
+        </div>
+      </div>
+
+
+
+                <!-- <div class="info-icon">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#noteModal"> Add Notes </button>
+              </div>
+          </div>
+      </div> -->
+      <hr class="mt-2">
+      <div class="container-fluid row">
+        <div class="row ">
+          <div class="col-10 me-5">
+            <h2>Personal Information</h2>
+          </div>
+          <div class="col-lg-1 text-center align-items-end justify-content-end btn btn-primary m-1" 
+            onclick="toggleEdit('personal-info', globalOrphanId)" id="edit-personal-info"> 
+            <a>Edit </a>  
+          </div>
+        </div>
+          <p class="col-6">
+            <strong>First Name:</strong> 
+            <input class="form-control" id="firstName" class="form-control" value="{{ orphan.firstName }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-6">
+            <strong>Middle Name:</strong> 
+            <input class="form-control" id="middleName" class="form-control" value="{{ orphan.middleName }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-6">
+            <strong>Last Name:</strong> 
+            <input class="form-control" id="lastName" class="form-control" value="{{ orphan.lastName }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-6">
+            <strong>Gender:</strong>
+            <select id="gender" class="form-control" aria-label="Gender">
+                <option value="">Select Gender</option>
+                <option value="M" {% if orphan.gender == "M" %}selected{% endif %}>Male</option>
+                <option value="F" {% if orphan.gender == "F" %}selected{% endif %}>Female</option>
+            </select>
+          </p>                  
+          <p class="col-6">
+            <strong>Birth Date:</strong> 
+            <input class="form-control" id="birthDate" class="form-control" value="{{ orphan.birthDate|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly> 
+          </p>
+          <p class="col-6">
+            <strong>Date Admitted:</strong> 
+            <input class="form-control" id="dateAdmitted" class="form-control" value="{{ orphan.dateAdmitted|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly> 
+          </p>
+      </div>
+
+    <hr class="mt-2" />
+      <div class="container-fluid row">
+        <div class="row ">
+          <div class="col-10 me-5">
+            <h2>Family Information</h2>
+          </div>
+          <div class="col-lg-1 text-center align-items-end justify-content-end btn btn-primary m-1" 
+          onclick="toggleEdit('family-info', globalOrphanId)" id="edit-family-info">
+              <a>Edit</a>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <p class="col-12"><strong>Mother's Name:</strong> 
+              <input class="form-control" value="{{ info.family.mother_name }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Date of Birth:</strong> 
+              <input class="form-control" value="{{ info.family.mother_dob }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Contact Details:</strong> 
+              <input class="form-control" value="{{ info.family.mother_contact }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Occupation:</strong> 
+              <input class="form-control" value="{{ info.family.mother_occupation }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Address:</strong> 
+              <input class="form-control" value="{{ info.family.mother_address }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Status:</strong> 
+              <input class="form-control" value="{{ info.family.mother_status }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+        </div>
+      
+        <div class="col-6">
+            <p class="col-12"><strong>Father's Name:</strong> 
+                <input class="form-control" value="{{ info.family.father_name }}" type="text" aria-label="Disabled input example" readonly>
+            </p>
+            <p class="col-12"><strong>Date of Birth:</strong> 
+                <input class="form-control" value="{{ info.family.father_dob }}" type="text" aria-label="Disabled input example" readonly>
+            </p>
+            <p class="col-12"><strong>Contact Details:</strong> 
+                <input class="form-control" value="{{ info.family.father_contact }}" type="text" aria-label="Disabled input example" readonly>
+            </p>
+            <p class="col-12"><strong>Occupation:</strong> 
+                <input class="form-control" value="{{ info.family.father_occupation }}" type="text" aria-label="Disabled input example" readonly>
+            </p>
+            <p class="col-12"><strong>Address:</strong> 
+                <input class="form-control" value="{{ info.family.father_address }}" type="text" aria-label="Disabled input example" readonly>
+            </p>
+            <p class="col-12"><strong>Status:</strong> 
+                <input class="form-control" value="{{ info.family.father_status }}" type="text" aria-label="Disabled input example" readonly>
+            </p>
+        </div>
+      </div>
+
+      <hr class="mt-2" />
+      <div class="container-fluid row">
+        <div class="row ">
+          <div class="col-8 me-5">
+            <h2>BMI</h2>
+          </div>
+          <div class="col-3 text-end align-items-end justify-content-end mx-0 px-0">
+            <a class="btn btn-primary" href="./bmi.html">BMI History</a>
+          </div>
+        </div>
+        <p class="col-6"><strong>Height:</strong> <input class="form-control" value="Male" type="text"
+                aria-label="Disabled input example" readonly>
+        </p>
+        <p class="col-6"><strong>Weight:</strong> <input class="form-control" value="10-10-2021" type="text"
+                aria-label="Disabled input example" readonly>
+        </p>
+        <p class="col-6"><strong>BMI:</strong> <input class="form-control" value="1-23-1999" type="text"
+                aria-label="Disabled input example" readonly>
+        </p>
+        <p class="col-6"><strong>Status:</strong> <input class="form-control" value="Filipino" type="text"
+                aria-label="Disabled input example" readonly>
+        </p>
+      </div>
+
+      <hr class="mt-2">
+      <div class="container-fluid">
+      <h2>Orphan Files</h2>
+        <div class="row  ">
+            <div class=" col-lg-3 card file-card m-1">
+                <div class="card-body">
+                  <h5 class="card-title">Birth Certificate</h5>
+                  <p class="card-text">File description goes here...</p>
+                  <a class="btn btn-primary" href="../files/BirthCert.pdf" target="_blank">Open File</a>
+                </div>
+            </div>
+
+            <div class=" col-lg-3 card file-card m-1">
+              <div class="card-body">
+                <h5 class="card-title">Birth Certificate</h5>
+                <p class="card-text">File description goes here...</p>
+                <a class="btn btn-primary" href="../files/ReportCard.pdf" target="_blank">Open File</a>
+              </div>
+            </div>
+
+            <div class=" col-lg-3 card file-card m-1">
+              <div class="card-body">
+                <h5 class="card-title">Birth Certificate</h5>
+                <p class="card-text">File description goes here...</p>
+                <a class="btn btn-primary" href="#" target="_blank">Open File</a>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+<!-- <div id="physical-health" class="row">
+  <div class="btn btn-primary" style="float: right;" onclick="toggleEdit('physical-health', globalOrphanId)" id="edit-physical-health"> 
+    Edit 
+  </div> -->
+  <!-- <h2>Body mass index (BMI)</h2>
+  <p><strong>Height:</strong> <input id="height" class="form-control" value="{{ orphan.physical_health.height|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter height in cm" readonly></p>
+  <p><strong>Weight:</strong> <input id="weight" class="form-control" value="{{ orphan.physical_health.weight|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter weight in kg" readonly></p>
+  <p><strong>BMI Category:</strong> <input id="bmi_category" class="form-control" value="{{ orphan.physical_health.bmi_category|default:'' }}" type="text" aria-label="Disabled input example" readonly></p> -->
+
+  <!-- </div> -->
+    <!-- <hr class="m-0" /> -->
+
+    <!-- <div id="educational-background" class="orphan-info-3">
+      <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('educational-background', globalOrphanId)" id="edit-educational-background">Edit</button>
+      <h2>Educational Background</h2>
+      <div class="education-record">
+          <p><strong>Quarter:</strong>
+              <select id="quarter" class="form-control" aria-label="Quarter">
+                  <option value="">Select Quarter</option>
+                  <option value="1" {% if latest_education.quarter == 1 %}selected{% endif %}>1</option>
+                  <option value="2" {% if latest_education.quarter == 2 %}selected{% endif %}>2</option>
+                  <option value="3" {% if latest_education.quarter == 3 %}selected{% endif %}>3</option>
+                  <option value="4" {% if latest_education.quarter == 4 %}selected{% endif %}>4</option>
+              </select>
+          </p>
+          <p><strong>School Year:</strong> <input id="school_year" class="form-control" value="{{ latest_education.school_year|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
+          <p><strong>Education Level:</strong>
+              <select id="education_level" class="form-control" aria-label="Education Level">
+                  <option value="">Select Education Level</option>
+                  <option value="Elementary" {% if latest_education.education_level == "Elementary" %}selected{% endif %}>Elementary</option>
+                  <option value="High School" {% if latest_education.education_level == "High School" %}selected{% endif %}>High School</option>
+                  <option value="College" {% if latest_education.education_level == "College" %}selected{% endif %}>College</option>
+              </select>
+          </p>
+          <p><strong>School Name:</strong> <input id="school_name" class="form-control" value="{{ latest_education.school_name|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
+          <p class="gpa"><strong>Current GPA:</strong> <input id="current_gpa" class="form-control" value="{{ latest_education.current_gpa|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
+      </div>
+      {% if not latest_education %}
+          <p>No education records found.</p>
+      {% endif %}
+    </div> -->
+
+    <!-- <hr class="m-0" /> -->
+
+  
+
+    
+<!-- Modal -->
+      <div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header  ">
+              <h5 class="modal-title" id="noteModalLabel">Upload Typed Notes</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+              <div class="center-container">
+                <div class="containerNote">
+                  <h1>Upload Typed Notes</h1>
+                  <form method="POST" action="{% url 'add_note' orphan.orphanID %}" enctype="multipart/form-data">
+                  </form>
+                    {% csrf_token %}
+                  <label for="notes">
+                    Typed Notes:
+                  </label>
+                  <textarea id="notes" name="text" rows="5" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit">Upload Notes</button>                    
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+  </form>
+</div>
 
 
-          
-            {% endblock %}  
-    </main>
+        
+{% endblock %}  
+
 {% block js %}
 
 <!-- Include jQuery -->

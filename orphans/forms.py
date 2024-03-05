@@ -1,3 +1,4 @@
+from .models import Family
 from .models import Info
 from django import forms
 from .models import Files
@@ -12,15 +13,15 @@ class FilesForm(forms.ModelForm):
 
 # forms.py
 
+class FamilyForm(forms.ModelForm):
+    class Meta:
+        model = Family
+        fields = ['mother_name', 'mother_dob', 'mother_contact', 'mother_occupation', 'mother_address', 'mother_status',
+                  'father_name', 'father_dob', 'father_contact', 'father_occupation', 'father_address', 'father_status']
+
 
 class OrphanProfileForm(forms.ModelForm):
     class Meta:
         model = Info
-        fields = [
-            'firstName', 'middleName', 'lastName', 'gender', 'birthDate',
-            'dateAdmitted', 'mothersName', 'fathersName', 'homeAddress', 'orphan_picture'
-        ]
-        widgets = {
-            'birthDate': forms.DateInput(attrs={'type': 'date'}),
-            'dateAdmitted': forms.DateInput(attrs={'type': 'date'}),
-        }
+        fields = ['orphanID', 'firstName', 'middleName', 'lastName', 'gender',
+                  'birthDate', 'dateAdmitted', 'orphan_picture', 'is_deleted']
