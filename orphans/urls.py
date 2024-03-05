@@ -16,6 +16,12 @@ urlpatterns = [
 
     path('', orphan_view, name='orphans'),
     path('profile/<int:orphanID>/', views.orphan_profile, name='orphan_profile'),
+    path('orphans/profile/<int:orphan_id>/academic/',
+         views.academic_profile, name='academic_profile'),
+    path('orphans/profile/<int:orphan_id>/health/',
+         views.health_profile, name='health_profile'),
+    path('orphans/profile/<int:orphan_id>/behavior/',
+         views.behavior_profile, name='behavior_profile'),
 
     path('files/details/<int:file_id>/', views.file_details,
          name='file_details'),  # Add this line

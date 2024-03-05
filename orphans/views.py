@@ -56,6 +56,21 @@ def orphan_profile(request, orphanID):
     return render(request, 'orphans/orphan-content.html', context)
 
 
+def academic_profile(request, orphan_id):
+    orphan = get_object_or_404(Info, pk=orphan_id)
+    return render(request, 'orphans/academic.html', {'orphan': orphan})
+
+
+def health_profile(request, orphan_id):
+    orphan = get_object_or_404(Info, pk=orphan_id)
+    return render(request, 'orphans/health.html', {'orphan': orphan})
+
+
+def behavior_profile(request, orphan_id):
+    orphan = get_object_or_404(Info, pk=orphan_id)
+    return render(request, 'orphans/orphanSentiment.html', {'orphan': orphan})
+
+
 def edit_orphan(request, orphan_id):
     orphan = get_object_or_404(Info, orphanID=orphan_id)
     if request.method == 'POST':
