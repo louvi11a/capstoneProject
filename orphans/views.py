@@ -58,17 +58,17 @@ def orphan_profile(request, orphanID):
 
 def academic_profile(request, orphan_id):
     orphan = get_object_or_404(Info, pk=orphan_id)
-    return render(request, 'orphans/academic.html', {'orphan': orphan})
+    return render(request, 'orphans/academic_profile.html', {'orphan': orphan})
 
 
 def health_profile(request, orphan_id):
     orphan = get_object_or_404(Info, pk=orphan_id)
-    return render(request, 'orphans/health.html', {'orphan': orphan})
+    return render(request, 'orphans/health_profile.html', {'orphan': orphan})
 
 
 def behavior_profile(request, orphan_id):
     orphan = get_object_or_404(Info, pk=orphan_id)
-    return render(request, 'orphans/orphanSentiment.html', {'orphan': orphan})
+    return render(request, 'orphans/behavior_profile.html', {'orphan': orphan})
 
 
 def edit_orphan(request, orphan_id):
