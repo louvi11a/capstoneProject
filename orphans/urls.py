@@ -1,11 +1,10 @@
 from django.urls import path
 from . import views
-from orphans.views import orphan_view, restore_files, file_details
+from orphans.views import orphan_view, restore_files, file_details, family_detail
 from orphanage_system import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 print(views.__file__)
-print("This is the correct views.py file")
 
 urlpatterns = [
     path('files/', views.files_view, name='files'),
@@ -13,15 +12,23 @@ urlpatterns = [
     path('rename_file/', views.rename_file, name='rename_file'),
     path('delete_files/', views.delete_files, name='delete_files'),
     path('restore_files/', restore_files, name='restore_files'),
-
     path('', orphan_view, name='orphans'),
-    path('profile/<int:orphanID>/', views.orphan_profile, name='orphan_profile'),
+
+    path('profile/<int:orphanID>/',
+         views.orphan_profile, name='orphan_profile'),
     path('profile/<int:orphan_id>/academic/',
          views.academic_profile, name='academic_profile'),
     path('profile/<int:orphan_id>/health/',
          views.health_profile, name='health_profile'),
+    path('orphan/<int:orphan_id>/add_bmi/',
+         views.add_bmi, name='add_bmi'),
+    path('profile/<int:orphan_id>/bmi/',
+         views.bmi_profile, name='bmi_profile'),
     path('profile/<int:orphan_id>/behavior/',
          views.behavior_profile, name='behavior_profile'),
+
+
+    path('family/<int:family_id>/', family_detail, name='family_detail'),
 
     path('files/details/<int:file_id>/', views.file_details,
          name='file_details'),  # Add this line

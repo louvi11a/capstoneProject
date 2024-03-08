@@ -1,5 +1,5 @@
 console.log('orphan-content.js is loaded');
-// rest of your code
+
 
 var globalOrphanId;
 
@@ -18,9 +18,13 @@ function getOrphanId() {
 function toggleEdit(sectionId, orphanId) {
     console.log('toggleEdit is called with sectionId:', sectionId);
 
-    // Get the edit button and input fields in the section
+    // Get the edit button and its parent container
     var editButton = document.getElementById('edit-' + sectionId);
-    var inputs = document.getElementById(sectionId).getElementsByTagName('input');
+    var container = editButton.parentElement.parentElement.parentElement;
+
+    // Get all input fields in the container
+    var inputs = container.getElementsByTagName('input');
+    var selects = container.getElementsByTagName('select');
 
     // Check if the first input field is readonly or disabled
     if (inputs[0].hasAttribute('readonly') || inputs[0].hasAttribute('disabled')) {
@@ -29,15 +33,17 @@ function toggleEdit(sectionId, orphanId) {
             inputs[i].removeAttribute('readonly');
             inputs[i].removeAttribute('disabled');
         }
+        for (var i = 0; i < selects.length; i++) {
+            selects[i].removeAttribute('disabled');
+        }
         editButton.textContent = 'Save';
     } else {
         // If the input fields are editable, make them readonly or disabled and change the button text to "Edit"
         for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].type === "radio" || inputs[i].type === "checkbox") {
-                inputs[i].setAttribute('disabled', true);
-            } else {
-                inputs[i].setAttribute('readonly', true);
-            }
+            inputs[i].setAttribute('readonly', true);
+        }
+        for (var i = 0; i < selects.length; i++) {
+            selects[i].setAttribute('disabled', true);
         }
         editButton.textContent = 'Edit';
 
@@ -61,24 +67,32 @@ function collectData(sectionId) {
             data['dateAdmitted'] = document.getElementById('dateAdmitted').value;
             break;
         case 'family-info':
-            // Collect family info fields
             data['mothersName'] = document.getElementById('mothersName').value;
+            data['mothersDob'] = document.getElementById('mothersDob').value;
+            data['mothersContact'] = document.getElementById('mothersContact').value;
+            data['mothersOccupation'] = document.getElementById('mothersOccupation').value;
+            data['mothersAddress'] = document.getElementById('mothersAddress').value;
+            // data['mothersStatus'] = document.getElementById('mothersStatus').value;
             data['fathersName'] = document.getElementById('fathersName').value;
-            data['homeAddress'] = document.getElementById('homeAddress').value;
+            data['fathersDob'] = document.getElementById('fathersDob').value;
+            data['fathersContact'] = document.getElementById('fathersContact').value;
+            data['fathersOccupation'] = document.getElementById('fathersOccupation').value;
+            data['fathersAddress'] = document.getElementById('fathersAddress').value;
+            // data['fathersStatus'] = document.getElementById('fathersStatus').value;
             break;
-        case 'educational-background':
-            // Collect educational background fields
-            data['quarter'] = document.getElementById('quarter').value;
-            data['school_year'] = document.getElementById('school_year').value;
-            data['education_level'] = document.getElementById('education_level').value;
-            data['school_name'] = document.getElementById('school_name').value;
-            data['current_gpa'] = document.getElementById('current_gpa').value;
-            break;
-        case 'physical-health':
-            // Collect physical health fields
-            data['height'] = document.getElementById('height').value;
-            data['weight'] = document.getElementById('weight').value;
-            break;
+        // case 'educational-background':
+        //     // Collect educational background fields
+        //     data['quarter'] = document.getElementById('quarter').value;
+        //     data['school_year'] = document.getElementById('school_year').value;
+        //     data['education_level'] = document.getElementById('education_level').value;
+        //     data['school_name'] = document.getElementById('school_name').value;
+        //     data['current_gpa'] = document.getElementById('current_gpa').value;
+        // //     break;
+        // case 'physical-health':
+        //     // Collect physical health fields
+        //     data['height'] = document.getElementById('height').value;
+        //     data['weight'] = document.getElementById('weight').value;
+        //     break;
         // Add more cases as needed for other sections
     }
 
@@ -90,16 +104,24 @@ function saveChanges(sectionId, orphanId) {
     // Call collectData to get the form data for the specific section
     var data = collectData(sectionId); // Pass sectionId to collectData
 
-    // Check if birthDate and dateAdmitted are in the correct format
-    var datePattern = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
-    if ('birthDate' in data && !datePattern.test(data['birthDate'])) {
-        console.error('birthDate is not in the correct format');
-        return;
-    }
-    if ('dateAdmitted' in data && !datePattern.test(data['dateAdmitted'])) {
-        console.error('dateAdmitted is not in the correct format');
-        return;
-    }
+   // Check if birthDate and dateAdmitted are in the correct format
+   var datePattern = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
+   if ('birthDate' in data && !datePattern.test(data['birthDate'])) {
+       console.error('birthDate is not in the correct format');
+       return;
+   }
+   if ('dateAdmitted' in data && !datePattern.test(data['dateAdmitted'])) {
+       console.error('dateAdmitted is not in the correct format');
+       return;
+   }
+   if ('motherDOB' in data && !datePattern.test(data['motherDOB'])) {
+       console.error('motherDOB is not in the correct format');
+       return;
+   }
+   if ('fatherDOB' in data && !datePattern.test(data['fatherDOB'])) {
+       console.error('fatherDOB is not in the correct format');
+       return;
+   }
     console.log('Dates are in the correct format');
 
     // Get the CSRF token from a cookie
@@ -165,23 +187,23 @@ document.addEventListener('DOMContentLoaded', function() {
         return '';
     }
 
-    // Function to update BMI category on the page
-    function updateBMICategory() {
-        var height = parseFloat(document.getElementById('height').value);
-        var weight = parseFloat(document.getElementById('weight').value);
-        var bmi = calculateBMI(height, weight);
-        var bmiCategory = getBMICategory(bmi);
-        document.getElementById('bmi_category').value = bmiCategory;
-    }
+    // // Function to update BMI category on the page
+    // function updateBMICategory() {
+    //     var height = parseFloat(document.getElementById('height').value);
+    //     var weight = parseFloat(document.getElementById('weight').value);
+    //     var bmi = calculateBMI(height, weight);
+    //     var bmiCategory = getBMICategory(bmi);
+    //     document.getElementById('bmi_category').value = bmiCategory;
+    // }
 
-    // Add event listeners to the height and weight input fields
-    var heightElement = document.getElementById('height');
-    var weightElement = document.getElementById('weight');
+    // // Add event listeners to the height and weight input fields
+    // var heightElement = document.getElementById('height');
+    // var weightElement = document.getElementById('weight');
 
-    if (heightElement && weightElement) {
-        heightElement.addEventListener('input', updateBMICategory);
-        weightElement.addEventListener('input', updateBMICategory);
-    } else {
-        console.error('Height or weight element not found');
-    }
+    // if (heightElement && weightElement) {
+    //     heightElement.addEventListener('input', updateBMICategory);
+    //     weightElement.addEventListener('input', updateBMICategory);
+    // } else {
+    //     console.error('Height or weight element not found');
+    // }
 });

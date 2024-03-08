@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block css %}
-    <!-- <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan-content.css' %}">
-    <script src="{% static 'Js/orphan-content.js' %}"></script> -->
+    <!-- <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan-content.css' %}"> -->
+    <script src="{% static 'Js/orphan-content.js' %}"></script>
 
 {% endblock %}
 
@@ -69,11 +69,11 @@
         </div>
           <p class="col-6">
             <strong>First Name:</strong> 
-            <input class="form-control" id="firstName" class="form-control" value="{{ orphan.firstName }}" type="text" aria-label="Disabled input example" readonly>
+            <input id="firstName" class="form-control" value="{{ orphan.firstName }}" type="text" aria-label="Disabled input example" readonly>
           </p>
           <p class="col-6">
             <strong>Middle Name:</strong> 
-            <input class="form-control" id="middleName" class="form-control" value="{{ orphan.middleName }}" type="text" aria-label="Disabled input example" readonly>
+            <input id="middleName" class="form-control" value="{{ orphan.middleName }}" type="text" aria-label="Disabled input example" readonly>
           </p>
           <p class="col-6">
             <strong>Last Name:</strong> 
@@ -111,70 +111,63 @@
 
         <div class="col-6">
           <p class="col-12"><strong>Mother's Name:</strong> 
-              <input class="form-control" value="{{ info.family.mother_name }}" type="text" aria-label="Disabled input example" readonly>
+              <input id="mothersName" class="form-control" value="{{ orphan.family.mother_name }}" type="text" aria-label="Disabled input example" readonly>
           </p>
           <p class="col-12"><strong>Date of Birth:</strong> 
-              <input class="form-control" value="{{ info.family.mother_dob }}" type="text" aria-label="Disabled input example" readonly>
+              <input id="mothersDob" class="form-control" value="{{ orphan.family.mother_dob|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly>
+
           </p>
           <p class="col-12"><strong>Contact Details:</strong> 
-              <input class="form-control" value="{{ info.family.mother_contact }}" type="text" aria-label="Disabled input example" readonly>
+              <input id="mothersContact" class="form-control" value="{{ orphan.family.mother_contact }}" type="text" aria-label="Disabled input example" readonly>
           </p>
           <p class="col-12"><strong>Occupation:</strong> 
-              <input class="form-control" value="{{ info.family.mother_occupation }}" type="text" aria-label="Disabled input example" readonly>
+              <input id="mothersOccupation" class="form-control" value="{{ orphan.family.mother_occupation }}" type="text" aria-label="Disabled input example" readonly>
           </p>
           <p class="col-12"><strong>Address:</strong> 
-              <input class="form-control" value="{{ info.family.mother_address }}" type="text" aria-label="Disabled input example" readonly>
-          </p>
-          <p class="col-12"><strong>Status:</strong> 
-              <input class="form-control" value="{{ info.family.mother_status }}" type="text" aria-label="Disabled input example" readonly>
+              <input id="mothersAddress" class="form-control" value="{{ orphan.family.mother_address }}" type="text" aria-label="Disabled input example" readonly>
           </p>
         </div>
-      
+        
         <div class="col-6">
-            <p class="col-12"><strong>Father's Name:</strong> 
-                <input class="form-control" value="{{ info.family.father_name }}" type="text" aria-label="Disabled input example" readonly>
-            </p>
-            <p class="col-12"><strong>Date of Birth:</strong> 
-                <input class="form-control" value="{{ info.family.father_dob }}" type="text" aria-label="Disabled input example" readonly>
-            </p>
-            <p class="col-12"><strong>Contact Details:</strong> 
-                <input class="form-control" value="{{ info.family.father_contact }}" type="text" aria-label="Disabled input example" readonly>
-            </p>
-            <p class="col-12"><strong>Occupation:</strong> 
-                <input class="form-control" value="{{ info.family.father_occupation }}" type="text" aria-label="Disabled input example" readonly>
-            </p>
-            <p class="col-12"><strong>Address:</strong> 
-                <input class="form-control" value="{{ info.family.father_address }}" type="text" aria-label="Disabled input example" readonly>
-            </p>
-            <p class="col-12"><strong>Status:</strong> 
-                <input class="form-control" value="{{ info.family.father_status }}" type="text" aria-label="Disabled input example" readonly>
-            </p>
+          <p class="col-12"><strong>Father's Name:</strong> 
+              <input id="fathersName" class="form-control" value="{{ orphan.family.father_name }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Date of Birth:</strong> 
+              <input id="fathersDob" class="form-control" value="{{ orphan.family.father_dob|date:'Y-m-d' }}" type="date" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Contact Details:</strong> 
+              <input id="fathersContact" class="form-control" value="{{ orphan.family.father_contact }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Occupation:</strong> 
+              <input id="fathersOccupation" class="form-control" value="{{ orphan.family.father_occupation }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+          <p class="col-12"><strong>Address:</strong> 
+              <input id="fathersAddress" class="form-control" value="{{ orphan.family.father_address }}" type="text" aria-label="Disabled input example" readonly>
+          </p>
+        </div>
         </div>
       </div>
 
       <hr class="mt-2" />
       <div class="container-fluid row">
         <div class="row ">
-          <div class="col-8 me-5">
-            <h2>BMI</h2>
-          </div>
-          <div class="col-3 text-end align-items-end justify-content-end mx-0 px-0">
-            <a class="btn btn-primary" href="./bmi.html">BMI History</a>
-          </div>
+            <div class="col-8 me-5">
+                <h2>BMI</h2>
+            </div>
+            <div class="col-3 text-end align-items-end justify-content-end mx-0 px-0">
+                <a class="btn btn-primary" href="{% url 'bmi_profile' orphan.orphanID %}">BMI History</a>
+            </div>
         </div>
-        <p class="col-6"><strong>Height:</strong> <input class="form-control" value="Male" type="text"
-                aria-label="Disabled input example" readonly>
+        <p class="col-6"><strong>Height:</strong> 
+          <input class="form-control" value="{{ latest_physical_health.height }}" type="text" aria-label="Disabled input example" readonly>
         </p>
-        <p class="col-6"><strong>Weight:</strong> <input class="form-control" value="10-10-2021" type="text"
-                aria-label="Disabled input example" readonly>
+        <p class="col-6"><strong>Weight:</strong> 
+            <input class="form-control" value="{{ latest_physical_health.weight }}" type="text" aria-label="Disabled input example" readonly>
         </p>
-        <p class="col-6"><strong>BMI:</strong> <input class="form-control" value="1-23-1999" type="text"
-                aria-label="Disabled input example" readonly>
+        <p class="col-6"><strong>BMI:</strong> 
+            <input class="form-control" value="{{ latest_physical_health.bmi_category }}" type="text" aria-label="Disabled input example" readonly>
         </p>
-        <p class="col-6"><strong>Status:</strong> <input class="form-control" value="Filipino" type="text"
-                aria-label="Disabled input example" readonly>
-        </p>
-      </div>
+    </div>
 
       <hr class="mt-2">
       <div class="container-fluid">
@@ -303,7 +296,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Include your custom JS -->
 <!-- <script src="{% static 'Js/note.js' %}"></script> -->
-
+<script src="{% static 'Js/orphan-content.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 {% endblock %}
 
 </body>

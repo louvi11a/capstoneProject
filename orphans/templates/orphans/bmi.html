@@ -1,0 +1,115 @@
+{% extends "Dashboard/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Health Profile
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block content %}
+
+                <!-- content -->
+                <div class="m-2">
+                    <a href="{% url 'orphan_profile' orphan.orphanID %}" class="btn btn-primary mt-3">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="row info mt-3">
+                    {% if orphan.orphan_picture %}
+
+                    <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}"  height="100px" width="100px"
+                    alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+                    {% else %}
+                    <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
+                    {% endif %}
+                    <div class="col-5 mt-3">
+                        <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
+                        <p>Orphan ID: {{ orphan.orphanID }}</p>
+                    </div>
+                    <div class="col text-end align-items-end justify-content-end">
+                        <!-- <div class="row mt-3 text-end px-0 mx-5">
+                                        <a class="btn btn-primary" href="./orphanSentiment_detail.html"> 
+                                          Academic Information </a>
+                                      </div>
+                                      <div class="row mt-3 text-end px-0 mx-5 info-icon">
+                                        <a class="btn btn-primary" href="./orphanSentiment_detail.html"> 
+                                          Health Information </a>
+                                      </div> -->
+                        <div class="row mt-3 info-icon text-end px-0 mx-5">
+                            <!-- <a class="btn btn-primary  " data-bs-toggle="modal" data-bs-target="#noteModal"> Add                                                                                           Notes </a> -->
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bmiModal">Add BMI</button>
+
+
+
+
+                            <!-- modal for bmi add -->
+                        <div class="modal fade" id="bmiModal" tabindex="-1" aria-labelledby="bmiModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="bmiModalLabel">Enter BMI Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form id="bmiForm" method="post" action="{% url 'add_bmi' orphan.orphanID %}">
+                                  {% csrf_token %}
+                                  <div class="mb-3">
+                                    <label for="heightInput" class="form-label">Height (cm)</label>
+                                    <input type="number" class="form-control" name="height" id="heightInput" aria-describedby="heightHelp" required>
+                                    <small id="heightHelp" class="form-text text-muted">Enter your height in centimeters.</small>
+                                  </div>
+                                  <div class="mb-3">
+                                    <label for="weightInput" class="form-label">Weight (kg)</label>
+                                    <input type="number" class="form-control" name="weight" id="weightInput" aria-describedby="weightHelp" required>
+                                    <small id="weightHelp" class="form-text text-muted">Enter your weight in kilograms.</small>
+                                  </div>
+                                </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" form="bmiForm" class="btn btn-primary">Save</button>
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                
+                <hr class="mt-3">
+
+                <div>
+                    <h2>BMI Details</h2>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Height (cm)</th>
+                                <th scope="col">Weight (kg)</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          {% for record in physical_health_records %}
+                            <tr>
+                              <td>{{ record.recorded_at }}</td>
+                              <td>{{ record.height }}</td>
+                              <td>{{ record.weight }}</td>
+                              <td>{{ record.bmi_category }}</td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            
+
+            </div>
+        </div>
+    </div>
+    {% endblock %}  
+    {% block js %}
+    {% endblock %}
+

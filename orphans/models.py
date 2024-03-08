@@ -109,8 +109,8 @@ class IncidentType(models.Model):
 
 class PhysicalHealth(models.Model):
     healthID = models.AutoField(primary_key=True)
-    orphan = models.OneToOneField(
-        'Info', on_delete=models.PROTECT, related_name='physical_health')
+    orphan = models.ForeignKey(
+        'Info', on_delete=models.CASCADE, related_name='physical_health')
     height = models.DecimalField(
         max_digits=5, decimal_places=2, blank=True, null=True)
     weight = models.DecimalField(
@@ -139,6 +139,7 @@ class PhysicalHealth(models.Model):
 
     class Meta:
         db_table = 'orphan_health'
+        ordering = ['-recorded_at']  # Order by recorded_at in descending order
 
     def calculate_bmi(self):
         if self.height is not None and self.weight is not None:

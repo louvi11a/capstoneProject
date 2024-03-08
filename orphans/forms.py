@@ -1,7 +1,7 @@
 from .models import Family
 from .models import Info
 from django import forms
-from .models import Files
+from .models import Files, PhysicalHealth
 
 
 class FilesForm(forms.ModelForm):
@@ -25,3 +25,9 @@ class OrphanProfileForm(forms.ModelForm):
         model = Info
         fields = ['orphanID', 'firstName', 'middleName', 'lastName', 'gender',
                   'birthDate', 'dateAdmitted', 'orphan_picture', 'is_deleted']
+
+
+class BmiForm(forms.ModelForm):
+    class Meta:
+        model = PhysicalHealth
+        fields = ['height', 'weight']

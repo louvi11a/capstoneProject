@@ -1,8 +1,7 @@
 from django.http import Http404
-from .forms import OrphanProfileForm, FamilyForm
+from .forms import OrphanProfileForm, FamilyForm, BmiForm
 from .models import Info, PhysicalHealth, Education, Family
 from decimal import Decimal, InvalidOperation
-from .models import Info, Education, PhysicalHealth
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.shortcuts import render, redirect
@@ -25,6 +24,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import Files  # Make sure to import your Files model
 from django.views.decorators.http import require_POST
+from django.utils import timezone
+from datetime import datetime
 
 
 @login_required
@@ -37,18 +38,39 @@ def orphan_view(request):
     return render(request, "orphans/orphan.html", {'orphans': orphans})
 
 
+def family_detail(request, family_id):
+    family = Family.objects.get(id=family_id)
+    return render(request, 'family_detail.html', {'family': family})
+
+# def orphan_view(request, orphan_id):
+#     orphans = Info.objects.filter(is_deleted=False)
+#     orphan = Info.objects.get(id=orphan_id)
+#     family = orphan.family  # assuming there is a 'family' field in your Info model
+#     return render(request, "orphans/orphan.html", {'orphan': orphan, 'family': family})
+
+
 def orphan_profile(request, orphanID):
     # Fetch the orphan instance using the provided orphanID.
-    orphan = get_object_or_404(Info.objects.select_related(
-        'physical_health'), orphanID=orphanID)
+    orphan = Info.objects.prefetch_related(
+        'physical_health').get(orphanID=orphanID)
 
     # Fetch the latest education instance for the orphan.
     latest_education = orphan.educations.order_by('-id').first()
+
+    # Fetch the physical health records for the orphan.
+    physical_health_records = orphan.physical_health.all()
+
+    # Fetch the latest BMI record for the orphan.
+    latest_physical_health = orphan.physical_health.order_by(
+        '-recorded_at').first()
 
     # Prepare the context with the orphan and latest education instance.
     context = {
         'orphan': orphan,
         'latest_education': latest_education,
+        'physical_health_records': physical_health_records,
+        'latest_physical_health': latest_physical_health,  # Add this line
+
         # Include any other context data you need for the template.
     }
 
@@ -69,6 +91,27 @@ def health_profile(request, orphan_id):
 def behavior_profile(request, orphan_id):
     orphan = get_object_or_404(Info, pk=orphan_id)
     return render(request, 'orphans/behavior_profile.html', {'orphan': orphan})
+
+
+def bmi_profile(request, orphan_id):
+    orphan = get_object_or_404(Info, pk=orphan_id)
+    physical_health_records = orphan.physical_health.all()
+    return render(request, 'orphans/bmi.html', {'orphan': orphan, 'physical_health_records': physical_health_records})
+
+
+def add_bmi(request, orphan_id):
+    orphan = Info.objects.get(orphanID=orphan_id)
+    if request.method == 'POST':
+        height = Decimal(request.POST.get('height'))
+        weight = Decimal(request.POST.get('weight'))
+        physical_health = PhysicalHealth(
+            orphan=orphan, height=height, weight=weight)
+        physical_health.calculate_bmi()
+        physical_health.save()
+        return redirect('bmi_profile', orphan_id=orphan.orphanID)
+    else:
+        form = BmiForm()
+    return render(request, 'add_bmi.html', {'form': form})
 
 
 def edit_orphan(request, orphan_id):
@@ -221,8 +264,8 @@ def download_file(request, file_id):
 
 def save_changes(request, orphan_id):
     # Debug prints
-    print('Request method:', request.method)
-    print('Request body:', request.body)
+    # print('Request method:', request.method)
+    # print('Request body:', request.body)
 
     # Get the orphan
     orphan = get_object_or_404(Info, orphanID=orphan_id)
@@ -244,12 +287,34 @@ def save_changes(request, orphan_id):
         data['birthDate']) if 'birthDate' in data else orphan.birthDate
     orphan.dateAdmitted = parse_date(
         data['dateAdmitted']) if 'dateAdmitted' in data else orphan.dateAdmitted
-    orphan.mothersName = data.get('mothersName', orphan.mothersName)
-    orphan.fathersName = data.get('fathersName', orphan.fathersName)
-    orphan.homeAddress = data.get('homeAddress', orphan.homeAddress)
-    orphan.save()
-    print('Saved orphan:', orphan)
 
+    # Update the Family's information if provided
+    if any(key in data for key in ['mothersName', 'fathersName', 'mothersAddress', 'fathersAddress', 'mothersDob', 'mothersContact', 'mothersOccupation', 'fathersDob', 'fathersContact', 'fathersOccupation']):
+        if orphan.family is None:
+            orphan.family = Family.objects.create()
+            orphan.save()
+        family = orphan.family
+        family.mother_name = data.get('mothersName', family.mother_name)
+        family.father_name = data.get('fathersName', family.father_name)
+        family.mother_address = data.get(
+            'mothersAddress', family.mother_address)
+        family.father_address = data.get(
+            'fathersAddress', family.father_address)
+        family.mother_dob = data.get(
+            'mothersDob', family.mother_dob) if data.get('mothersDob') else None
+        family.mother_contact = data.get(
+            'mothersContact', family.mother_contact)
+        family.mother_occupation = data.get(
+            'mothersOccupation', family.mother_occupation)
+        family.father_dob = data.get(
+            'fathersDob', family.father_dob) if data.get('fathersDob') else None
+        family.father_contact = data.get(
+            'fathersContact', family.father_contact)
+        family.father_occupation = data.get(
+            'fathersOccupation', family.father_occupation)
+        family.save()
+
+    orphan.save()
     # Update the PhysicalHealth's information if provided
     if 'height' in data or 'weight' in data or 'bmi_category' in data:
         physical_health, created = PhysicalHealth.objects.get_or_create(
@@ -268,51 +333,8 @@ def save_changes(request, orphan_id):
             physical_health.bmi_category = data['bmi_category']
         physical_health.calculate_bmi()
         physical_health.save()
-
-    # Update the Education's information if provided
-    education_fields = ['education_level', 'school_name',
-                        'current_gpa', 'school_year', 'quarter']
-    education_data = {field: data.get(
-        field) for field in education_fields if field in data and data[field] != ''}
-    if education_data:
-        # Fetch the latest education instance or create a new one if none exist
-        education = orphan.educations.order_by('-id').first()
-        if not education:
-            education = Education(orphan=orphan)
-
-        for key, value in education_data.items():
-            if key == 'current_gpa':
-                try:
-                    education.current_gpa = Decimal(value)
-                except (ValueError, InvalidOperation):
-                    return JsonResponse({'status': 'error', 'message': 'Invalid GPA format'})
-            elif key == 'quarter':
-                education.quarter = int(value)
-            else:
-                setattr(education, key, value)
-        education.save()
-        print('Saved education:', education)
-
     # Return a JSON response
     return JsonResponse({'status': 'ok'})
-# if hasattr(orphan, 'physical_health'):
-#         # Get the associated PhysicalHealth instance
-#         physical_health = orphan.physical_health
-#     else:
-#         # If not, create a new PhysicalHealth instance and associate it with the orphan
-#         physical_health = PhysicalHealth(orphan=orphan)
-
-#     # Update the PhysicalHealth's information
-#     if 'height' in data:
-#         physical_health.height = float(data.get('height'))
-#     if 'weight' in data:
-#         physical_health.weight = float(data.get('weight'))
-#     if 'bmi_category' in data:
-#         physical_health.bmi_category = data.get('bmi_category')
-#     physical_health.calculate_bmi()
-
-#     # Save the changes to the PhysicalHealth instance
-#     physical_health.save()
 
 
 @login_required
