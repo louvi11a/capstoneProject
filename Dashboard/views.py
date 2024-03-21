@@ -1,15 +1,13 @@
 from django.db.models import Avg
 from django.db.models import Count
-from behavior.models import Notes
-from orphans.models import Info, Files
+# from behavior.models import Notes
+from orphans.models import Info, Files, Notes, get_sentiment_data
 from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
-from behavior.models import Notes
 from django.db.models import Q
 from django.shortcuts import render
 from django.http import JsonResponse
-
 # def dashboard_view(request):
 #     # Query the database to get the sentiment scores and the orphans
 #     notes = Notes.objects.all()
@@ -27,6 +25,21 @@ from django.http import JsonResponse
 #     }
 #     return render(request, 'Dashboard/Dashboard.html', context)
 
+# Adjust your view to send a dictionary
+
+
+def sentiment_chart_view(request):
+    try:
+        positive, negative, neutral = get_sentiment_data()
+        sentiment_data = {
+            'positive': positive,
+            'negative': negative,
+            'neutral': neutral,
+        }
+        return JsonResponse(sentiment_data)
+    except Exception as e:
+        return JsonResponse({'error': str(e)})
+
 
 def dashboard_view(request):
     # Fetch sentiment data from the database
@@ -39,13 +52,38 @@ def dashboard_view(request):
     negative_count = sentiment_data.filter(sentiment_score__lt=0).count()
     neutral_count = sentiment_data.filter(sentiment_score=0).count()
     data = [positive_count, negative_count, neutral_count]
+    male_count = Info.objects.filter(gender='M').count()
+    female_count = Info.objects.filter(gender='F').count()
+    total_orphans = Info.objects.count()
 
     context = {
         'sentiment_labels': labels,
         'sentiment_data': data,
+        'male_count': male_count,
+        'female_count': female_count,
+        'total_orphans': total_orphans,
+
     }
 
     return render(request, 'Dashboard/Dashboard.html', context)
+
+
+def intervention_academics(request):
+    # You can calculate or fetch orphan_count here
+    orphan_count = 55
+    return render(request, 'Dashboard/intervention_academics.html', {'orphan_count': orphan_count})
+
+
+def intervention_health(request):
+    # You can calculate or fetch orphan_count here
+    orphan_count = 55
+    return render(request, 'Dashboard/intervention_health.html', {'orphan_count': orphan_count})
+
+
+def intervention_behavior(request):
+    # You can calculate or fetch orphan_count here
+    orphan_count = 55
+    return render(request, 'Dashboard/intervention_behavior.html', {'orphan_count': orphan_count})
 
 
 def files_detail(request, pk):
@@ -53,32 +91,32 @@ def files_detail(request, pk):
     return render(request, 'files/detail.html', {'file': file})
 
 
-class SearchView(View):
-    def get(self, request, *args, **kwargs):
-        query = request.GET.get('q')
-        if query:
-            infos = Info.objects.filter(Q(firstName__icontains=query) | Q(
-                middleName__icontains=query) | Q(lastName__icontains=query))
-            files = Files.objects.filter(fileName__icontains=query)
-            results = []
+# class SearchView(View):
+#     def get(self, request, *args, **kwargs):
+#         query = request.GET.get('q')
+#         if query:
+#             infos = Info.objects.filter(Q(firstName__icontains=query) | Q(
+#                 middleName__icontains=query) | Q(lastName__icontains=query))
+#             files = Files.objects.filter(fileName__icontains=query)
+#             results = []
 
-            # Add URLs for orphan profiles
-            for info in infos:
-                results.append({
-                    'label': f"{info.firstName} {info.middleName} {info.lastName}",
-                    'value': request.build_absolute_uri(f'/orphans/profile/{info.orphanID}/')
-                })
+#             # Add URLs for orphan profiles
+#             for info in infos:
+#                 results.append({
+#                     'label': f"{info.firstName} {info.middleName} {info.lastName}",
+#                     'value': request.build_absolute_uri(f'/orphans/profile/{info.orphanID}/')
+#                 })
 
-            # Add a general URL for files
-            files_url = request.build_absolute_uri('/files/')
-            for file in files:
-                results.append({
-                    'label': file.fileName,
-                    'value': files_url
-                })
+#             # Add a general URL for files
+#             files_url = request.build_absolute_uri('/files/')
+#             for file in files:
+#                 results.append({
+#                     'label': file.fileName,
+#                     'value': files_url
+#                 })
 
-            return JsonResponse(results, safe=False)
-        return JsonResponse({}, status=400)
+#             return JsonResponse(results, safe=False)
+#         return JsonResponse({}, status=400)
 
 
 def sentiment_details(request):

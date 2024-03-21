@@ -3,15 +3,11 @@
 
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'Css/final.css' %}">
 {% endblock %}
 
 
 {% block extra_meta %}
-  <!-- Custom styles for this template-->
-  <link href="css/sb-admin-2.min.css" rel="stylesheet">
-  <!-- charts.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 
@@ -20,7 +16,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-sm m-3 border vh-100 overflow-auto bg-light rounded-4">
     <!-- content -->
     <div>
         <div class="container-fluid mb-0  ">
@@ -33,7 +28,7 @@
                       </div>
                       <div class="card-body text-center mb-5 p-0">
                       <h1 class="display-4">
-                        <?php echo $orphan_count; ?>100
+                        {{ total_orphans }}
                       </h1>
                     </div>
                   </div>
@@ -48,11 +43,11 @@
                         <ul class="list-group bgdash list-group-flush">
                           <li class="list-group-item bgdash d-flex justify-content-between align-items-center">
                             Male
-                            <span class="badge bg-success rounded-pill">55</span>
+                            <span class="badge bg-success rounded-pill">{{ male_count }}</span>
                           </li>
                           <li class="list-group-item bgdash d-flex justify-content-between align-items-center">
                             Female
-                            <span class="badge bg-danger rounded-pill">48</span>
+                            <span class="badge bg-danger rounded-pill">{{ female_count }}</span>
                           </li>
                         </ul>
                       </div>
@@ -60,14 +55,14 @@
                   </div>
 
                   <div class="col-xl-2 col-md-6 mb-0">
-                    <a class="card bgdash shadow h-75 w-100 p-0 m-0 btn btn-outline-primary" href="./intervention-academics.html">
+                    <a class="card bgdash shadow h-75 w-100 p-0 m-0 btn btn-outline-primary" href="{% url 'intervention_academics' %}"> 
                       <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="card-title text-info ">Education</h5>
                         <i class="txtColor icon fa-solid fa-building-circle-exclamation fs-2   border-0" style="font-size: 35px;"></i>
                       </div>
                       <div class="card-body text-center mb-5 p-0">
                         <h1 class="display-4">
-                          <?php echo $orphan_count; ?>55
+                          {{ orphan_count }}55
                         </h1>
                         <p class="text-center">Orphans Requires Intervention</p>
                       </div>
@@ -75,14 +70,14 @@
                   </div>
   
                   <div class="col-xl-2 col-md-6 mb-0">
-                    <a class="card bgdash shadow h-75 w-100 p-0 m-0 btn btn-outline-primary" href="./intervention-health.html">
+                    <a class="card bgdash shadow h-75 w-100 p-0 m-0 btn btn-outline-primary" href="{% url 'intervention_health' %}">
                       <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="card-title text-info">Health</h5>
                         <i class="txtColor icon fa-solid fa-heart-circle-exclamation fs-2   border-0" style="font-size: 35px;"></i>
                       </div>
                       <div class="card-body text-center mb-5 p-0">
                         <h1 class="display-4">
-                          <?php echo $orphan_count; ?>55
+                          {{ orphan_count }}55
                         </h1>
                         <p class="text-center">Orphans Requires Intervention</p>
                       </div>
@@ -90,14 +85,14 @@
                   </div>
   
                   <div class="col-xl-2 col-md-6 mb-0">
-                    <a class="card bgdash shadow h-75 w-100 p-0 m-0 btn btn-outline-primary" href="./intervention-behavior.html">
+                    <a class="card bgdash shadow h-75 w-100 p-0 m-0 btn btn-outline-primary" href="{% url 'intervention_behavior' %}">
                       <div class="card-body d-flex justify-content-between align-items-center">
                         <h5 class="card-title text-info">Behavior</h5>
                         <i class="txtColor icon fa-solid fa-person-circle-exclamation fs-2   border-0" style="font-size: 35px;"></i>
                       </div>
                       <div class="card-body text-center mb-5 p-0">
                         <h1 class="display-4">
-                          <?php echo $orphan_count; ?>55
+                          {{ orphan_count }}55
                         </h1>
                         <p class="text-center">Orphans Requires Intervention</p>
                       </div>
@@ -108,110 +103,156 @@
 
 
 
-                <!-- charts dre haaa -->
-                <div class="container ">
-                  <div class="row">
-                    <a class="col-lg-6 col-md-12 " href="./chart-bmi.html">
-                      <h4 class="m-5 text-decoration-none"></h4>
-                    <canvas id="bmiChart" class=""  ></canvas>
-                  </a>
-                  <div class="col-lg-6 col-md-12  ">
-                    <h3 class="mt-5"></h3>
-                    <a href="./chart-age.html" class="">
-                      <canvas id="overallChart" ></canvas>
-                    </a>
-                    <a href="./chart-academic.html">
-                        <canvas id="academicChart" ></canvas>
-                      </a>
+                <hr class="m-0 mt-0 w-100">
+            <!-- charts here -->
+            <div class="container mt-0">
+              <div class="row">
+                <div class="col-md-4">
+                  <div id="sentimentsChartContainer" class="container rounded-4 border border-2 mt-3 canvas-container" onclick="window.location.href='./chart-sentiments.html';" style="height: 52.5vh;">
+                    <h4 class="text-center">Sentiments Chart</h4>
+                    <canvas id="sentimentChart"></canvas>
+                  </div>
                 </div>
-                <div class="col-lg-6 col-md-12  btn">
-                  <h1 class="mt-5"></h1>
+                <div class="col-md-4">
+                  <div class="container rounded-4 border border-2 mt-3 canvas-container bar-chart-container" onclick="window.location.href='./chart-bmi.html';" style="height: 26.1h;">
+                    <h4 class="text-center">BMI Chart</h4>
+                    <canvas id="bmiChart"></canvas>
+                  </div>
+                  <div class="container rounded-4 border border-2 mt-3 canvas-container bar-chart-container" onclick="window.location.href='./chart-health.html';" style="height: 26.1h;">
+                    <h4 class="text-center">Health Chart</h4>
+                    <canvas id="healthChart"></canvas>
+                  </div>
                 </div>
+                <div class="col-md-4">
+                  <div class="container rounded-4 border border-2 mt-3 canvas-container bar-chart-container" onclick="window.location.href='./chart-age.html';"style="height: 26.1h;">
+                    <h4 class="text-center">Age Chart</h4>
+                    <canvas id="ageChart"></canvas>
+                  </div>
+                  <div class="container rounded-4 border border-2 mt-3 canvas-container bar-chart-container" onclick="window.location.href='./chart-academic.html';" style="height: 26.1h;">
+                    <h4 class="text-center">Academic Chart</h4>
+                    <canvas id="academicChart"></canvas>
+                  </div>
                 </div>
               </div>
+            </div>
+            {{ sentiments|json_script:"sentiments-data" }}
+            <script>
+            fetch('/Dashboard/api/chart-sentiment/')
+            .then(response => response.json())
+            .then(sentimentData => {
+                var ctx = document.getElementById('sentimentChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Positive', 'Negative', 'Neutral'],
+                        datasets: [{
+                            label: '# of Orphans',
+                            // data: [10, 10, 20],
+                            data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
+                            backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
+                            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                    }
+                });
+            });
+          </script>
+<script>
+  // Sample data for demonstration
+  const bmiData = {
+                  labels: ['Underweight', 'Normal', 'Overweight','Obese'],
+                  datasets: [{
+                      label: 'BMI Status',
+                      data: ['10', '5', '3', '1'], // Updated with BMI status
+                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
+                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                      borderWidth: 1
+                  }]
+              };
+            
+              const ageData = {
+                  labels: ['0-10', '11-20', '21-30', '31-40', '41-50'],
+                  datasets: [{
+                      label: 'Age Ranges',
+                      data: [10, 20, 15, 25, 30],
+                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)'],
+                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                      borderWidth: 1
+                  }]
+              };
+            
+              const academicData = {
+                  labels: ['Passed', 'Failed'],
+                  datasets: [{
+                      label: 'Academic Performance',
+                      data: ['10', '5'], // Updated with pass or failed
+                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)'],
+                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                      borderWidth: 1
+                  }]
+              };
+            
+              const healthData = {
+                  labels: ['Normal', 'Sick', 'Admitted'],
+                  datasets: [{
+                      label: 'Health Status',
+                      data: ['5', '2', '1'], // Updated with normal, sick, admitted
+                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
+                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+                      borderWidth: 1
+                  }]
+              };
 
-        </div>
-    </div>
-</div>
+                    // Create BMI chart
+              var bmiChartCtx = document.getElementById('bmiChart').getContext('2d');
+              var bmiChart = new Chart(bmiChartCtx, {
+                  type: 'bar',
+                  data: bmiData
+              });
+            
+              // Create Age chart
+              var ageChartCtx = document.getElementById('ageChart').getContext('2d');
+              var ageChart = new Chart(ageChartCtx, {
+                  type: 'bar',
+                  data: ageData
+              });
+            
+              // Create Academic chart
+              var academicChartCtx = document.getElementById('academicChart').getContext('2d');
+              var academicChart = new Chart(academicChartCtx, {
+                  type: 'bar',
+                  data: academicData
+              });
+            
+              // Create Health chart
+              var healthChartCtx = document.getElementById('healthChart').getContext('2d');
+              var healthChart = new Chart(healthChartCtx, {
+                  type: 'bar',
+                  data: healthData
+              });
+</script>
+
+
 
 {% endblock %}
 
 
 
 {% block js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Bootstrap JS (Optional, if you want to include JavaScript functionality) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-integrity="sha384-k0o3DwR4PRc2N9O2zu3f+9z0WMDrmsy+44lOv2Y/mzO+g4nDkhzL/KLrLmB0ES9k"
-crossorigin="anonymous"></script>
-<script src="../js/bmi-chart.js"></script>
-<script src="../js/academic-chart.js"></script>
-<script src="../js/health-chart.js"></script>
+<script src="{% static 'Js/chart-bmi.js' %}"></script>
+<script src="{% static 'Js/chart-academic.js' %}"></script>
+<script src="{% static 'Js/chart-health.js' %}"></script>
+<script src="{% static 'Js/chart-age.js' %}"></script>
+<!-- <script src="{% static 'Js/chart-sentiments.js' %}"></script> -->
+
 {% endblock %}
 
-<!-- 
-<style>
-    body {
-      text-align: center;
-  }
-  
-  #dashboard-cherry {
-    display: flex;
-      flex-wrap: wrap;
-      justify-content: space-evenly;
-      border: 1px solid rgba(0, 0, 0, 0.115); 
-      border-radius: 12px;
-      /* padding-top: 10px; */
-      width: 40%;
-      float: right;
-      position: relative;
-      border: 1px solid black;
-      z-index: 1000; /* Ensure #dashboard-cherry is in the foreground */
-      margin-top: 95px; /* Adjust this value to move the container down */
-      margin-right: 80px;
 
-  }
-  
-  .chart-placeholder-cherry {
-      margin-bottom: 10px;
-      border: 2px solid rgba(221, 221, 221, 0.755)808; /* Add a border for visualization */
-      border-radius: 10px; /* Rounded corners */
-      padding: 10px; /* Add padding for better appearance */
-      cursor: pointer; /* Add pointer cursor for clickable elements */
-
-  }
-  
-  .chart-label-cherry {
-      font-weight: bold;
-      margin-bottom: 10px;
-  }
-  
-  .container-chart {
-    display: grid;
-    width: 50%;
-    height: 100%;
-    /* {% comment %} border: 1px solid black; {% endcomment %} */
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  /* #pieChartContainer, */
-  #sentimentChartContainer {
-    width: 500px;
-    height: 500px;
-    position: relative; /* Changed to relative for better positioning */
-    margin-left: 60px;
-    margin-top: 50px; /* Adjust this value to move the container down */
-
-  }
-  
-  #barChartContainer {
-    display: none;
-  }
-  
-  </style>
-  </head>
-  <body > -->
 
 
 <!-- <div id="sentiment-chart-container">
@@ -226,35 +267,8 @@ crossorigin="anonymous"></script>
     </div>
 </div>
 
-    <div id="dashboard-cherry">
-        <a href=".\health.html" class="chart-placeholder-cherry" style="order: 3;">
-            <label class="chart-label-cherry">Gender Distribution</label>
-            <canvas id="genderChart" width="230" height="200"></canvas>
-        </a>
-    
-        //Chart 2: Age - Bar Chart
-        <a href=".\health.html" class="chart-placeholder-cherry" style="order: 4;">
-            <label class="chart-label-cherry">Age Distribution</label>
-            <canvas id="ageChart" width="230" height="200"></canvas>
-        //</div>
-         </a>
-        //Chart 3: Health - BMI (Bar Chart)
-        <a href=".\health.html" class="chart-placeholder-cherry" style="order: 5;">
-            <label class="chart-label-cherry">BMI Distribution</label>
-            <canvas id="bmiChart" width="230" height="200"></canvas>
-        </a>
-    
-       //Chart 4: Education - Performance (Line Chart)
-        <a href=".\education.html" class="chart-placeholder-cherry" style="order: 5;">
-            <label class="chart-label-cherry">Education Performance</label>
-            <canvas id="educationChart" width="230" height="200"></canvas>
-        </a>
-    
-    </div> -->
-<!-- </div> -->
 
-
-  <!-- <script>
+<script>
     // Dynamic sentiment data from the database
     // Chart 1: Sentiment Scores - Pie Chart
     var sentimentData = {
@@ -271,66 +285,3 @@ crossorigin="anonymous"></script>
     }); -->
 
 
-  <!--
-    // // Sample data (replace this with your actual data)
-    // var data = {
-    //     labels: ['Male', 'Female'],
-    //     datasets: [{
-    //         data: [3, 2], // Replace with your actual data
-    //         backgroundColor: ['lightblue', 'lightcoral']
-    //     }]
-    // };
-    
-    // // Chart 1: Number of Male and Female - Pie Chart
-    // var genderChart = new Chart(document.getElementById('genderChart'), {
-    //     type: 'pie',
-    //     data: data
-    // });
-    
-    // // Chart 2: Age - Bar Chart
-    // var ageData = {
-    //     labels: ['Male', 'Female'],
-    //     datasets: [{
-    //         label: 'Age',
-    //         data: [30, 28], // Replace with your actual data
-    //         backgroundColor: 'lightblue'
-    //     }]
-    // };
-    
-    // var ageChart = new Chart(document.getElementById('ageChart'), {
-    //     type: 'bar',
-    //     data: ageData
-    // });
-    
-    // // Chart 3: Health - BMI (Bar Chart)
-    // var bmiData = {
-    //     labels: ['Underweight', 'Normal', 'Overweight', 'Obese'],
-    //     datasets: [{
-    //         label: 'BMI',
-    //         data: [2, 5, 1, 0], // Replace with your actual data
-    //         backgroundColor: 'lightblue'
-    //     }]
-    // };
-    
-    // var bmiChart = new Chart(document.getElementById('bmiChart'), {
-    //     type: 'bar',
-    //     data: bmiData
-    // });
-    
-    // // Chart 4: Education - Performance (Line Chart)
-    // var educationData = {
-    //     labels: ['Outstanding', 'Very Satisfactory', 'Satisfactory', 'Unsatisfactory', 'Poor'],
-    //     datasets: [{
-    //         label: 'Education Performance',
-    //         data: [2, 1, 3, 1, 0], // Replace with your actual data
-    //         borderColor: 'skyblue',
-    //         fill: false
-    //     }]
-    // };
-    
-    // var educationChart = new Chart(document.getElementById('educationChart'), {
-    //     type: 'line',
-    //     data: educationData
-    // });
-    // </script>
-    
