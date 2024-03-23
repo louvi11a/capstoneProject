@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import dashboard_view, sentiment_details, orphanSentiment_detail, intervention_academics
+from .views import dashboard_view, sentiment_details, orphanSentiment_detail, intervention_academics, intervention_behavior
 from . import views
 urlpatterns = [
+    path('intervention_behavior/', intervention_behavior,
+         name='intervention_behavior'),
 
     path('api/chart-sentiment/', views.sentiment_chart_view, name='chart_sentiment'),
     path('', dashboard_view, name='Dashboard'),

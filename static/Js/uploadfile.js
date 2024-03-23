@@ -19,8 +19,8 @@ function getCookie(name) {
 
 
 
-$(document).ready(function() {
-// When the Details link is clicked...
+jQuery(document).ready(function($) {
+  // When the Details link is clicked...
 $('.dropdown-item').on('click', function() {
   // Get the file ID from the data-file-id attribute
   var fileID = $(this).data('file-id');

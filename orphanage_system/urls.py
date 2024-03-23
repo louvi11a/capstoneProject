@@ -5,6 +5,7 @@ from orphanage_system import settings
 # from users.views import notes_view, settings_view, trash_view, files_view, login_page_view, home_view, orphan_view
 from users.views import login_page_view
 from orphans.views import trash_view
+# from behavior.views import add_note
 # Import staticfiles_urlpatterns
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
@@ -18,6 +19,8 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('orphans/', include('orphans.urls')),
     path('behavior/', include('behavior.urls')),
+    # path('behavior/', include(('behavior.urls', 'behavior'), namespace='behavior')),
+
     # path('files/', files_view, name='files'),
     path('Dashboard/', include('Dashboard.urls')),
     path('settings/', settings_view, name='settings'),

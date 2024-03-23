@@ -2,8 +2,11 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from simple_history.models import HistoricalRecords
-
+from django.db.models import Q
+from django.http import JsonResponse
+from django.views import View
 # Create your models here.
+from django.db.models import Avg
 
 
 class Files(models.Model):
@@ -14,9 +17,11 @@ class Files(models.Model):
     is_archived = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(
         null=True, blank=True)  # New field for time deletion
-
+    # Add a ForeignKey to Info model
+    related_orphan = models.ForeignKey(
+        'Info', on_delete=models.CASCADE, related_name='files', null=True)
     # Field for the uploaded file
-    file = models.FileField(upload_to='uploads/')
+    file = models.FileField(upload_to='uploads/', blank=True, null=True)
 
     class Meta:
         db_table = 'orphan_files'
@@ -28,10 +33,22 @@ class Files(models.Model):
         return reverse('files_detail', args=[str(self.fileID)])
 
 
-GENDER_CHOICES = [
-    ('M', 'Male'),
-    ('F', 'Female'),
-]
+class Notes(models.Model):
+    note_id = models.AutoField(primary_key=True)
+    # orphan_id = models.IntegerField()
+    text = models.TextField()
+    translated_note = models.TextField(blank=True, null=True)  # English notes
+    sentiment_score = models.FloatField(null=True)  # Allow NULL values
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    related_orphan = models.ForeignKey(
+        'orphans.Info', on_delete=models.CASCADE, related_name='notes')
+
+    def __str__(self):
+        return f"Note #{self.id} (Orphan ID: {self.related_orphan.id})"
+
+    class Meta:
+        db_table = "OrphanBehavior_notes"
 
 
 class Family(models.Model):
@@ -54,24 +71,32 @@ class Family(models.Model):
 
 
 class Info(models.Model):
+    STATUS_CHOICES = (
+        ('P', 'Pending'),
+        ('C', 'Complete'),
+    )
+    GENDER_CHOICES = [
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+    ]
     orphanID = models.AutoField(primary_key=True)
     firstName = models.CharField(max_length=255, blank=True, null=True)
     middleName = models.CharField(max_length=255, blank=True, null=True)
     lastName = models.CharField(max_length=255, blank=True, null=True)
     gender = models.CharField(
-        max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
+        max_length=6, choices=GENDER_CHOICES, blank=True, null=True)
     birthDate = models.DateField(blank=True, null=True)
     dateAdmitted = models.DateField(blank=True, null=True)
-    # mothersName = models.CharField(max_length=255, blank=True, null=True)
-    # fathersName = models.CharField(max_length=255, blank=True, null=True)
-    # homeAddress = models.CharField(max_length=255, blank=True, null=True)
-
     orphan_picture = models.ImageField(
         upload_to='orphan_pictures/',  blank=True, null=True)
     family = models.ForeignKey(
         Family, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_deleted = models.BooleanField(default=False)
+    birth_certificate = models.FileField(
+        upload_to='birth_certificates/', blank=True, null=True)
+    status = models.CharField(
+        max_length=1, choices=STATUS_CHOICES, default='P')
 
     class Meta:
         db_table = 'orphan_infos'
@@ -82,7 +107,41 @@ class Info(models.Model):
     def get_absolute_url(self):
         return reverse('info_detail', args=[str(self.orphanID)])
 
+    @property
+    def average_sentiment(self):
+        return self.notes.aggregate(Avg('sentiment_score'))['sentiment_score__avg']
 
+
+def get_sentiment_data():
+    orphans = Info.objects.all()
+    positive = 0
+    negative = 0
+    neutral = 0
+
+    for orphan in orphans:
+        avg_sentiment = orphan.average_sentiment
+        if avg_sentiment is None:
+            continue  # skip orphans with no notes
+        elif avg_sentiment > 0.05:  # adjust these values as needed
+            positive += 1
+        elif avg_sentiment < -0.05:
+            negative += 1
+        else:
+            neutral += 1
+
+    return positive, negative, neutral
+
+
+def intervention_behavior_count():
+    orphans = Info.objects.all()
+    negative = 0
+
+    for orphan in orphans:
+        avg_sentiment = orphan.average_sentiment
+        if avg_sentiment is not None and avg_sentiment < -0.05:  # adjust these values as needed
+            negative += 1
+
+    return negative
 # class BMICategory(models.Model):
 #     category = models.CharField(max_length=50, choices=(
 #         ('< 18.5', 'Underweight'),
@@ -155,6 +214,10 @@ class PhysicalHealth(models.Model):
                 self.bmi_category = 'Obesity'
 
 
+class Subject(models.Model):
+    name = models.CharField(max_length=255)
+
+
 class Education(models.Model):
     EDUCATION_LEVEL_CHOICES = [
         ('Elementary', 'Elementary'),
@@ -162,26 +225,74 @@ class Education(models.Model):
         ('College', 'College'),
     ]
 
+    orphan = models.ForeignKey(
+        'Info', on_delete=models.CASCADE, related_name='educations')
+    education_level = models.CharField(
+        max_length=20,  # Adjust tge max_length to fit the longest choice
+        choices=EDUCATION_LEVEL_CHOICES,
+        blank=True,
+        null=True
+    )
+    school_name = models.CharField(max_length=255)
+    year_level = models.IntegerField(null=True, blank=True)
+
+    current_gpa = models.DecimalField(
+        max_digits=5, decimal_places=3, null=True, blank=True)
+    date_recorded = models.DateField(auto_now_add=True)
+    # school_year = models.CharField(max_length=9)
+    subjects = models.ManyToManyField(Subject, through='Grade')
+    history = HistoricalRecords()
+
+
+class Grade(models.Model):
+    GRADE_CHOICES = [(i, i) for i in range(1, 101)]  # Grades from 1 to 100
+
     QUARTER_CHOICES = [
         (1, 'First Quarter'),
         (2, 'Second Quarter'),
         (3, 'Third Quarter'),
         (4, 'Fourth Quarter'),
     ]
+    SEMESTER_CHOICES = [
+        (1, 'First Semester'),
+        (2, 'Second Semester'),
+    ]
 
-    orphan = models.ForeignKey(
-        Info, on_delete=models.CASCADE, related_name='educations')
-    education_level = models.CharField(
-        max_length=20,  # Adjust the max_length to fit the longest choice
-        choices=EDUCATION_LEVEL_CHOICES,
-        blank=True,
-        null=True
-    )
-    school_name = models.CharField(max_length=255)
-    current_gpa = models.DecimalField(
-        max_digits=5, decimal_places=3, null=True, blank=True)
-    date_recorded = models.DateField(auto_now_add=True)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    education = models.ForeignKey(Education, on_delete=models.CASCADE)
+    grade = models.IntegerField(choices=GRADE_CHOICES)
     quarter = models.IntegerField(
         choices=QUARTER_CHOICES, null=True, blank=True)
-    school_year = models.CharField(max_length=9)  # Add this line
-    history = HistoricalRecords()
+    semester = models.IntegerField(
+        choices=SEMESTER_CHOICES, null=True, blank=True)
+
+# class Education(models.Model):
+#     EDUCATION_LEVEL_CHOICES = [
+#         ('Elementary', 'Elementary'),
+#         ('High School', 'High School'),
+#         ('College', 'College'),
+#     ]
+
+#     QUARTER_CHOICES = [
+#         (1, 'First Quarter'),
+#         (2, 'Second Quarter'),
+#         (3, 'Third Quarter'),
+#         (4, 'Fourth Quarter'),
+#     ]
+
+#     orphan = models.ForeignKey(
+#         Info, on_delete=models.CASCADE, related_name='educations')
+#     education_level = models.CharField(
+#         max_length=20,  # Adjust the max_length to fit the longest choice
+#         choices=EDUCATION_LEVEL_CHOICES,
+#         blank=True,
+#         null=True
+#     )
+#     school_name = models.CharField(max_length=255)
+#     current_gpa = models.DecimalField(
+#         max_digits=5, decimal_places=3, null=True, blank=True)
+#     date_recorded = models.DateField(auto_now_add=True)
+#     quarter = models.IntegerField(
+#         choices=QUARTER_CHOICES, null=True, blank=True)
+#     school_year = models.CharField(max_length=9)  # Add this line
+#     history = HistoricalRecords()

@@ -7,7 +7,6 @@
 {% endblock %}
 
 {% block css %}
-    <!-- <link rel="stylesheet" type="text/css" href="{% static 'Css/orphan-content.css' %}"> -->
     <script src="{% static 'Js/orphan-content.js' %}"></script>
 
 {% endblock %}
@@ -30,7 +29,9 @@
         {% endif %}                  
         <div class="col-5 mt-3">
             <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
-            <p>Orphan ID: {{ orphan.orphanID }}</p>
+            <!-- <p>Orphan ID: {{ orphan.orphanID }}</p> -->
+            <span class="badge bg-success rounded-pill">Admitted</span>
+
         </div>
         <div class="col text-end align-items-end justify-content-end">
           <div class="row mt-3 text-end px-0 mx-5 info-icon">
@@ -46,16 +47,68 @@
             <a class="btn btn-primary" href="{% url 'behavior_profile' orphan.orphanID %}"> 
               See Notes </a>
           </div>
+          <div class="row mt-3 info-icon text-end px-0 mx-5">
+            <a class="btn btn-primary" href="#" data-bs-toggle="modal"
+              data-bs-target="#changeProfilePictureModal">Change Profile Picture</a>
+
+          </div>
         </div>
       </div>
 
 
-
-                <!-- <div class="info-icon">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#noteModal"> Add Notes </button>
-              </div>
+      <!-- Change Profile Picture Modal -->
+      <div class="modal fade" id="changeProfilePictureModal" tabindex="-1"
+        aria-labelledby="changeProfilePictureModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="changeProfilePictureModalLabel">Change Profile Picture</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="profilePictureForm">
+                <div class="mb-3">
+                  <label for="profilePictureInput" class="form-label">Choose Profile Picture (JPG, JPEG,
+                    PNG)</label>
+                  <input type="file" class="form-control" id="profilePictureInput" accept=".jpg, .jpeg, .png">
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="uploadProfilePictureBtn">Upload</button>
+            </div>
           </div>
-      </div> -->
+        </div>
+      </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Handle profile picture upload
+          document.getElementById("uploadProfilePictureBtn").addEventListener("click", function () {
+            var profilePictureInput = document.getElementById("profilePictureInput");
+            var profilePicture = profilePictureInput.files[0];
+            if (!profilePicture) {
+              alert("No picture is chosen.");
+            } else {
+              var allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
+              if (!allowedFormats.includes(profilePicture.type)) {
+                alert("Wrong file format. Please choose a JPG, JPEG, or PNG file.");
+              } else {
+                // Picture uploaded successfully
+                alert("Profile picture changed.");
+                // Close the modal
+                var changeProfilePictureModal = new bootstrap.Modal(document.getElementById("changeProfilePictureModal"));
+                changeProfilePictureModal.hide();
+                // Redirect to ../html/orphan-content.html
+                window.location.href = "../html/orphan-content.html";
+              }
+            }
+          });
+        });
+      </script>
+
+
       <hr class="mt-2">
       <div class="container-fluid row">
         <div class="row ">
@@ -127,7 +180,7 @@
               <input id="mothersAddress" class="form-control" value="{{ orphan.family.mother_address }}" type="text" aria-label="Disabled input example" readonly>
           </p>
         </div>
-        
+      
         <div class="col-6">
           <p class="col-12"><strong>Father's Name:</strong> 
               <input id="fathersName" class="form-control" value="{{ orphan.family.father_name }}" type="text" aria-label="Disabled input example" readonly>
@@ -151,12 +204,12 @@
       <hr class="mt-2" />
       <div class="container-fluid row">
         <div class="row ">
-            <div class="col-8 me-5">
-                <h2>BMI</h2>
-            </div>
-            <div class="col-3 text-end align-items-end justify-content-end mx-0 px-0">
-                <a class="btn btn-primary" href="{% url 'bmi_profile' orphan.orphanID %}">BMI History</a>
-            </div>
+          <div class="col-10 me-5">
+              <h2>BMI</h2>
+          </div>
+          <div class="col-lg-1 text-center align-items-end justify-content-end btn btn-primary m-1">
+          <a class="text-decoration-none text-white" href="{% url 'bmi_profile' orphan.orphanID %}">BMI History</a>
+          </div>
         </div>
         <p class="col-6"><strong>Height:</strong> 
           <input class="form-control" value="{{ latest_physical_health.height }}" type="text" aria-label="Disabled input example" readonly>
@@ -167,7 +220,7 @@
         <p class="col-6"><strong>BMI:</strong> 
             <input class="form-control" value="{{ latest_physical_health.bmi_category }}" type="text" aria-label="Disabled input example" readonly>
         </p>
-    </div>
+      </div>
 
       <hr class="mt-2">
       <div class="container-fluid">
@@ -253,8 +306,9 @@
   
 
     
-<!-- Modal -->
-      <div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+<!-- Modal for upload notes is in behavior_profile.html -->
+
+      <!-- <div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content">
             <div class="modal-header  ">
@@ -282,24 +336,20 @@
             </div>
           </div>
         </div>
-      </div>
-  </form>
-</div>
+
 
 
         
 {% endblock %}  
 
 {% block js %}
-
-<!-- Include jQuery -->
+<!-- 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Include your custom JS -->
-<!-- <script src="{% static 'Js/note.js' %}"></script> -->
+<script src="{% static 'Js/note.js' %}"></script>
 <script src="{% static 'Js/orphan-content.js' %}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> -->
 {% endblock %}
 
 </body>
-</html>
+</html> 

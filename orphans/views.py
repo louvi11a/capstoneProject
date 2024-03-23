@@ -1,41 +1,249 @@
-from django.http import Http404
-from .forms import OrphanProfileForm, FamilyForm, BmiForm
-from .models import Info, PhysicalHealth, Education, Family
+from django.core.paginator import Paginator
+from django.db.models.functions import Trunc
+from django.db.models import Count, Case, When, CharField
+from deep_translator import GoogleTranslator
+from textblob import TextBlob
+from .models import Education, Grade, get_sentiment_data
+from django import forms, views
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse, FileResponse
+from .forms import NoteForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm
+from .models import Info, PhysicalHealth, Education, Family, Subject, Grade
 from decimal import Decimal, InvalidOperation
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
-from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
-from orphans.forms import FilesForm
-from .models import Info, Files, Education, PhysicalHealth
 from django.contrib import messages
 from django.conf import settings
-from django.http import FileResponse
 import os
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
 import json
 # Create your views here.
 from django.utils.dateparse import parse_date
-import logging
-from django.views.decorators.csrf import csrf_exempt
-
-from django.http import JsonResponse
 from .models import Files  # Make sure to import your Files model
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from datetime import datetime
+from django.shortcuts import HttpResponseRedirect
+from .forms import EducationForm, GradeForm, UploadBirthCertificateForm
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from django.views import View
+from django.db.models import Q
+from django.urls import reverse
+from django.views import View
+sid = SentimentIntensityAnalyzer()
+
+# Add new words to the Vader lexicon
+new_words = {
+    'shrewish': -1.0,
+    # add any other words you want to add to the lexicon
+}
+sid.lexicon.update(new_words)
 
 
-@login_required
+def add_note(request, orphan_id):
+    orphan = Info.objects.get(orphanID=orphan_id)  # Fetch the Orphan instance
+    error_message = None  # Initialize an error message variable
+
+    if request.method == 'POST':
+        form = NoteForm(request.POST)
+        if form.is_valid():
+            note = form.save(commit=False)  # Don't save the form yet
+            bisaya_text = note.text  # Get the Bisaya text
+
+            try:
+                # Translate the Bisaya text to English
+                translated_text = GoogleTranslator(
+                    source='ceb', target='english').translate(bisaya_text)
+
+                # # Conduct sentiment analysis using TextBlob
+                # blob = TextBlob(translated_text)
+                # sentiment = blob.sentiment.polarity
+
+                # Conduct sentiment analysis using NLTK's Vader SentimentIntensityAnalyzer
+                sentiment = sid.polarity_scores(translated_text)
+
+                # Save the Bisaya text, translated text, and sentiment to the Note instance
+                note.text = bisaya_text
+                note.translated_note = translated_text
+                # Use the compound score
+                note.sentiment_score = sentiment['compound']
+                # Set the related_orphan foreign key to the Info instance
+                note.related_orphan = orphan
+
+                note.save()
+            except Exception as e:
+                # Handle any errors that occurred during the translation or sentiment analysis process
+                print(f"An error occurred: {e}")
+        else:
+            error_message = "The form is invalid. Please check the data you entered."
+
+    else:
+        form = NoteForm()
+    return render(request, 'orphans/behavior_profile.html', {'form': form, 'orphan': orphan})
+
+
+def upload_birth_certificate(request, orphan_id):
+    orphan = Info.objects.get(pk=orphan_id)
+
+    if request.method == 'POST':
+        form = UploadBirthCertificateForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            orphan.birth_certificate = form.cleaned_data['birth_certificate']
+            orphan.status = 'C'  # Update status to 'Complete'
+            orphan.save()
+
+            return redirect('orphan_detail', orphan_id=orphan_id)
+
+    else:
+        form = UploadBirthCertificateForm()
+
+    return render(request, 'upload.html', {'form': form})
+
+
+class Orphan_Search(View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('q', '')
+        if query:
+            results = Info.objects.filter(
+                Q(firstName__icontains=query) |
+                Q(middleName__icontains=query) |
+                Q(lastName__icontains=query)
+            )
+
+            data = []
+            for orphan in results:
+                try:
+                    # Adjusted to match the URL pattern keyword argument
+                    orphan_url = reverse('orphan_profile', kwargs={
+                                         'orphanID': orphan.orphanID})
+                    data.append({
+                        'label': f"{orphan.firstName} {orphan.middleName or ''} {orphan.lastName}",
+                        'value': orphan_url  # This will be used for redirection
+                    })
+                except Exception as e:
+                    print(f"Error generating URL for orphan {
+                          orphan.orphanID}: {e}")
+
+            return JsonResponse(data, safe=False)
+        else:
+            return JsonResponse([], safe=False)
+
+# class File_Search(View):
+#     def get(self, request, *args, **kwargs):
+#         query = request.GET.get('q', '')
+#         if query:
+#             results = Info.objects.filter(
+#                 Q(fileName_icontains=query) |
+#                 Q(fileDescription__icontains=query) |
+#             )
+
+#             data = []
+#             for orphan in results:
+#                 try:
+#                     orphan_url = reverse('orphan_profile', kwargs={
+#                                          'fileID': orphan.orphanID})
+#                     data.append({
+#                         'label': f"{orphan.firstName} {orphan.middleName or ''} {orphan.lastName}",
+#                         'value': orphan_url  #This will be used for redirection
+#                     })
+#                 except Exception as e:
+#                     print(f"Error generating URL for orphan {
+#                           orphan.orphanID}: {e}")
+
+#             return JsonResponse(data, safe=False)
+#         else:
+#             return JsonResponse([], safe=False)
+
+
+def save_academic_details(request, orphan_id):
+    if request.method != 'POST':
+        # If not POST, just render the form page or redirect
+        return render(request, 'orphans/academic_profile.html')
+
+    # Extract all form data
+    school_name = request.POST.get('school_name')
+    education_level = request.POST.get('education_level')
+    year_level = request.POST.get('year_level')
+    quarter = request.POST.get('quarter')
+    subject_name = request.POST.get('subject')
+    grade_value = request.POST.get('grade')
+
+    # Basic server-side validation
+    if not all([school_name, education_level, year_level, quarter, subject_name, grade_value]):
+        return HttpResponseBadRequest("Missing required academic details.")
+
+    try:
+        grade_value = int(grade_value)
+    except ValueError:
+        return HttpResponseBadRequest("Invalid grade value.")
+
+    orphan = get_object_or_404(Info, orphanID=orphan_id)
+
+    with transaction.atomic():
+        try:
+            subject, created = Subject.objects.get_or_create(name=subject_name)
+
+            education = Education(
+                orphan=orphan,
+                school_name=school_name,
+                education_level=education_level,
+                year_level=year_level,
+            )
+            education.save()
+
+            # Instead of adding the subject to education directly, create a Grade instance
+            grade = Grade(
+                subject=subject,
+                education=education,
+                grade=grade_value,
+                quarter=quarter,
+            )
+            grade.save()
+
+        except Exception as e:
+            # Log the error or send a message to the user
+            return HttpResponse(str(e), status=500)
+
+    # Redirect to a success page or the academic profile
+    return redirect('academic_profile', orphan_id=orphan_id)
+
+
+def academic_profile(request, orphan_id):
+    # Fetch the orphan instance by ID or return a 404 error if not found
+    orphan = get_object_or_404(Info, orphanID=orphan_id)
+
+    # Fetch all education records related to this orphan
+    # Use `prefetch_related` to optimize queries for related grades
+    educations = Education.objects.filter(
+        orphan=orphan).prefetch_related('grade_set')
+
+    # Prepare the context for rendering in the template
+    context = {
+        'orphan': orphan,
+        'educations': educations,
+    }
+
+    # Render the academic_profile template with the context
+    return render(request, 'orphans/academic_profile.html', context)
+
+
 def orphan_view(request):
-    orphans = Info.objects.filter(is_deleted=False)
-    for orphan in orphans:
-        if orphan.orphan_picture and hasattr(orphan.orphan_picture, 'url'):
-            # Print the URL of the orphan's profile picture
-            print(orphan.orphan_picture.url)
-    return render(request, "orphans/orphan.html", {'orphans': orphans})
+    # Get the number of entries from the query string, default to 10
+    entries_per_page = int(request.GET.get('entries', 10))  # convert to int
+    page_number = int(request.GET.get('page', 1))  # convert to int
+    orphans = Info.objects.filter(is_deleted=False).order_by('orphanID')
+    # Create a Paginator object
+    paginator = Paginator(orphans, entries_per_page)  # create a Paginator
+
+    try:
+        # get the Page object for the current page
+        page_obj = paginator.page(page_number)
+    except (EmptyPage, InvalidPage):
+        # if the page number is invalid, show the last page
+        page_obj = paginator.page(paginator.num_pages)
+
+    # pass the Page object to the template
+    return render(request, 'orphans/orphan.html', {'page_obj': page_obj, 'entries_per_page': entries_per_page})
 
 
 def family_detail(request, family_id):
@@ -76,11 +284,6 @@ def orphan_profile(request, orphanID):
 
     # Render the template with the context.
     return render(request, 'orphans/orphan-content.html', context)
-
-
-def academic_profile(request, orphan_id):
-    orphan = get_object_or_404(Info, pk=orphan_id)
-    return render(request, 'orphans/academic_profile.html', {'orphan': orphan})
 
 
 def health_profile(request, orphan_id):
@@ -138,6 +341,29 @@ def delete_orphan(request, orphan_id):
 def files_view(request):
     files = Files.objects.filter(is_archived=False)
     return render(request, 'orphans/files.html', {'files': files})
+
+
+def delete_files(request):
+    if request.method == 'POST':
+        file_id = request.POST.get('file_ids')  # Changed to get a single value
+        if file_id:
+            try:
+                file_id = int(file_id)  # Ensure it's an integer
+                print(f"Deleting file with ID: {file_id}")  # Debug print
+
+                file = get_object_or_404(Files, fileID=file_id)
+                file.is_archived = True
+                file.deleted_at = timezone.now()
+                file.save()
+                messages.success(request, "File deleted successfully")
+            except ValueError:
+                messages.error(request, "Invalid file ID.")
+        else:
+            messages.error(request, "No file ID provided.")
+    else:
+        messages.error(request, "Invalid request.")
+
+    return redirect('files_view')
 
 
 def upload_file(request):
@@ -216,22 +442,6 @@ def restore_files(request):
             fileID__in=file_ids).update(is_archived=False)
         print('Number of files restored:', result)  # Debug print
         messages.success(request, "Files restored successfully")
-    return redirect('trash_view')
-
-
-def delete_files(request):
-    if request.method == 'POST':
-        file_ids = request.POST.getlist('file_ids')
-        print('Received file IDs:', file_ids)  # Debug print
-
-        files_to_delete = Files.objects.filter(fileID__in=file_ids)
-        for file in files_to_delete:
-            file.is_archived = True
-            file.deleted_at = timezone.now()
-            file.save()
-
-        print('Number of files deleted:', files_to_delete.count())  # Debug print
-        messages.success(request, "Files deleted successfully")
     return redirect('trash_view')
 
 
@@ -337,22 +547,41 @@ def save_changes(request, orphan_id):
     return JsonResponse({'status': 'ok'})
 
 
-@login_required
-# def addOrphanForm(request):
 def addOrphanForm(request):
     if request.method == 'POST':
         info_form = OrphanProfileForm(request.POST, request.FILES)
         family_form = FamilyForm(request.POST)
-        if info_form.is_valid() and family_form.is_valid():
+        files_form = FilesForm(request.POST, request.FILES)  # handle FilesForm
+
+        if info_form.is_valid() and family_form.is_valid() and files_form.is_valid():
             family = family_form.save()
             info = info_form.save(commit=False)
             info.family = family
             info.save()
-            return redirect('orphan_list_view')
+
+            # If the Files model should be linked to the Info instance
+            file_instance = files_form.save(commit=False)
+            # Assuming 'related_orphan' is the FK field in Files model
+            file_instance.related_orphan = info
+            file_instance.save()
+
+            return redirect('orphans')
+        else:
+            if not info_form.is_valid():
+                print('Info form errors:', info_form.errors)
+            if not family_form.is_valid():
+                print('Family form errors:', family_form.errors)
+            if not files_form.is_valid():
+                print('Files form errors:', files_form.errors)
     else:
         info_form = OrphanProfileForm()
         family_form = FamilyForm()
-    return render(request, 'orphans/orphan_form.html', {'info_form': info_form, 'family_form': family_form})
+        files_form = FilesForm()  # initialize FilesForm
+
+    print('POST data:', request.POST)
+    print('FILES data:', request.FILES)
+
+    return render(request, 'orphans/orphan.html', {'info_form': info_form, 'family_form': family_form, 'files_form': files_form})
 
 # def delete_files(request):
 #     if request.method == 'POST':

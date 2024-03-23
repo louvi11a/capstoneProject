@@ -45,20 +45,37 @@
                 <div>
 <h2>Academic Details</h2>
 <table id="academicDetailsTable" class="table table-striped">
-    <thead>
-        <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Year Level</th>
-            <th scope="col">Grading Period</th>
-            <th scope="col">Subject</th>
-            <th scope="col">Grades</th>
-            <th scope="col">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Table body will be dynamically populated -->
-    </tbody>
-</table>
+    <table id="academicDetailsTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Education Level</th>
+                <th scope="col">Year Level</th>
+                <th scope="col">Grading Period</th>
+                <th scope="col">Subject</th>
+                <th scope="col">Grades</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for education in educations %}
+                {% for grade in education.grade_set.all %}
+                    <tr>
+                        <td>{{ education.date_recorded }}</td>
+                        <td>{{ education.education_level }}</td>
+                        <td>{{ education.year_level }}</td>
+                        <td>{{ grade.get_quarter_display }}</td>
+                        <td>{{ grade.subject.name }}</td>
+                        <td>{{ grade.grade }}</td>
+                        <td>{{ grade.status }}</td>
+                    </tr>
+                {% endfor %}
+            {% empty %}
+                <tr><td colspan="7">No academic details available.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
 </div>
                 </div>
 
@@ -71,60 +88,63 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="academicDetailsForm">
+                                    <form id="EducationForm" method="post" action="{% url 'save_academic_details' orphan.orphanID %}">
+
+                                    {% csrf_token %}
                                     <div class="mb-3">
-                                        <label for="dateInput" class="form-label">Date</label>
-                                        <input type="date" class="form-control" id="dateInput" aria-describedby="dateHelp" required>
-                                        <small id="dateHelp" class="form-text text-muted">Enter the date of completion or evaluation.</small>
+                                        <label for="school_name">School Name</label>
+                                        <input id="school_name" name="school_name" class="form-control" required></input>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="educationLevelInput" class="form-label">Education Level</label>
+                                        <select id="educationLevelInput" name="education_level" class="form-control">
+                                            {% for value, display in education_level_choices %}
+                                                <option value="{{ value }}">{{ display }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                     <div class="mb-3">
                                         <label for="yearLevelInput" class="form-label">Year Level</label>
-                                        <input type="text" class="form-control" id="yearLevelInput" aria-describedby="yearLevelHelp" required>
-                                        <small id="yearLevelHelp" class="form-text text-muted">Enter your year level (e.g., Freshman, Sophomore).</small>
+                                        <select id="yearLevelInput" name="year_level" class="form-control" required></select>
+                                        <small id="yearLevelHelp" class="form-text text-muted">Select your year level.</small>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="gradingPeriodInput" class="form-label">Grading Period</label>
-                                        <input type="text" class="form-control" id="gradingPeriodInput" aria-describedby="gradingPeriodHelp" required>
-                                        <small id="gradingPeriodHelp" class="form-text text-muted">Enter the grading period (e.g., Semester 1, Trimester 3).</small>
+                                        <label for="quarterInput" class="form-label">Quarter</label>
+                                        <select id="quarterInput" name="quarter" class="form-control">
+                                            {% for value, display in quarter_choices %}
+                                                <option value="{{ value }}">{{ display }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                     <div id="subjectFields" class="row">
                                         <div class="mb-3 col-6">
                                             <label class="form-label">Subject</label>
-                                            <input type="text" class="form-control mb-3 subject-input" placeholder="Subject" required>
+                                            <input name="subject" type="text" class="form-control mb-3 subject-input" placeholder="Subject" required>
                                         </div>
                                         <div class="mb-3 col-6">
                                             <label class="form-label">Grade</label>
-                                            <input type="text" class="form-control mb-3 grade-input" placeholder="Grade" required>
+                                            <input name="grade" type="number" class="form-control mb-3 grade-input" placeholder="Grade" required>
                                         </div>
                                     </div>
                                     <button type="button" class="btn btn-primary mt-3" onclick="addSubjectField()">Add Subject</button>
-                                    <div class="mb-3">
-                                        <label for="statusInput" class="form-label">Status</label>
-                                        <select class="form-select" id="statusInput" aria-label="Status">
-                                            <option value="Passed">Passed</option>
-                                            <option value="Failed">Failed</option>
-                                            <option value="In Progress">In Progress</option>
-                                        </select>
-                                    </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" form="academicDetailsForm" class="btn btn-primary">Add Details</button>
+                                <button type="submit" form="EducationForm" class="btn btn-primary">Add Details</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                
-
-
             </div>
         </div>
     </div>
 {% endblock %}  
 
 {% block js %}
+<script src="{% static 'Js/academic.js' %}"></script>
+
 <script src="{% static 'Js/academic-table.js' %}"></script>
 <script src="{% static 'Js/academic-subject.js' %}"></script>
 

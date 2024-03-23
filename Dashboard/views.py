@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from django.db.models import Count
 # from behavior.models import Notes
-from orphans.models import Info, Files, Notes, get_sentiment_data
+from orphans.models import Info, Files, Notes, get_sentiment_data, intervention_behavior_count
 from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -55,13 +55,14 @@ def dashboard_view(request):
     male_count = Info.objects.filter(gender='M').count()
     female_count = Info.objects.filter(gender='F').count()
     total_orphans = Info.objects.count()
-
+    requires_intervention_behavior = intervention_behavior_count()
     context = {
         'sentiment_labels': labels,
         'sentiment_data': data,
         'male_count': male_count,
         'female_count': female_count,
         'total_orphans': total_orphans,
+        'requires_intervention_behavior': requires_intervention_behavior,
 
     }
 
