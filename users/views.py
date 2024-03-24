@@ -10,25 +10,41 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
+from django.contrib.auth.forms import AuthenticationForm
 
+
+# def login_page_view(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         # Print the hashed password
+#         print(hashlib.sha256(password.encode()).hexdigest())
+#         user = authenticate(request, username=username, password=password)
+
+#         if user is not None:
+#             login(request, user)
+#             # Redirect to the home page upon successful login
+#             return redirect('Dashboard')
+#         else:
+#             # Handle incorrect login credentials here (e.g., display an error message)
+#             pass  # You can add your desired code here, or simply use the 'pass' keyword to do nothing
+
+#     return render(request, "users/loginPage.html", {})
 
 def login_page_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        # Print the hashed password
-        print(hashlib.sha256(password.encode()).hexdigest())
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
-            # Redirect to the home page upon successful login
+            # messages.success(request, 'You have successfully logged in.')
             return redirect('Dashboard')
         else:
-            # Handle incorrect login credentials here (e.g., display an error message)
-            pass  # You can add your desired code here, or simply use the 'pass' keyword to do nothing
+            messages.error(request, 'Invalid username or password.')
+    else:
+        form = AuthenticationForm()
 
-    return render(request, "users/loginPage.html", {})
+    return render(request, "users/loginPage.html", {'form': form})
 
 
 @login_required

@@ -28,7 +28,7 @@ Orphan List
     </button>
 
     <div class="d-flex">
-      <form action="{% url 'search' %}" method="get">
+      <form action="{% url 'search_orphans' %}" method="get">
 
         <input
         class="form-control"
@@ -37,8 +37,7 @@ Orphan List
         placeholder="Search"
         aria-label="Search"
       />
-      <!-- <button class="btn btn-outline-success btn-sm" type="submit">Search</button> -->
-    </form>
+      </form>
     </div>
   </div>
 </div>
@@ -298,7 +297,7 @@ Orphan List
         $('#searchBox').autocomplete({
             source: function(request, response) {
                 $.ajax({
-                    url: "{% url 'search' %}",
+                    url: "{% url 'search_orphans' %}",
                     dataType: 'json',
                     data: {
                         'q': request.term

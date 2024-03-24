@@ -8,24 +8,7 @@ from django.core import serializers
 from django.db.models import Q
 from django.shortcuts import render
 from django.http import JsonResponse
-# def dashboard_view(request):
-#     # Query the database to get the sentiment scores and the orphans
-#     notes = Notes.objects.all()
-#     sentiment_scores = [note.sentiment_score for note in notes]
-#     orphans = [str(note.related_orphan) for note in notes]
-
-#     # Serialize the data to JSON
-#     sentiment_scores_json = json.dumps(sentiment_scores)
-#     orphans_json = json.dumps(orphans)
-
-#     # Pass the data to the template
-#     context = {
-#         'sentiment_scores': sentiment_scores_json,
-#         'orphans': orphans_json,
-#     }
-#     return render(request, 'Dashboard/Dashboard.html', context)
-
-# Adjust your view to send a dictionary
+from django.contrib.auth.decorators import login_required
 
 
 def sentiment_chart_view(request):
@@ -41,6 +24,7 @@ def sentiment_chart_view(request):
         return JsonResponse({'error': str(e)})
 
 
+@login_required
 def dashboard_view(request):
     # Fetch sentiment data from the database
     sentiment_data = Notes.objects.values(

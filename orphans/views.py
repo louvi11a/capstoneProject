@@ -1,3 +1,5 @@
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models.functions import Trunc
 from django.db.models import Count, Case, When, CharField
@@ -6,7 +8,7 @@ from textblob import TextBlob
 from .models import Education, Grade, get_sentiment_data
 from django import forms, views
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse, FileResponse
-from .forms import NoteForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm
+from .forms import NoteForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm, UploadBirthCertificateForm
 from .models import Info, PhysicalHealth, Education, Family, Subject, Grade
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import get_object_or_404, render, redirect
@@ -23,14 +25,12 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 from datetime import datetime
 from django.shortcuts import HttpResponseRedirect
-from .forms import EducationForm, GradeForm, UploadBirthCertificateForm
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from django.views import View
 from django.db.models import Q
 from django.urls import reverse
 from django.views import View
 sid = SentimentIntensityAnalyzer()
-
 # Add new words to the Vader lexicon
 new_words = {
     'shrewish': -1.0,
@@ -128,31 +128,31 @@ class Orphan_Search(View):
         else:
             return JsonResponse([], safe=False)
 
-# class File_Search(View):
-#     def get(self, request, *args, **kwargs):
-#         query = request.GET.get('q', '')
-#         if query:
-#             results = Info.objects.filter(
-#                 Q(fileName_icontains=query) |
-#                 Q(fileDescription__icontains=query) |
-#             )
 
-#             data = []
-#             for orphan in results:
-#                 try:
-#                     orphan_url = reverse('orphan_profile', kwargs={
-#                                          'fileID': orphan.orphanID})
-#                     data.append({
-#                         'label': f"{orphan.firstName} {orphan.middleName or ''} {orphan.lastName}",
-#                         'value': orphan_url  #This will be used for redirection
-#                     })
-#                 except Exception as e:
-#                     print(f"Error generating URL for orphan {
-#                           orphan.orphanID}: {e}")
+class File_Search(View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('q', '')
+        if query:
+            results = Files.objects.filter(
+                Q(fileName__icontains=query) |
+                Q(fileDescription__icontains=query)
+            )
 
-#             return JsonResponse(data, safe=False)
-#         else:
-#             return JsonResponse([], safe=False)
+            data = []
+            for file in results:
+                try:
+                    # Generate a URL for downloading or opening the file
+                    file_url = reverse('file_details', args=[str(file.fileID)])
+                    data.append({
+                        'label': f"{file.fileName} {file.fileDescription or ''}",
+                        'value': file.fileID  # This will be used for redirection
+                    })
+                except Exception as e:
+                    print(f"Error generating URL for file {file.fileID}: {e}")
+
+            return JsonResponse(data, safe=False)
+        else:
+            return JsonResponse([], safe=False)
 
 
 def save_academic_details(request, orphan_id):
@@ -403,6 +403,8 @@ def rename_file(request):
 
 
 def file_details(request, file_id):
+    print(f"Fetching details for file ID: {file_id}")  # Debugging line
+
     try:
         file = Files.objects.get(fileID=file_id)
     except Files.DoesNotExist:
@@ -582,56 +584,3 @@ def addOrphanForm(request):
     print('FILES data:', request.FILES)
 
     return render(request, 'orphans/orphan.html', {'info_form': info_form, 'family_form': family_form, 'files_form': files_form})
-
-# def delete_files(request):
-#     if request.method == 'POST':
-#         file_ids = request.POST.getlist('file_ids')
-#         print('Received file IDs:', file_ids)  # Debug print
-#         result = Files.objects.filter(
-#             fileID__in=file_ids).update(is_archived=True)
-#         print('Number of files archived:', result)  # Debug print
-
-#         if result > 0:
-#             messages.success(request, f"{result} files archived successfully")
-#         else:
-#             messages.warning(request, "No files were archived")
-
-#     return redirect('files')
-
-
-# def add_orphan(request):
-#     if request.method == 'POST':
-#         # Get data from form
-#         first_name = request.POST.get('firstName')
-#         last_name = request.POST.get('lastName')
-#         middle_name = request.POST.get('middleName')
-#         gender = request.POST.get('gender')
-#         birth_date = request.POST.get('birthDate')
-#         mothers_name = request.POST.get('mothersName')
-#         fathers_name = request.POST.get('fathersName')
-#         date_admitted = request.POST.get('dateAdmitted')
-#         home_address = request.POST.get('homeAddress')
-#         orphan_picture = request.FILES.get(
-#             'orphan_picture')  # Get the uploaded file
-
-#         # Create new Info object and save it to the database
-#         orphan = Info(
-#             firstName=first_name,
-#             lastName=last_name,
-#             middleName=middle_name,
-#             gender=gender,
-#             birthDate=birth_date,
-#             mothersName=mothers_name,
-#             fathersName=fathers_name,
-#             dateAdmitted=date_admitted,
-#             homeAddress=home_address,
-#             # Assign the uploaded file to the orphan_picture field
-#             orphan_picture=orphan_picture,
-#         )
-#         orphan.save()
-
-#         # Redirect to the page that shows the list of orphans
-#         return redirect('orphans')
-
-#     # If the request method is not POST, render the form
-#     return render(request, 'orphans/orphan.html')

@@ -1,7 +1,9 @@
 {% extends "Dashboard/base.html" %}
 {% load static %}
 
+
 {% block css %}
+<link href="{% static 'Css/searchbar.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block extra_meta %}
@@ -13,12 +15,26 @@
 
 {% block content %}
         
+
+
                         <!-- content -->
         <div class="container-fluid row p-2">
+
             <div class="col d-flex pb-1 justify-content-start">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+            <form action="{% url 'search_files' %}" method="get">
+                <input
+                class="form-control"
+                name='q'
+                id="searchFiles"
+                type="search"
+                placeholder="Search"
+                aria-label="Search"
+              />
+            </form>
+
             </div>   
+
+
             <div class="col text-end">
                 <button class=" btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadFileModal">Upload File</button>                
             </div>   
@@ -60,6 +76,10 @@
                             <div class="mb-3">
                                 <label for="fileName" class="form-label">File Name</label>
                                 <input type="text" class="form-control" id="fileName" name="fileName" placeholder="Enter file name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fileDescription" class="form-label">File Description</label>
+                                <input type="text" class="form-control" id="fileDescription" name="fileDescription" placeholder="Enter file description">
                             </div>
                             <div class="mb-3">
                                 <label for="file" class="form-label">Select File</label>
@@ -167,6 +187,7 @@ aria-hidden="true">
             <div class="row w-100">
                         <div class="col-4 clickable-file"
                         <!-- {{ file.fileName }} -->
+
                         <a href="{% url 'serve_file' file_id=file.fileID %}" target="_blank">{{ file.fileName }}</a>
     
                     </div>
@@ -231,7 +252,8 @@ aria-hidden="true">
                 <p><strong>Date Uploaded:</strong> <span id="modalDateUploaded"></span></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Open File</button>
+                <button id="openFileButton" type="button" class="btn btn-primary" onclick="openFile()">Open File</button>
+
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -255,12 +277,12 @@ aria-hidden="true">
 {% block js %}
 
 <script src="{% static 'Js/uploadfile.js' %}"></script>
-<script>
+<!-- <script>
 $(document).ready(function() {
-$('#searchBox').autocomplete({
+$('#searchFiles').autocomplete({
     source: function(request, response) {
         $.ajax({
-            url: "{% url 'search' %}",
+            url: "{% url 'search_files' %}",
             dataType: 'json',
             data: {
                 'q': request.term
@@ -281,6 +303,65 @@ $('#searchBox').autocomplete({
     }
 });
 });
+</script> -->
+
+<script>
+$('#searchFiles').autocomplete({
+    source: function(request, response) {
+        $.ajax({
+            url: "{% url 'search_files' %}",  // Ensure this URL is correctly pointing to your search view.
+            dataType: 'json',
+            data: {
+                'q': request.term
+            },
+            success: function(data) {
+                response($.map(data, function(item) {
+                    return {
+                        label: item.label,
+                        value: item.value  // Ensure this correctly references the ID.
+                    };
+                }));
+            }
+        });
+    },
+    minLength: 1,
+    select: function(event, ui) {
+        event.preventDefault(); // Prevent default action
+
+        // Utilize the AJAX logic you have for the dropdown, adapted for the autocomplete selection
+        $.ajax({
+            url: '/orphans/files/details/' + ui.item.value + '/',  // Adapted for consistency with your provided AJAX setup
+            type: 'GET',
+            success: function(data) {
+                // Populate the modal with the returned data
+                $('#modalFileName').text(data.fileName);
+                $('#modalFileType').text(data.fileType);
+                $('#modalFileSize').text(data.fileSize + ' bytes'); // Ensure you add any necessary text or formatting
+                $('#modalDateUploaded').text(data.dateUploaded);
+                $('#openFileButton').data('file-url', '/orphans/files/serve/' + ui.item.value + '/');
+
+                // Show the modal
+                $('#detailsModal').modal('show');
+            },
+            error: function(xhr, status, error) {
+                console.log("Error fetching file details: ", error);
+            }
+        });
+    }
+});
+
+// Function to open the file when the "Open File" button is clicked
+function openFile() {
+    var fileUrl = $('#openFileButton').data('file-url');
+    if (fileUrl) {
+        window.open(fileUrl, '_blank');
+    } else {
+        console.error('File URL is not defined.');
+    }
+}
+
+
+
 
 </script>
 

@@ -35,10 +35,20 @@ $('.dropdown-item').on('click', function() {
           $('#modalFileType').text(data.fileType);
           $('#modalFileSize').text(data.fileSize);
           $('#modalDateUploaded').text(data.dateUploaded);
+          $('#openFileButton').data('file-url', '/orphans/files/serve/' + fileID + '/');
+
       }
   });
 });
 });
+
+// Function to open the file when the "Open File" button is clicked
+window.openFile = function() {
+  var fileUrl = $('#openFileButton').data('file-url');  // Get the URL from the data attribute
+  if (fileUrl) {
+      window.open(fileUrl, '_blank');  // Open the file URL in a new tab
+  }
+};
 
 // uploading file
 document.addEventListener('DOMContentLoaded', function() {
