@@ -8,6 +8,8 @@ from django.contrib.auth import login
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
 
 
 def login_page_view(request):
@@ -97,3 +99,9 @@ def change_password(request):
     return render(request, 'users/Setting.html', {
         'form': form
     })
+
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'users/password_reset_form.html'
+    email_template_name = 'users/password_reset_email.html'
+    success_url = reverse_lazy('password_reset_done')

@@ -135,6 +135,9 @@
                 </div>
               </div>
             </div>
+            {% endblock %}
+
+            {% block js%}
             {{ sentiments|json_script:"sentiments-data" }}
             <script>
             fetch('/Dashboard/api/chart-sentiment/')
@@ -235,53 +238,20 @@
                   data: healthData
               });
 </script>
+<!-- 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script> -->
 
 
 
-{% endblock %}
 
-
-
-{% block js %}
 <!-- Bootstrap JS (Optional, if you want to include JavaScript functionality) -->
-<script src="{% static 'Js/chart-bmi.js' %}"></script>
+<!-- <script src="{% static 'Js/chart-bmi.js' %}"></script>
 <script src="{% static 'Js/chart-academic.js' %}"></script>
 <script src="{% static 'Js/chart-health.js' %}"></script>
-<script src="{% static 'Js/chart-age.js' %}"></script>
+<script src="{% static 'Js/chart-age.js' %}"></script> -->
 <!-- <script src="{% static 'Js/chart-sentiments.js' %}"></script> -->
 
 {% endblock %}
-
-
-
-
-<!-- <div id="sentiment-chart-container">
-    <div class="container-fluid-charts">
-        <div class="container-chart">
-            <a href="/Dashboard/sentiment_details/">
-                <div id="sentimentChartContainer">
-                    <canvas id="sentimentChart" width="500" height="300"></canvas>
-                </div>
-            </a>
-        </div>
-    </div>
-</div>
-
-
-<script>
-    // Dynamic sentiment data from the database
-    // Chart 1: Sentiment Scores - Pie Chart
-    var sentimentData = {
-        labels: {{ sentiment_labels|safe }},
-        datasets: [{
-            data: {{ sentiment_data|safe }},
-            backgroundColor: ['lightgreen', 'lightcoral', 'lightyellow']
-        }]
-    };
-
-    var sentimentChart = new Chart(document.getElementById('sentimentChart'), {
-        type: 'pie',
-        data: sentimentData
-    }); -->
-
 
