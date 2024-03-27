@@ -1,4 +1,4 @@
-from orphans.models import Info, PhysicalHealth, IncidentType, BMICategory
+from orphans.models import Info, PhysicalHealth, IncidentType, BMI
 from django.utils import timezone
 from faker import Faker
 import random
@@ -62,7 +62,7 @@ def create_fake_physical_health():
         IncidentType.objects.get_or_create(type=incident_type[0])
     incident_types = IncidentType.objects.all()
     for orphan in orphans:
-        PhysicalHealth.objects.create(
+        BMI.objects.create(
             orphan=orphan,
             height=fake.random_int(min=100, max=200),
             weight=fake.random_int(min=20, max=100),

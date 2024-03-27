@@ -5,17 +5,19 @@ from django.db.models.functions import Trunc
 from django.db.models import Count, Case, When, CharField
 from deep_translator import GoogleTranslator
 from textblob import TextBlob
-from .models import Education, Grade, get_sentiment_data
+from .models import Education, Grade, get_sentiment_data, HealthDetail
 from django import forms, views
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse, FileResponse
 from .forms import NoteForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm, UploadBirthCertificateForm
-from .models import Info, PhysicalHealth, Education, Family, Subject, Grade
+from .models import Info, BMI, Education, Family, Subject, Grade
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 import os
+from django.views.decorators.http import require_http_methods
+
 from django.core.exceptions import PermissionDenied
 import json
 # Create your views here.
@@ -79,6 +81,36 @@ def add_note(request, orphan_id):
     else:
         form = NoteForm()
     return render(request, 'orphans/behavior_profile.html', {'form': form, 'orphan': orphan})
+
+
+def add_health_details(request):
+    orphan_id = request.POST.get('orphan_id')
+    orphan = get_object_or_404(Info, orphanID=orphan_id)
+
+    # Fetch all symptom values from the form
+    # This will be a list of values for checked boxes
+    submitted_symptoms = request.POST.getlist('symptoms')
+
+    # For each symptom, check if it's in the submitted symptoms and set accordingly
+    health_detail = HealthDetail(
+        orphan=orphan,
+        date=request.POST.get('dateInput'),
+        temperature=request.POST.get('temperatureInput'),
+        blood_pressure=request.POST.get('bloodPressureInput'),
+        heart_rate=request.POST.get('heartRateInput'),
+        nausea='nausea' in submitted_symptoms,
+        vomiting='vomiting' in submitted_symptoms,
+        headache='headache' in submitted_symptoms,
+        stomachache='stomachache' in submitted_symptoms,
+        cough='cough' in submitted_symptoms,
+        dizziness='dizziness' in submitted_symptoms,
+        pain='pain' in submitted_symptoms,
+        # others_symptoms=request.POST.get('othersCheckbox', ''),
+        other_details=request.POST.get('otherDetailsInput', '')
+    )
+    health_detail.save()
+
+    return redirect('health_profile', orphan_id=orphan_id)
 
 
 def upload_birth_certificate(request, orphan_id):
@@ -288,7 +320,12 @@ def orphan_profile(request, orphanID):
 
 def health_profile(request, orphan_id):
     orphan = get_object_or_404(Info, pk=orphan_id)
-    return render(request, 'orphans/health_profile.html', {'orphan': orphan})
+    # Fetch the health details related to the orphan
+    health_details = orphan.health_details.all()
+    return render(request, 'orphans/health_profile.html', {
+        'orphan': orphan,
+        'health_details': health_details,  # Pass the health details to the template
+    })
 
 
 def behavior_profile(request, orphan_id):
@@ -307,7 +344,7 @@ def add_bmi(request, orphan_id):
     if request.method == 'POST':
         height = Decimal(request.POST.get('height'))
         weight = Decimal(request.POST.get('weight'))
-        physical_health = PhysicalHealth(
+        physical_health = BMI(
             orphan=orphan, height=height, weight=weight)
         physical_health.calculate_bmi()
         physical_health.save()
@@ -527,9 +564,9 @@ def save_changes(request, orphan_id):
         family.save()
 
     orphan.save()
-    # Update the PhysicalHealth's information if provided
+    # Update the BMI's information if provided
     if 'height' in data or 'weight' in data or 'bmi_category' in data:
-        physical_health, created = PhysicalHealth.objects.get_or_create(
+        physical_health, created = BMI.objects.get_or_create(
             orphan=orphan)
         if 'height' in data and data['height']:
             try:

@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from django.db.models import Count
 # from behavior.models import Notes
-from orphans.models import Info, Files, Notes, get_sentiment_data, intervention_behavior_count
+from orphans.models import BMI, Info, Files, Notes, get_sentiment_data, intervention_behavior_count
 from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -9,6 +9,14 @@ from django.db.models import Q
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.db.models import Case, When, IntegerField, Count
+from django.db.models.functions import ExtractYear
+from django.utils.timezone import now
+import logging
+import datetime
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 def sentiment_chart_view(request):
@@ -26,31 +34,84 @@ def sentiment_chart_view(request):
 
 @login_required
 def dashboard_view(request):
+    bmi_categories = BMI.objects.values('bmi_category').annotate(
+        count=Count('bmi_category')).order_by('bmi_category')
+    # Create a dictionary to hold the count for each category
+    bmi_data_dict = {category['bmi_category']: category['count']
+                     for category in bmi_categories}
+    bmi_data = [bmi_data_dict.get(category, 0) for category in [
+        'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
+
+    current_year = datetime.datetime.now().year
+    orphans = Info.objects.annotate(
+        age=Case(
+            When(birthDate__isnull=False, then=current_year -
+                 ExtractYear('birthDate')),
+            default=None,
+            output_field=IntegerField(),
+        )
+    )
+
+    age_ranges = [(0, 10), (11, 20), (21, 30), (31, 40)]
+    male_age_data = [0] * len(age_ranges)
+    female_age_data = [0] * len(age_ranges)
+
+    for i, (start_age, end_age) in enumerate(age_ranges):
+        male_age_data[i] = orphans.filter(
+            age__gte=start_age, age__lte=end_age, gender='Male').count()
+        female_age_data[i] = orphans.filter(
+            age__gte=start_age, age__lte=end_age, gender='Female').count()
+
     # Fetch sentiment data from the database
     sentiment_data = Notes.objects.values(
         'sentiment_score').exclude(sentiment_score=None)
-
     # Prepare data for the pie chart
     labels = ['Positive', 'Negative', 'Neutral']
     positive_count = sentiment_data.filter(sentiment_score__gt=0).count()
     negative_count = sentiment_data.filter(sentiment_score__lt=0).count()
     neutral_count = sentiment_data.filter(sentiment_score=0).count()
     data = [positive_count, negative_count, neutral_count]
-    male_count = Info.objects.filter(gender='M').count()
-    female_count = Info.objects.filter(gender='F').count()
+    male_count = Info.objects.filter(gender='Male').count()
+    female_count = Info.objects.filter(gender='Female').count()
     total_orphans = Info.objects.count()
     requires_intervention_behavior = intervention_behavior_count()
     context = {
+        'bmi_data': bmi_data,
+
         'sentiment_labels': labels,
         'sentiment_data': data,
         'male_count': male_count,
         'female_count': female_count,
         'total_orphans': total_orphans,
         'requires_intervention_behavior': requires_intervention_behavior,
+        # Add the age distribution data to the existing context
+        'age_labels': [f'{start}-{end}' for start, end in age_ranges],
+        'male_age_data': male_age_data,
+        'female_age_data': female_age_data,
 
     }
 
     return render(request, 'Dashboard/Dashboard.html', context)
+
+
+def chart_sentiments(request):
+    return render(request, 'Dashboard/chart_sentiments.html')
+
+
+def chart_bmi(request):
+    return render(request, 'Dashboard/chart_bmi.html')
+
+
+def chart_health(request):
+    return render(request, 'Dashboard/chart_health.html')
+
+
+def chart_age(request):
+    return render(request, 'Dashboard/chart_age.html')
+
+
+def chart_academic(request):
+    return render(request, 'Dashboard/chart_academic.html')
 
 
 def intervention_academics(request):
@@ -74,34 +135,6 @@ def intervention_behavior(request):
 def files_detail(request, pk):
     file = get_object_or_404(Files, pk=pk)
     return render(request, 'files/detail.html', {'file': file})
-
-
-# class SearchView(View):
-#     def get(self, request, *args, **kwargs):
-#         query = request.GET.get('q')
-#         if query:
-#             infos = Info.objects.filter(Q(firstName__icontains=query) | Q(
-#                 middleName__icontains=query) | Q(lastName__icontains=query))
-#             files = Files.objects.filter(fileName__icontains=query)
-#             results = []
-
-#             # Add URLs for orphan profiles
-#             for info in infos:
-#                 results.append({
-#                     'label': f"{info.firstName} {info.middleName} {info.lastName}",
-#                     'value': request.build_absolute_uri(f'/orphans/profile/{info.orphanID}/')
-#                 })
-
-#             # Add a general URL for files
-#             files_url = request.build_absolute_uri('/files/')
-#             for file in files:
-#                 results.append({
-#                     'label': file.fileName,
-#                     'value': files_url
-#                 })
-
-#             return JsonResponse(results, safe=False)
-#         return JsonResponse({}, status=400)
 
 
 def sentiment_details(request):

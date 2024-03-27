@@ -2,7 +2,7 @@ import datetime
 from .models import Family, Grade
 from .models import Info
 from django import forms
-from .models import Files, PhysicalHealth, Education, Info
+from .models import Files, Education, Info, BMI
 from .utils import get_school_year_choices
 from datetime import datetime  # Adjusted import
 
@@ -51,7 +51,7 @@ class OrphanProfileForm(forms.ModelForm):
 
 class BmiForm(forms.ModelForm):
     class Meta:
-        model = PhysicalHealth
+        model = BMI
         fields = ['height', 'weight']
 
 

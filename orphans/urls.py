@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from orphans.views import orphan_view, restore_files, file_details, family_detail
+from orphans.views import orphan_view, restore_files, file_details, family_detail, add_health_details
 from orphanage_system import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
@@ -13,6 +13,8 @@ urlpatterns = [
     #     path('api/chart-sentiment/', chart_sentiment, name='chart_sentiment'),
 
     #     path('search/', SearchView.as_view(), name='search'),
+    path('add-health-details/', add_health_details, name='add_health_details'),
+
     path('upload_birth_certificate/<int:orphan_id>/',
          views.upload_birth_certificate, name='upload_birth_certificate'),
 
@@ -27,14 +29,17 @@ urlpatterns = [
     path('restore_files/', restore_files, name='restore_files'),
     path('', orphan_view, name='orphans'),
     path('add_orphan/', views.addOrphanForm, name='add_orphan'),
+
     path('profile/<int:orphanID>/',
          views.orphan_profile, name='orphan_profile'),
     path('profile/<int:orphan_id>/academic/',
          views.academic_profile, name='academic_profile'),
     path('save_academic_details/<int:orphan_id>/',
          views.save_academic_details, name='save_academic_details'),
+
     path('profile/<int:orphan_id>/health/',
          views.health_profile, name='health_profile'),
+
     path('orphan/<int:orphan_id>/add_bmi/',
          views.add_bmi, name='add_bmi'),
     path('profile/<int:orphan_id>/bmi/',

@@ -70,6 +70,28 @@ class Family(models.Model):
         db_table = 'family_infos'
 
 
+class HealthDetail(models.Model):
+    date = models.DateField()
+    temperature = models.DecimalField(max_digits=4, decimal_places=1)
+    blood_pressure = models.CharField(max_length=7)
+    heart_rate = models.IntegerField()
+    nausea = models.BooleanField(default=False)
+    vomiting = models.BooleanField(default=False)
+    headache = models.BooleanField(default=False)
+    stomachache = models.BooleanField(default=False)
+    cough = models.BooleanField(default=False)
+    dizziness = models.BooleanField(default=False)
+    pain = models.BooleanField(default=False)
+    # others_symptoms = models.CharField(max_length=255, blank=True, null=True)
+    other_details = models.TextField(blank=True, null=True)
+
+    orphan = models.ForeignKey(
+        'Info', on_delete=models.CASCADE, related_name='health_details')
+
+    def __str__(self):
+        return f"Health Details for {self.orphan.firstName} on {self.date}"
+
+
 class Info(models.Model):
     STATUS_CHOICES = (
         ('P', 'Pending'),
@@ -142,13 +164,6 @@ def intervention_behavior_count():
             negative += 1
 
     return negative
-# class BMICategory(models.Model):
-#     category = models.CharField(max_length=50, choices=(
-#         ('< 18.5', 'Underweight'),
-#         ('18.5 - 24.9', 'Normal Weight'),
-#         ('25 - 29.9', 'Overweight'),
-#         ('30 or more', 'Obesity'),
-#     ))
 
 
 class IncidentType(models.Model):
@@ -166,8 +181,8 @@ class IncidentType(models.Model):
         return self.type
 
 
-class PhysicalHealth(models.Model):
-    healthID = models.AutoField(primary_key=True)
+class BMI(models.Model):
+    bmi_ID = models.AutoField(primary_key=True)
     orphan = models.ForeignKey(
         'Info', on_delete=models.CASCADE, related_name='physical_health')
     height = models.DecimalField(
@@ -197,7 +212,7 @@ class PhysicalHealth(models.Model):
     history = HistoricalRecords()
 
     class Meta:
-        db_table = 'orphan_health'
+        db_table = 'orphan_BMI'
         ordering = ['-recorded_at']  # Order by recorded_at in descending order
 
     def calculate_bmi(self):
@@ -265,34 +280,3 @@ class Grade(models.Model):
         choices=QUARTER_CHOICES, null=True, blank=True)
     semester = models.IntegerField(
         choices=SEMESTER_CHOICES, null=True, blank=True)
-
-# class Education(models.Model):
-#     EDUCATION_LEVEL_CHOICES = [
-#         ('Elementary', 'Elementary'),
-#         ('High School', 'High School'),
-#         ('College', 'College'),
-#     ]
-
-#     QUARTER_CHOICES = [
-#         (1, 'First Quarter'),
-#         (2, 'Second Quarter'),
-#         (3, 'Third Quarter'),
-#         (4, 'Fourth Quarter'),
-#     ]
-
-#     orphan = models.ForeignKey(
-#         Info, on_delete=models.CASCADE, related_name='educations')
-#     education_level = models.CharField(
-#         max_length=20,  # Adjust the max_length to fit the longest choice
-#         choices=EDUCATION_LEVEL_CHOICES,
-#         blank=True,
-#         null=True
-#     )
-#     school_name = models.CharField(max_length=255)
-#     current_gpa = models.DecimalField(
-#         max_digits=5, decimal_places=3, null=True, blank=True)
-#     date_recorded = models.DateField(auto_now_add=True)
-#     quarter = models.IntegerField(
-#         choices=QUARTER_CHOICES, null=True, blank=True)
-#     school_year = models.CharField(max_length=9)  # Add this line
-#     history = HistoricalRecords()
