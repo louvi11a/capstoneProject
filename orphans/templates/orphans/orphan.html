@@ -2,7 +2,6 @@
 {% load static %} 
 
 {% block css %}
-<link href="{% static 'Css/searchbar.css' %}" rel="stylesheet">
 {% endblock %} 
 
 {% block extra_meta %}
@@ -75,17 +74,14 @@ Orphan List
   <div>
 
   <div class="container-fluid ">
-    <div class="">
 
       <div class="flex-grow-1 light-style">
-        <div class="container-m-nx container-m-ny bg-lightest mb-3"> 
           <div class="row  justify-content-center text-center">
           {% for orphan in page_obj.object_list %}
-          
             <!-- orphan profile -->
             <a
-              class="card m-2 btn btn-light align-items-center orphancard"
-              href="{% url 'orphan_profile' orphan.orphanID %}" style="width: 250px; height: 300px;">
+              class="card m-2 btn btn-light d-flex align-items-center orphancard"
+              href="{% url 'orphan_profile' orphan.orphanID %}">
             {% if orphan.orphan_picture %}
             <img 
             src="{{ orphan.orphan_picture.url }}"
@@ -95,6 +91,7 @@ Orphan List
                 {% else %}
                 <img
                   src="{% static 'images/default_orphan_picture.png' %}"
+                  class="card-img-top d-flex align-items-center " 
                   width="150px" height="150px" 
                   alt="Default profile picture" />
               {% endif %}
@@ -113,8 +110,6 @@ Orphan List
             </a>
 
           {% endfor %}
-          </div>
-        </div>
       </div>
       
       <footer class="d-flex justify-content-between p-3 bg-light sticky-bottom">
@@ -278,7 +273,7 @@ Orphan List
                     </form>
                     </div>
                   </div>
-                </div>
+              </div>
               </div>
             </div> 
           </body>
@@ -317,33 +312,33 @@ Orphan List
     });
     </script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Variables for current and total pages
-    var currentPage = {{ page_obj.number }};
-    var totalPages = {{ page_obj.paginator.num_pages }};
-    console.log(currentPage, totalPages);
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Variables for current and total pages
+        var currentPage = {{ page_obj.number }};
+        var totalPages = {{ page_obj.paginator.num_pages }};
+        console.log(currentPage, totalPages);
 
-    // Event listener for the "Previous" button
-    document.getElementById('previous-page').addEventListener('click', function() {
-      if(currentPage > 1) {
-        window.location.search = 'page=' + (currentPage - 1) + '&entries=' + document.getElementById('entriesSelect').value;
-      }
-    });
+        // Event listener for the "Previous" button
+        document.getElementById('previous-page').addEventListener('click', function() {
+          if(currentPage > 1) {
+            window.location.search = 'page=' + (currentPage - 1) + '&entries=' + document.getElementById('entriesSelect').value;
+          }
+        });
 
-    // Event listener for the "Next" button
-    document.getElementById('next-page').addEventListener('click', function() {
-      if(currentPage < totalPages) {
-        window.location.search = 'page=' + (currentPage + 1) + '&entries=' + document.getElementById('entriesSelect').value;
-      }
-    });
+        // Event listener for the "Next" button
+        document.getElementById('next-page').addEventListener('click', function() {
+          if(currentPage < totalPages) {
+            window.location.search = 'page=' + (currentPage + 1) + '&entries=' + document.getElementById('entriesSelect').value;
+          }
+        });
 
-    // Event listener for changing the number of entries per page
-    document.getElementById('entriesSelect').addEventListener('change', function() {
-      window.location.search = 'page=1&entries=' + this.value;
-    });
-  });
-</script>
+        // Event listener for changing the number of entries per page
+        document.getElementById('entriesSelect').addEventListener('change', function() {
+          window.location.search = 'page=1&entries=' + this.value;
+        });
+      });
+    </script>
 
 
     {% endblock %}

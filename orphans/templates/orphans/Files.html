@@ -164,16 +164,13 @@ aria-hidden="true">
               
 <!-- Files List -->
             <div class="row container-fluid border-top border-bottom pt-2 mx-auto">
-            <div class="col-1 border-end mb-2">
-                No.
-            </div>
-            <div class="col-5 border-end mb-2">
+            <div class="col-4 border-end mb-2">
                 File Name
             </div>
             <div class="col-4 text-end mb-2">
                 Date Uploaded
             </div>
-            <div class="col-4 text-end mb-2">
+            <div class="col-4 text-end mb-2 px-5">
                 Actions
             </div>
         </div>
@@ -185,16 +182,16 @@ aria-hidden="true">
         {% for file in files %}
         <li class="list-group-item d-flex justify-content-between align-items-center" data-href="{% if file.file %}{{ file.file.url }}{% endif %}">
             <div class="row w-100">
-                        <div class="col-4 clickable-file"
+                        <div class="col-4 clickable-file "
                         <!-- {{ file.fileName }} -->
 
-                        <a href="{% url 'serve_file' file_id=file.fileID %}" target="_blank">{{ file.fileName }}</a>
+                        <a class="btn " href="{% url 'serve_file' file_id=file.fileID %}" target="_blank">{{ file.fileName }}</a>
     
                     </div>
                 <div class="col-4 text-end">{{ file.uploaded_at|date:"Y-m-d" }}</div>
                 <div class="col-4 text-end">
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                             Actions
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
