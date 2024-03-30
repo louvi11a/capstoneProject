@@ -32,6 +32,9 @@ from django.views import View
 from django.db.models import Q
 from django.urls import reverse
 from django.views import View
+from django.db import transaction
+
+
 sid = SentimentIntensityAnalyzer()
 # Add new words to the Vader lexicon
 new_words = {
@@ -188,56 +191,110 @@ class File_Search(View):
 
 
 def save_academic_details(request, orphan_id):
-    if request.method != 'POST':
-        # If not POST, just render the form page or redirect
-        return render(request, 'orphans/academic_profile.html')
+    if request.method == 'POST':
+        # Extract standard fields
+        school_name = request.POST.get('school_name')
+        education_level = request.POST.get('education_level')
+        year_level = request.POST.get('year_level')
+        quarter = request.POST.get('quarter')
 
-    # Extract all form data
-    school_name = request.POST.get('school_name')
-    education_level = request.POST.get('education_level')
-    year_level = request.POST.get('year_level')
-    quarter = request.POST.get('quarter')
-    subject_name = request.POST.get('subject')
-    grade_value = request.POST.get('grade')
+        # Initialize lists to hold all subjects and grades
+        all_subjects = []
+        all_grades = []
 
-    # Basic server-side validation
-    if not all([school_name, education_level, year_level, quarter, subject_name, grade_value]):
-        return HttpResponseBadRequest("Missing required academic details.")
+        # Add the initial subject and grade to the lists
+        initial_subject = request.POST.get('subject')  # Without brackets
+        initial_grade = request.POST.get('grade')  # Without brackets
+        if initial_subject and initial_grade:  # Ensure they are not empty
+            all_subjects.append(initial_subject)
+            all_grades.append(initial_grade)
 
-    try:
-        grade_value = int(grade_value)
-    except ValueError:
-        return HttpResponseBadRequest("Invalid grade value.")
+        # Extend the lists with additional subjects and grades
+        additional_subjects = request.POST.getlist(
+            'subject[]')  # With brackets
+        additional_grades = request.POST.getlist('grade[]')  # With brackets
+        all_subjects.extend(additional_subjects)
+        all_grades.extend(additional_grades)
 
-    orphan = get_object_or_404(Info, orphanID=orphan_id)
+        if not all([school_name, education_level, year_level, quarter, all_subjects, all_grades]):
+            return HttpResponseBadRequest("Missing required fields")
 
-    with transaction.atomic():
-        try:
-            subject, created = Subject.objects.get_or_create(name=subject_name)
+        orphan = get_object_or_404(Info, pk=orphan_id)
 
-            education = Education(
+        with transaction.atomic():
+            education = Education.objects.create(
                 orphan=orphan,
                 school_name=school_name,
                 education_level=education_level,
                 year_level=year_level,
             )
-            education.save()
 
-            # Instead of adding the subject to education directly, create a Grade instance
-            grade = Grade(
-                subject=subject,
-                education=education,
-                grade=grade_value,
-                quarter=quarter,
-            )
-            grade.save()
+            for subject_name, grade_value in zip(all_subjects, all_grades):
+                subject, _ = Subject.objects.get_or_create(
+                    name=subject_name.strip())
+                Grade.objects.create(
+                    subject=subject,
+                    education=education,
+                    grade=int(grade_value),
+                    quarter=quarter
+                )
 
-        except Exception as e:
-            # Log the error or send a message to the user
-            return HttpResponse(str(e), status=500)
+        return redirect('academic_profile', orphan_id=orphan_id)
 
-    # Redirect to a success page or the academic profile
-    return redirect('academic_profile', orphan_id=orphan_id)
+    return render(request, 'orphans/academic_profile.html')
+
+
+# def save_academic_details(request, orphan_id):
+#     if request.method != 'POST':
+#         # If not POST, just render the form page or redirect
+#         return render(request, 'orphans/academic_profile.html')
+
+#     # Extract all form data
+#     school_name = request.POST.get('school_name')
+#     education_level = request.POST.get('education_level')
+#     year_level = request.POST.get('year_level')
+#     quarter = request.POST.get('quarter')
+#     subject_name = request.POST.get('subject')
+#     grade_value = request.POST.get('grade')
+
+#     # Basic server-side validation
+#     if not all([school_name, education_level, year_level, quarter, subject_name, grade_value]):
+#         return HttpResponseBadRequest("Missing required academic details.")
+
+#     try:
+#         grade_value = int(grade_value)
+#     except ValueError:
+#         return HttpResponseBadRequest("Invalid grade value.")
+
+#     orphan = get_object_or_404(Info, orphanID=orphan_id)
+
+#     with transaction.atomic():
+#         try:
+#             subject, created = Subject.objects.get_or_create(name=subject_name)
+
+#             education = Education(
+#                 orphan=orphan,
+#                 school_name=school_name,
+#                 education_level=education_level,
+#                 year_level=year_level,
+#             )
+#             education.save()
+
+#             # Instead of adding the subject to education directly, create a Grade instance
+#             grade = Grade(
+#                 subject=subject,
+#                 education=education,
+#                 grade=grade_value,
+#                 quarter=quarter,
+#             )
+#             grade.save()
+
+#         except Exception as e:
+#             # Log the error or send a message to the user
+#             return HttpResponse(str(e), status=500)
+
+#     # Redirect to a success page or the academic profile
+#     return redirect('academic_profile', orphan_id=orphan_id)
 
 
 def academic_profile(request, orphan_id):
