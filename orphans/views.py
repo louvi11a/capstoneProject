@@ -17,7 +17,7 @@ from django.contrib import messages
 from django.conf import settings
 import os
 from django.views.decorators.http import require_http_methods
-
+from django.core import serializers
 from django.core.exceptions import PermissionDenied
 import json
 # Create your views here.
@@ -84,6 +84,18 @@ def add_note(request, orphan_id):
     else:
         form = NoteForm()
     return render(request, 'orphans/behavior_profile.html', {'form': form, 'orphan': orphan})
+
+
+def filter_orphans(request):
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        orphans = Info.objects.filter(status=status_filter)
+    else:
+        orphans = Info.objects.all()
+
+    # Serialize the queryset to JSON
+    data = serializers.serialize('json', orphans)
+    return JsonResponse(data, safe=False)
 
 
 def add_health_details(request):

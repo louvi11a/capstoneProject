@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from orphans.views import orphan_view, restore_files, file_details, family_detail, add_health_details
+# from orphans.views import orphan_view, restore_files, file_details, family_detail, add_health_details, filter_orphans
 from orphanage_system import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
@@ -13,10 +13,14 @@ urlpatterns = [
     #     path('api/chart-sentiment/', chart_sentiment, name='chart_sentiment'),
 
     #     path('search/', SearchView.as_view(), name='search'),
-    path('serve_file/<int:orphan_id>/<str:file_type>/',
-         serve_orphan_file, name='serve_orphan_file'),
+    path('filter_orphans/', views.filter_orphans, name='filter_orphans'),
 
-    path('add-health-details/', add_health_details, name='add_health_details'),
+
+    path('serve_file/<int:orphan_id>/<str:file_type>/',
+         views.serve_orphan_file, name='serve_orphan_file'),
+
+    path('add-health-details/', views.add_health_details,
+         name='add_health_details'),
 
     #     path('upload_birth_certificate/<int:orphan_id>/',
     #          views.upload_birth_certificate, name='upload_birth_certificate'),
@@ -29,8 +33,8 @@ urlpatterns = [
     path('upload_file/', views.upload_file, name='upload_file'),
     path('rename_file/', views.rename_file, name='rename_file'),
     path('delete_files/', views.delete_files, name='delete_files'),
-    path('restore_files/', restore_files, name='restore_files'),
-    path('', orphan_view, name='orphans'),
+    path('restore_files/', views.restore_files, name='restore_files'),
+    path('', views.orphan_view, name='orphans'),
     path('add_orphan/', views.addOrphanForm, name='add_orphan'),
 
     path('profile/<int:orphanID>/',
@@ -51,7 +55,7 @@ urlpatterns = [
          views.behavior_profile, name='behavior_profile'),
 
 
-    path('family/<int:family_id>/', family_detail, name='family_detail'),
+    path('family/<int:family_id>/', views.family_detail, name='family_detail'),
 
     path('files/details/<int:file_id>/', views.file_details,
          name='file_details'),
