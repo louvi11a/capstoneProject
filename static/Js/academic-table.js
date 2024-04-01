@@ -17,7 +17,3 @@
         gradesCell.textContent = grades;
         statusCell.textContent = status;
     }
-
-    // Example usage:
-    addAcademicDetailRow("2024-02-13", "Freshman", "Semester 1", "Mathematics", "85 (Midterm), 92 (Final Exam)", "Passed");
-    addAcademicDetailRow("2023-12-15", "Sophomore", "Semester 2", "History", "90 (Quizzes), 78 (Essay), 82 (Final Project)", "Passed");

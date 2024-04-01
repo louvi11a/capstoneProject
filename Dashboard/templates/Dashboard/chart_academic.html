@@ -146,19 +146,6 @@ function updateTableEntries(entries) {
                     </div>
                 </th>
                 <th scope="col">
-                    Subject
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('subject')">
-                        <i class="bi bi-filter"></i>
-                    </button>
-                    <!-- Subject filter dropdown -->
-                    <div id="subjectDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('English')">English</a>
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('Math')">Math</a>
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('Science')">Science</a>
-                    </div>
-                </th>
-                <th scope="col">
                     Grading
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('grading')">
                         <i class="bi bi-filter"></i>
@@ -172,6 +159,20 @@ function updateTableEntries(entries) {
                         <a class="dropdown-item" href="#" onclick="filterByGrading('4th Grading')">4th Grading</a>
                     </div>
                 </th>
+                <th scope="col">
+                    Subject
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('subject')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- Subject filter dropdown -->
+                    <div id="subjectDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterBySubject('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterBySubject('English')">English</a>
+                        <a class="dropdown-item" href="#" onclick="filterBySubject('Math')">Math</a>
+                        <a class="dropdown-item" href="#" onclick="filterBySubject('Science')">Science</a>
+                    </div>
+                </th>
+                
                 <th scope="col">
                     Grade
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('grade')">
@@ -205,8 +206,8 @@ function updateTableEntries(entries) {
                 <td>2024-03-01</td>
                 <td>John Doe</td>
                 <td>Grade 9</td>
-                <td>Math</td>
                 <td>1st Grading</td>
+                <td>Math</td>
                 <td>85</td>
                 <td><span class="badge bg-success">Passed</span></td>
                 <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -215,8 +216,8 @@ function updateTableEntries(entries) {
                 <td>2024-03-02</td>
                 <td>Jane Smith</td>
                 <td>Grade 7</td>
-                <td>English</td>
                 <td>2nd Grading</td>
+                <td>English</td>
                 <td>78</td>
                 <td><span class="badge bg-success">Passed</span></td>
                 <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -225,8 +226,8 @@ function updateTableEntries(entries) {
                 <td>2024-03-03</td>
                 <td>Michael Johnson</td>
                 <td>Grade 10</td>
-                <td>Science</td>
                 <td>3rd Grading</td>
+                <td>Science</td>
                 <td>92</td>
                 <td><span class="badge bg-danger">Failed</span></td>
                 <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -236,8 +237,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-07</td>
                     <td>Ethan Davis</td>
                     <td>Grade 4</td>
-                    <td>English</td>
                     <td>1st Grading</td>
+                    <td>English</td>
                     <td>70</td>
                     <td><span class="badge bg-danger">Failed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -246,8 +247,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-08</td>
                     <td>Olivia Wilson</td>
                     <td>Grade 12</td>
-                    <td>Math</td>
                     <td>2nd Grading</td>
+                    <td>Math</td>
                     <td>80</td>
                     <td><span class="badge bg-success">Passed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -256,8 +257,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-09</td>
                     <td>Liam Taylor</td>
                     <td>Grade 5</td>
-                    <td>Science</td>
                     <td>3rd Grading</td>
+                    <td>Science</td>
                     <td>65</td>
                     <td><span class="badge bg-danger">Failed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -266,8 +267,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-10</td>
                     <td>Sophia Martinez</td>
                     <td>Grade 3</td>
-                    <td>Math</td>
                     <td>1st Grading</td>
+                    <td>Math</td>
                     <td>73</td>
                     <td><span class="badge bg-danger">Failed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -276,8 +277,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-11</td>
                     <td>James Anderson</td>
                     <td>Grade 8</td>
-                    <td>English</td>
                     <td>2nd Grading</td>
+                    <td>English</td>
                     <td>78</td>
                     <td><span class="badge bg-success">Passed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -286,8 +287,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-12</td>
                     <td>Emily Garcia</td>
                     <td>Grade 11</td>
-                    <td>Science</td>
                     <td>3rd Grading</td>
+                    <td>Science</td>
                     <td>80</td>
                     <td><span class="badge bg-success">Passed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -296,8 +297,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-13</td>
                     <td>Michael Brown</td>
                     <td>Grade 6</td>
-                    <td>English</td>
                     <td>1st Grading</td>
+                    <td>English</td>
                     <td>68</td>
                     <td><span class="badge bg-danger">Failed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -306,8 +307,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-14</td>
                     <td>Isabella Taylor</td>
                     <td>Grade 9</td>
-                    <td>Math</td>
                     <td>2nd Grading</td>
+                    <td>Math</td>
                     <td>82</td>
                     <td><span class="badge bg-success">Passed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -316,8 +317,8 @@ function updateTableEntries(entries) {
                     <td>2024-03-15</td>
                     <td>Noah Rodriguez</td>
                     <td>Grade 7</td>
-                    <td>Science</td>
                     <td>3rd Grading</td>
+                    <td>Science</td>
                     <td>74</td>
                     <td><span class="badge bg-danger">Failed</span></td>
                     <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
@@ -401,7 +402,7 @@ function updateTableEntries(entries) {
         if (filterValue !== 'all') {
             // Filter rows based on selected subject
             rows.forEach(function(row) {
-                if (row.cells[3].textContent !== filterValue) {
+                if (row.cells[4].textContent !== filterValue) {
                     row.style.display = 'none';
                 }
             });
@@ -463,7 +464,7 @@ function updateTableEntries(entries) {
         // Get all table rows
         var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
         rows.forEach(function(row) {
-            var cellValue = row.cells[4].textContent.trim();
+            var cellValue = row.cells[3].textContent.trim();
             if (filterValue === 'all' || cellValue === filterValue) {
                 row.style.display = ''; // Show row if it matches the filter or if "All" is selected
             } else {
