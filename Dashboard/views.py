@@ -36,7 +36,7 @@ def sentiment_chart_view(request):
         return JsonResponse({'error': str(e)})
 
 
-@login_required
+# @login_required
 def dashboard_view(request):
     bmi_categories = BMI.objects.values('bmi_category').annotate(
         count=Count('bmi_category')).order_by('bmi_category')
