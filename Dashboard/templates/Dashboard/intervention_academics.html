@@ -19,57 +19,387 @@
 
 {% block content %}
 <body>
-                <!-- content -->
-                <div class="">
-                    <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </a>
-                </div>
+
+<!-- Heading -->
+    <!-- content -->
+    <div class="m-2">
+        <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div class="text-center mx-auto">
+            <h1 class="mb-0">Orphan Academic Interventions</h1>
+        </div>
+    </div>
 
                 <hr class="mt-3">
-
-                <div class="container">
-                    <div class="bg-white rounded-4  border">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">First Name</th>
-                                    <th scope="col">Last Name</th>
-                                    <th scope="col">Needs</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th scope="row">1</th>
-                                    <td>Alice</td>
-                                    <td>Smith</td>
-                                    <td>exercise</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">2</th>
-                                    <td>Bob</td>
-                                    <td>Johnson</td>
-                                    <td>exercise</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">3</th>
-                                    <td>Charlie</td>
-                                    <td>Brown</td>
-                                    <td>paracetamol</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <!-- Academic Details Filter -->
+                <!-- Show number of Entries -->
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+                        <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
+                            <option value="all">All</option>
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            
+                        </select>
+                        <span class="me-2">entries</span>
+                    </div>
+                    <div class="d-flex align-items-center">
                     </div>
                 </div>
-
+                
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Get the select element
+                        var entriesSelect = document.getElementById("entriesSelect");
+                
+                        // Add event listener for change
+                        entriesSelect.addEventListener("change", function() {
+                            // Get the selected value
+                            var selectedValue = entriesSelect.value;
+                            // Call a function to update the table with the selected number of entries
+                            updateTableEntries(selectedValue);
+                        });
+                    });
+                
+                    function updateTableEntries(entries) {
+                        // Get the table body
+                        var tableBody = document.querySelector('#academicDetailsTable tbody');
+                        // Get all rows in the table
+                        var rows = tableBody.querySelectorAll('tr');
+                
+                        // Show all rows if 'All' is selected
+                        if (entries === 'all') {
+                            rows.forEach(function(row) {
+                                row.style.display = '';
+                            });
+                            return;
+                        }
+                
+                        // Hide all rows
+                        rows.forEach(function(row) {
+                            row.style.display = 'none';
+                        });
+                
+                        // Show only the specified number of entries
+                        for (var i = 0; i < entries; i++) {
+                            if (rows[i]) {
+                                rows[i].style.display = '';
+                            }
+                        }
+                    }
+                </script>
+                
+                
+                <div class="mb-3">
+                    <table id="academicDetailsTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    Date 
+                                    <button class="btn btn-sm me-2" onclick="toggleDropdown('date')">
+                                        <i class="bi bi-filter"></i>
+                                    </button>
+                                    <!-- Date filter dropdown -->
+                                    <div id="dateDropdown" class="dropdown-menu" style="display: none;">
+                                        <a class="dropdown-item" href="#" onclick="filterByDate('all')">All</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByDate('ascending')">Ascending</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByDate('descending')">Descending</a>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    Name
+                                    <button class="btn btn-sm me-2" onclick="toggleDropdown('name')">
+                                        <i class="bi bi-filter"></i>
+                                    </button>
+                                    <!-- Name filter dropdown -->
+                                    <div id="nameDropdown" class="dropdown-menu" style="display: none;">
+                                        <a class="dropdown-item" href="#" onclick="filterByName('all')">All</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByName('ascending')">Ascending</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByName('descending')">Descending</a>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    Urgency
+                                    <button class="btn btn-sm me-2" onclick="toggleDropdown('urgency')">
+                                        <i class="bi bi-filter"></i>
+                                    </button>
+                                    <!-- Urgency filter dropdown -->
+                                    <div id="urgencyDropdown" class="dropdown-menu" style="display: none;">
+                                        <a class="dropdown-item" href="#" onclick="filterByUrgency('all')">All</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByUrgency('urgent')">Urgent</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByUrgency('not urgent')">Not Urgent</a>
+                                    </div>
+                                </th>
+                                <th scope="col">Intervention</th>
+                                <th scope="col">
+                                    Status
+                                    <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
+                                        <i class="bi bi-filter"></i>
+                                    </button>
+                                    <!-- Status filter dropdown -->
+                                    <div id="statusDropdown" class="dropdown-menu" style="display: none;">
+                                        <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByStatus('resolved')">Resolved</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByStatus('pending')">Pending</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByStatus('unresolved')">Unresolved</a>
+                                    </div>
+                                </th>
+                                <th scope="col">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-02-26</td>
+                                <td>Alice Smith</td>
+                                <td><span class="badge bg-warning">Not Urgent</span></td>
+                                <td>Student showed improvement in class participation.</td>
+                                <td><span class="badge bg-warning">Pending</span></td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
+                                            <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
+                                            <li><a class="dropdown-item" href="../orphans/html/health_profile.html">View Health Details</a></li>
+                                        </ul> 
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-06-29</td>
+                                <td>John Doe</td>
+                                <td><span class="badge bg-warning">Not Urgent</span></td>
+                                <td>Student showed improvement in class participation.</td>
+                                <td><span class="badge bg-success">Resolved</span></td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
+                                            <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
+                                            <li><a class="dropdown-item" href="../orphans/html/health_profile.html">View Health Details</a></li>
+                                        </ul> 
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-06-29</td>
+                                <td>Joana Makilala</td>
+                                <td><span class="badge bg-danger">Urgent</span></td>
+                                <td>Student showed improvement in class participation.</td>
+                                <td><span class="badge bg-danger">Unresolved</span></td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
+                                            <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
+                                            <li><a class="dropdown-item" href="../orphans/html/health_profile.html">View Health Details</a></li>
+                                        </ul> 
+                                    </div>
+                                </td>
+                            </tr>
+                
+                
+                        </tbody>
+                    </table>
+                </div>
+                
+<!-- Edit Remarks Modal -->
+<div class="modal fade" id="editRemarksModal" tabindex="-1" aria-labelledby="editRemarksModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRemarksModalLabel">Edit Remarks</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editRemarksForm">
+                    <div class="mb-3">
+                        <label for="remarksInput" class="form-label">Remarks:</label>
+                        <textarea class="form-control" id="remarksInput" rows="3"></textarea>
+                        <div id="remarksValidationMessage" class="invalid-feedback">Remarks cannot be empty.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">Status:</label>
+                        <select class="form-select" id="statusSelect">
+                            <option value="resolved">Resolved</option>
+                            <option value="pending">Pending</option>
+                            <option value="unresolved">Unresolved</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="saveRemarksBtn">Save Changes</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Event delegation to handle click on "Edit Remarks" dropdown item
+        document.querySelector('body').addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'editRemarksAction') {
+                $('#editRemarksModal').modal('show');
+            }
+        });
+
+        // Function to save remarks
+        $('#saveRemarksBtn').click(function() {
+            var remarks = $('#remarksInput').val();
+            var remarksValidationMessage = $('#remarksValidationMessage');
+
+            if (remarks.trim() === "") {
+                remarksValidationMessage.show();
+            } else {
+                remarksValidationMessage.hide();
+                // Save remarks (for demonstration purposes, just simulate saving)
+                if (confirm("Changes saved.")) {
+                    $('#editRemarksModal').modal('hide');
+                    // Redirect to the appropriate page
+                    window.location.href = "../html/intervention_academics.html";
+                }
+            }
+        });
+
+        // Function to handle modal close event
+        $('#editRemarksModal').on('hidden.bs.modal', function () {
+            // Redirect to the appropriate page
+            window.location.href = "../html/intervention_academics.html";
+        });
+    });
+</script>
+
+<!-- Dropdown Functions -->
+<script>
+function toggleDropdown(dropdownId) {
+    var dropdown = document.getElementById(dropdownId + 'Dropdown');
+    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+
+function filterByDate(filterValue) {
+    console.log('Filter by date:', filterValue);
+    // Close dropdown after selection
+    document.getElementById('dateDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue === 'ascending') {
+        // Code to sort by ascending date
+        rows = Array.from(rows).sort((a, b) => new Date(a.cells[0].textContent) - new Date(b.cells[0].textContent));
+    } else if (filterValue === 'descending') {
+        // Code to sort by descending date
+        rows = Array.from(rows).sort((a, b) => new Date(b.cells[0].textContent) - new Date(a.cells[0].textContent));
+    }
+    // Re-append sorted rows to the table
+    var tbody = document.querySelector('#academicDetailsTable tbody');
+    tbody.innerHTML = ''; // Clear existing rows
+    rows.forEach(function(row) {
+        tbody.appendChild(row);
+    });
+}
+
+function filterByName(filterValue) {
+    console.log('Filter by name:', filterValue);
+    // Close dropdown after selection
+    document.getElementById('nameDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue === 'ascending') {
+        // Code to sort by ascending name
+        rows = Array.from(rows).sort((a, b) => a.cells[1].textContent.localeCompare(b.cells[1].textContent));
+    } else if (filterValue === 'descending') {
+        // Code to sort by descending name
+        rows = Array.from(rows).sort((a, b) => b.cells[1].textContent.localeCompare(a.cells[1].textContent));
+    }
+    // Re-append sorted rows to the table
+    var tbody = document.querySelector('#academicDetailsTable tbody');
+    tbody.innerHTML = ''; // Clear existing rows
+    rows.forEach(function(row) {
+        tbody.appendChild(row);
+    });
+}
+
+function filterByUrgency(filterValue) {
+    console.log('filterByUrgency called with:', filterValue); // Debugging log
+    // Close dropdown after selection
+    document.getElementById('urgencyDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    console.log('Rows found:', rows.length); // Debugging log
+    // Reset to show all rows
+    rows.forEach(function(row) {
+        row.style.display = '';
+    });
+    // Filter rows based on selected urgency
+    if (filterValue !== 'all') {
+        rows.forEach(function(row) {
+            // Trim the urgency text and convert to lowercase for comparison
+            var urgencyText = row.cells[2].textContent.trim().toLowerCase();
+            console.log('Urgency text:', urgencyText); // Debugging log
+            // Check if the urgency text contains the filter value
+            if (urgencyText !== filterValue) {
+                row.style.display = 'none'; // Hide the row if it doesn't match the filter value
+            }
+        });
+    }
+}
+
+function filterByStatus(filterValue) {
+    console.log('filterByStatus called with:', filterValue); // Debugging log
+    // Close dropdown after selection
+    document.getElementById('statusDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    console.log('Rows found:', rows.length); // Debugging log
+    // Reset to show all rows
+    rows.forEach(function(row) {
+        row.style.display = '';
+    });
+    // Filter rows based on selected status
+    if (filterValue !== 'all') {
+        rows.forEach(function(row) {
+            // Trim the status text and convert to lowercase for comparison
+            var statusText = row.cells[4].textContent.trim().toLowerCase();
+            console.log('Status text:', statusText); // Debugging log
+            // Check if the status text contains the filter value
+            if (statusText !== filterValue) {
+                row.style.display = 'none'; // Hide the row if it doesn't match the filter value
+            }
+        });
+    }
+}
+</script>
+
     {% endblock %}
 
-
     {% block js %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
     {% endblock %}
 
 
