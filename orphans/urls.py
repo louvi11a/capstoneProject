@@ -4,7 +4,7 @@ from orphans.views import orphan_view, restore_files, file_details, family_detai
 from orphanage_system import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
-from .views import Orphan_Search, File_Search
+from .views import Orphan_Search, File_Search, serve_orphan_file
 # from .views import chart_sentiment
 
 print(views.__file__)
@@ -13,10 +13,13 @@ urlpatterns = [
     #     path('api/chart-sentiment/', chart_sentiment, name='chart_sentiment'),
 
     #     path('search/', SearchView.as_view(), name='search'),
+    path('serve_file/<int:orphan_id>/<str:file_type>/',
+         serve_orphan_file, name='serve_orphan_file'),
+
     path('add-health-details/', add_health_details, name='add_health_details'),
 
-    path('upload_birth_certificate/<int:orphan_id>/',
-         views.upload_birth_certificate, name='upload_birth_certificate'),
+    #     path('upload_birth_certificate/<int:orphan_id>/',
+    #          views.upload_birth_certificate, name='upload_birth_certificate'),
 
     path('search_orphans/', Orphan_Search.as_view(), name='search_orphans'),
     path('search_files/', File_Search.as_view(), name='search_files'),

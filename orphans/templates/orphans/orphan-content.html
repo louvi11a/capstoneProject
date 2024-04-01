@@ -192,33 +192,34 @@
 
       <hr class="mt-2">
       <div class="container-fluid">
-      <h2>Orphan Files</h2>
-        <div class="row  ">
-            <div class=" col-lg-3 card file-card m-1">
-                <div class="card-body">
-                  <h5 class="card-title">Birth Certificate</h5>
-                  <p class="card-text">File description goes here...</p>
-                  <a class="btn btn-primary" href="../files/BirthCert.pdf" target="_blank">Open File</a>
-                </div>
-            </div>
-
-            <div class=" col-lg-3 card file-card m-1">
+        <h2>Orphan Files</h2>
+        <div class="row">
+          <!-- Check if there is a birth certificate URL -->
+          <!-- Check if there is a birth certificate URL -->
+          {% if orphan.birth_certificate %}
+            <div class="col-lg-3 card file-card m-1">
               <div class="card-body">
                 <h5 class="card-title">Birth Certificate</h5>
-                <p class="card-text">File description goes here...</p>
-                <a class="btn btn-primary" href="../files/ReportCard.pdf" target="_blank">Open File</a>
+                <p class="card-text">This is the birth certificate of the orphan.</p>
+                <!-- Use the new view for serving the birth certificate -->
+                <a class="btn btn-primary" href="{% url 'serve_orphan_file' orphan_id=orphan.orphanID file_type='birth_certificate' %}" target="_blank">Open File</a>
               </div>
             </div>
-
-            <div class=" col-lg-3 card file-card m-1">
+          {% else %}
+            <div class="col-lg-3 card file-card m-1">
               <div class="card-body">
                 <h5 class="card-title">Birth Certificate</h5>
-                <p class="card-text">File description goes here...</p>
-                <a class="btn btn-primary" href="#" target="_blank">Open File</a>
+                <p class="card-text">No birth certificate uploaded.</p>
+                <button class="btn btn-primary disabled">Open File</button>
               </div>
             </div>
+          {% endif %}
+
+          <!-- Repeat similar blocks for other files as needed, adjusting the context and template accordingly -->
         </div>
       </div>
+      
+
     </div>
   </div>
 
