@@ -14,6 +14,10 @@ from django.db.models.functions import ExtractYear
 from django.utils.timezone import now
 import logging
 import datetime
+from django.db.models import Count, Case, When, Value
+from django.shortcuts import render
+from orphans.models import Education, Grade, Info  # Assuming these are your models
+from django.db.models import Max
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -75,9 +79,58 @@ def dashboard_view(request):
     female_count = Info.objects.filter(gender='Female').count()
     total_orphans = Info.objects.count()
     requires_intervention_behavior = intervention_behavior_count()
-    context = {
-        'bmi_data': bmi_data,
 
+    # Prepare initial data structure for academic statuses
+    FAILING_GRADE_THRESHOLD = 75
+
+    academic_statuses = {
+        'Urgent Academic Support': 0,
+        'Partial Support Needed': 0,
+        'Stable Academic Standing': 0,
+        'Exceptional Academic Standing': 0,
+    }
+
+    # Iterate over orphans instead of educations to aggregate failing grades count per orphan
+    orphans = Info.objects.prefetch_related('educations__grade_set').all()
+
+    for orphan in orphans:
+        urgent_support_needed = False
+        partial_support_needed = False
+        exceptional_standing = False
+        stable_standing = False
+
+        for education in orphan.educations.all():
+            failing_grades_count = education.grade_set.filter(
+                grade__lte=FAILING_GRADE_THRESHOLD).count()
+            highest_grade = education.grade_set.aggregate(Max('grade'))[
+                'grade__max'] or 0
+
+            if failing_grades_count >= 3:
+                urgent_support_needed = True
+
+            elif 1 <= failing_grades_count <= 2:
+                partial_support_needed = True
+
+            if highest_grade >= 91:
+                exceptional_standing = True
+            elif 76 <= highest_grade <= 90:
+                stable_standing = True
+
+        # Update academic status counters based on criteria
+        if urgent_support_needed:
+            academic_statuses['Urgent Academic Support'] += 1
+        elif partial_support_needed:
+            academic_statuses['Partial Support Needed'] += 1
+        elif exceptional_standing:
+            academic_statuses['Exceptional Academic Standing'] += 1
+        elif stable_standing:
+            academic_statuses['Stable Academic Standing'] += 1
+        # Consider adding an else block for orphans that do not fit into any category
+
+    context = {
+        'academic_labels': list(academic_statuses.keys()),
+        'academic_data': list(academic_statuses.values()),
+        'bmi_data': bmi_data,
         'sentiment_labels': labels,
         'sentiment_data': data,
         'male_count': male_count,
