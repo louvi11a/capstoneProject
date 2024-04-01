@@ -8,7 +8,7 @@ from textblob import TextBlob
 from .models import Education, Grade, get_sentiment_data, HealthDetail
 from django import forms, views
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse, FileResponse
-from .forms import NoteForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm, UploadBirthCertificateForm
+from .forms import NoteForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm
 from .models import Info, BMI, Education, Family, Subject, Grade
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import get_object_or_404, render, redirect
@@ -17,7 +17,7 @@ from django.contrib import messages
 from django.conf import settings
 import os
 from django.views.decorators.http import require_http_methods
-
+from django.core import serializers
 from django.core.exceptions import PermissionDenied
 import json
 # Create your views here.
@@ -86,6 +86,18 @@ def add_note(request, orphan_id):
     return render(request, 'orphans/behavior_profile.html', {'form': form, 'orphan': orphan})
 
 
+def filter_orphans(request):
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        orphans = Info.objects.filter(status=status_filter)
+    else:
+        orphans = Info.objects.all()
+
+    # Serialize the queryset to JSON
+    data = serializers.serialize('json', orphans)
+    return JsonResponse(data, safe=False)
+
+
 def add_health_details(request):
     orphan_id = request.POST.get('orphan_id')
     orphan = get_object_or_404(Info, orphanID=orphan_id)
@@ -114,25 +126,6 @@ def add_health_details(request):
     health_detail.save()
 
     return redirect('health_profile', orphan_id=orphan_id)
-
-
-def upload_birth_certificate(request, orphan_id):
-    orphan = Info.objects.get(pk=orphan_id)
-
-    if request.method == 'POST':
-        form = UploadBirthCertificateForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            orphan.birth_certificate = form.cleaned_data['birth_certificate']
-            orphan.status = 'C'  # Update status to 'Complete'
-            orphan.save()
-
-            return redirect('orphan_detail', orphan_id=orphan_id)
-
-    else:
-        form = UploadBirthCertificateForm()
-
-    return render(request, 'upload.html', {'form': form})
 
 
 class Orphan_Search(View):
@@ -243,59 +236,6 @@ def save_academic_details(request, orphan_id):
     return render(request, 'orphans/academic_profile.html')
 
 
-# def save_academic_details(request, orphan_id):
-#     if request.method != 'POST':
-#         # If not POST, just render the form page or redirect
-#         return render(request, 'orphans/academic_profile.html')
-
-#     # Extract all form data
-#     school_name = request.POST.get('school_name')
-#     education_level = request.POST.get('education_level')
-#     year_level = request.POST.get('year_level')
-#     quarter = request.POST.get('quarter')
-#     subject_name = request.POST.get('subject')
-#     grade_value = request.POST.get('grade')
-
-#     # Basic server-side validation
-#     if not all([school_name, education_level, year_level, quarter, subject_name, grade_value]):
-#         return HttpResponseBadRequest("Missing required academic details.")
-
-#     try:
-#         grade_value = int(grade_value)
-#     except ValueError:
-#         return HttpResponseBadRequest("Invalid grade value.")
-
-#     orphan = get_object_or_404(Info, orphanID=orphan_id)
-
-#     with transaction.atomic():
-#         try:
-#             subject, created = Subject.objects.get_or_create(name=subject_name)
-
-#             education = Education(
-#                 orphan=orphan,
-#                 school_name=school_name,
-#                 education_level=education_level,
-#                 year_level=year_level,
-#             )
-#             education.save()
-
-#             # Instead of adding the subject to education directly, create a Grade instance
-#             grade = Grade(
-#                 subject=subject,
-#                 education=education,
-#                 grade=grade_value,
-#                 quarter=quarter,
-#             )
-#             grade.save()
-
-#         except Exception as e:
-#             # Log the error or send a message to the user
-#             return HttpResponse(str(e), status=500)
-
-#     # Redirect to a success page or the academic profile
-#     return redirect('academic_profile', orphan_id=orphan_id)
-
-
 def academic_profile(request, orphan_id):
     # Fetch the orphan instance by ID or return a 404 error if not found
     orphan = get_object_or_404(Info, orphanID=orphan_id)
@@ -316,22 +256,41 @@ def academic_profile(request, orphan_id):
 
 
 def orphan_view(request):
-    # Get the number of entries from the query string, default to 10
-    entries_per_page = int(request.GET.get('entries', 10))  # convert to int
-    page_number = int(request.GET.get('page', 1))  # convert to int
+    entries_per_page = int(request.GET.get('entries', 10))
+    page_number = int(request.GET.get('page', 1))
     orphans = Info.objects.filter(is_deleted=False).order_by('orphanID')
-    # Create a Paginator object
-    paginator = Paginator(orphans, entries_per_page)  # create a Paginator
+
+    # Annotate each orphan object with a status based on the birth certificate submission
+    for orphan in orphans:
+        orphan.dynamic_status = "In Process" if not orphan.has_complete_requirements(
+        ) else "Admitted"  # You can adjust these values as needed
+
+    paginator = Paginator(orphans, entries_per_page)
 
     try:
-        # get the Page object for the current page
         page_obj = paginator.page(page_number)
-    except (EmptyPage, InvalidPage):
-        # if the page number is invalid, show the last page
+    except (EmptyPage, PageNotAnInteger):
         page_obj = paginator.page(paginator.num_pages)
 
-    # pass the Page object to the template
     return render(request, 'orphans/orphan.html', {'page_obj': page_obj, 'entries_per_page': entries_per_page})
+
+# def orphan_view(request):
+#     # Get the number of entries from the query string, default to 10
+#     entries_per_page = int(request.GET.get('entries', 10))  # convert to int
+#     page_number = int(request.GET.get('page', 1))  # convert to int
+#     orphans = Info.objects.filter(is_deleted=False).order_by('orphanID')
+#     # Create a Paginator object
+#     paginator = Paginator(orphans, entries_per_page)  # create a Paginator
+
+#     try:
+#         # get the Page object for the current page
+#         page_obj = paginator.page(page_number)
+#     except (EmptyPage, InvalidPage):
+#         # if the page number is invalid, show the last page
+#         page_obj = paginator.page(paginator.num_pages)
+
+#     # pass the Page object to the template
+#     return render(request, 'orphans/orphan.html', {'page_obj': page_obj, 'entries_per_page': entries_per_page})
 
 
 def family_detail(request, family_id):
@@ -360,12 +319,17 @@ def orphan_profile(request, orphanID):
     latest_physical_health = orphan.physical_health.order_by(
         '-recorded_at').first()
 
+    # Assuming MEDIA_URL is set up correctly in your settings.py and your model uses the FileField for birth_certificate
+    birth_certificate_url = orphan.birth_certificate.url if orphan.birth_certificate else None
+
     # Prepare the context with the orphan and latest education instance.
     context = {
         'orphan': orphan,
         'latest_education': latest_education,
         'physical_health_records': physical_health_records,
         'latest_physical_health': latest_physical_health,  # Add this line
+        # Add the birth certificate URL to the context
+        'birth_certificate_url': birth_certificate_url,
 
         # Include any other context data you need for the template.
     }
@@ -529,6 +493,19 @@ def serve_file(request, file_id):
         raise PermissionDenied
 
 
+def serve_orphan_file(request, orphan_id, file_type):
+    orphan = get_object_or_404(Info, orphanID=orphan_id)
+
+    # Assuming the user has the permission to access the file
+    # Implement any required permission checks here
+
+    if file_type == 'birth_certificate' and orphan.birth_certificate:
+        file_path = orphan.birth_certificate.path
+        if os.path.exists(file_path):
+            return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
+    raise Http404("File not found")
+
+
 def restore_files(request):
     if request.method == 'POST':
         file_ids = request.POST.getlist('file_ids')
@@ -641,39 +618,66 @@ def save_changes(request, orphan_id):
     # Return a JSON response
     return JsonResponse({'status': 'ok'})
 
+# def upload_birth_certificate(request, orphan_id):
+#     orphan = Info.objects.get(pk=orphan_id)
+
+#     if request.method == 'POST':
+#         form = UploadBirthCertificateForm(request.POST, request.FILES)
+
+#         if form.is_valid():
+#             orphan.birth_certificate = form.cleaned_data['birth_certificate']
+#             orphan.status = 'C'  # Update status to 'Complete'
+#             orphan.save()
+
+#             return redirect('orphan_detail', orphan_id=orphan_id)
+
+#     else:
+#         form = UploadBirthCertificateForm()
+
+#     return render(request, 'upload.html', {'form': form})
+
 
 def addOrphanForm(request):
     if request.method == 'POST':
-        info_form = OrphanProfileForm(request.POST, request.FILES)
+        info_form = OrphanForm(request.POST, request.FILES)
         family_form = FamilyForm(request.POST)
-        files_form = FilesForm(request.POST, request.FILES)  # handle FilesForm
+        # Assuming FilesForm is used for additional files and not the birth certificate anymore
 
-        if info_form.is_valid() and family_form.is_valid() and files_form.is_valid():
+        if info_form.is_valid() and family_form.is_valid():
             family = family_form.save()
             info = info_form.save(commit=False)
             info.family = family
+
+            # Check and save the birth certificate within the same form handling
+            # The OrphanForm now includes the birth_certificate field, so it's handled by info_form.save()
+            # Update status based on birth certificate upload
+            info.status = 'C' if info.birth_certificate else 'P'
+
             info.save()
+            info_form.save_m2m()  # If there are many-to-many fields to save
 
-            # If the Files model should be linked to the Info instance
-            file_instance = files_form.save(commit=False)
-            # Assuming 'related_orphan' is the FK field in Files model
-            file_instance.related_orphan = info
-            file_instance.save()
+            # Assuming you want to link other files to the Info instance similar to previous logic
+            # This part remains unchanged, adjust if necessary
+            if 'file' in request.FILES:  # Example handling for an additional file, adjust as needed
+                files_form = FilesForm(request.POST, request.FILES)
+                if files_form.is_valid():
+                    file_instance = files_form.save(commit=False)
+                    file_instance.related_orphan = info
+                    file_instance.save()
 
+            messages.success(
+                request, "Orphan profile has been successfully created.")
             return redirect('orphans')
         else:
-            if not info_form.is_valid():
-                print('Info form errors:', info_form.errors)
-            if not family_form.is_valid():
-                print('Family form errors:', family_form.errors)
-            if not files_form.is_valid():
-                print('Files form errors:', files_form.errors)
+            messages.error(request, "Please correct the errors below.")
     else:
-        info_form = OrphanProfileForm()
+        info_form = OrphanForm()
         family_form = FamilyForm()
-        files_form = FilesForm()  # initialize FilesForm
+        # Initialize here if you're using it in the template regardless
+        files_form = FilesForm()
 
-    print('POST data:', request.POST)
-    print('FILES data:', request.FILES)
-
-    return render(request, 'orphans/orphan.html', {'info_form': info_form, 'family_form': family_form, 'files_form': files_form})
+    return render(request, 'orphans/orphan.html', {
+        'info_form': info_form,
+        'family_form': family_form,
+        'files_form': files_form,  # Pass to template if you're using it
+    })

@@ -11,6 +11,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from orphanage_system import settings
 from users.views import settings_view
+
 urlpatterns = [
     path('__debug__/', include('debug_toolbar.urls')),
     path('admin/', admin.site.urls),
@@ -19,9 +20,6 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('orphans/', include('orphans.urls')),
     path('behavior/', include('behavior.urls')),
-    # path('behavior/', include(('behavior.urls', 'behavior'), namespace='behavior')),
-
-    # path('files/', files_view, name='files'),
     path('Dashboard/', include('Dashboard.urls')),
     path('settings/', settings_view, name='settings'),
     path('files/deleted_files/', trash_view, name='trash_view'),

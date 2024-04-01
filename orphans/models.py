@@ -115,6 +115,7 @@ class Info(models.Model):
         Family, on_delete=models.SET_NULL, null=True, blank=True)
 
     is_deleted = models.BooleanField(default=False)
+
     birth_certificate = models.FileField(
         upload_to='birth_certificates/', blank=True, null=True)
     status = models.CharField(
@@ -132,6 +133,10 @@ class Info(models.Model):
     @property
     def average_sentiment(self):
         return self.notes.aggregate(Avg('sentiment_score'))['sentiment_score__avg']
+
+    def has_complete_requirements(self):
+        # Check if the orphan has submitted their birth certificate
+        return bool(self.birth_certificate)
 
 
 def get_sentiment_data():

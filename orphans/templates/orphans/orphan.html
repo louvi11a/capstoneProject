@@ -51,22 +51,22 @@ Orphan List
                   <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
                   <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 60px;">
                     <option value="10" {% if entries_per_page == 10 %}selected{% endif %}>10</option>
-                    <option value="20" {% if entries_per_page == 25 %}selected{% endif %}>25</option>
+                    <option value="20" {% if entries_per_page == 20 %}selected{% endif %}>20</option>
                     <option value="50" {% if entries_per_page == 50 %}selected{% endif %}>50</option>
                     <option value="100" {% if entries_per_page == 100 %}selected{% endif %}>100</option>
                 </select>
                   <span class="me-2">entries</span>
               </div>
 
+
               <div class="d-flex align-items-center">
                   <button class="btn btn-sm me-2"><i class="bi bi-filter"></i></button>
                   <label for="statusFilter" class="form-label me-2 mb-0">Status</label>
                   <select class="form-select form-select-sm me-2" id="statusFilter" style="width: 100px;">
-                      <option value="">All</option>
-                      <option value="Admitted">Admitted</option>
-                      <option value="In Process">In Process</option>
-                      <option value="Graduate">Graduate</option>
-                  </select>
+                    <option value="">All</option>
+                    <option value="P">Pending</option>
+                    <option value="C">Complete</option>
+                </select>
               </div>
           </div>
       </div>
@@ -76,7 +76,7 @@ Orphan List
   <div class="container-fluid ">
 
       <div class="flex-grow-1 light-style">
-          <div class="row  justify-content-center text-center">
+          <div class="row  justify-content-center text-center" id="orphanList">
           {% for orphan in page_obj.object_list %}
             <!-- orphan profile -->
             <a
@@ -91,8 +91,8 @@ Orphan List
                 {% else %}
                 <img
                   src="{% static 'images/default_orphan_picture.png' %}"
-                  class="card-img-top d-flex align-items-center " 
-                  width="150px" height="150px" 
+                  class="card-img-top d-flex align-items-center img-fluid p-3  " 
+                  width="10px" height="10px" 
                   alt="Default profile picture" />
               {% endif %}
               <div class="card-body d-flex flex-column justify-content-between">
@@ -100,8 +100,7 @@ Orphan List
                   <h3 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}
                   </h3>
                   <p class="status text-center mb-2">
-                      <span class="badge bg-warning rounded-pill">In
-                          Process</span>
+                      <span class="badge bg-warning rounded-pill">{{ orphan.dynamic_status }}</span>
                   </p>
                 </div>
               <p class="small text-muted text-center mt-auto mb-0 pb-2">Date
@@ -216,17 +215,6 @@ Orphan List
                             <input type="text" class="form-control" id="motherName" name="mother_name" required />
 
                           </div>
-                          <!-- <div class="col-xl-12">
-                            <label for="middleName" class="form-label"
-                              >Home Address</label
-                            >
-                            <input
-                              type="input"
-                              class="form-control"
-                              id="text"
-                              name=""
-                            />
-                          </div> -->
                         </div>
                         <div class="row mb-3 bg-transparent">
                           <div class="col-md-6">
@@ -236,13 +224,6 @@ Orphan List
                             <input type="file" class="form-control" id="orphanPicture" name="orphan_picture" />
 
                           </div>
-
-                          <!-- <div class="col-md-6">
-                            <label for="file" class="form-label"
-                              >Upload Medical Certificate</label
-                            >
-                            <input type="file" class="form-control" id="file" />
-                          </div> -->
                           <div class="col-md-6">
                             <label for="file" class="form-label"
                               >Upload Birth Certificate</label
@@ -339,6 +320,79 @@ Orphan List
       });
     </script>
 
+<!-- for filtering status -->
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+      // Listen for the change event on the statusFilter select element
+      var MEDIA_URL = "{{ MEDIA_URL }}";
+      var DEFAULT_IMAGE_URL = "{{ STATIC_URL }}images/default_orphan_picture.png"; // Assuming STATIC_URL is correctly set
+      document.getElementById('statusFilter').addEventListener('change', function() {
+          var status = this.value; // Get the selected status
+          console.log(status); // Debug print
+          fetchOrphans(status); // Fetch orphans based on the selected status
+      });
+  
+      function fetchOrphans(status) {
+          $.ajax({
+              url: "{% url 'filter_orphans' %}", // URL to your Django view that handles the filtering
+              data: {
+                  'status': status
+              },
+              dataType: 'json',
+              success: function(response) {
+              console.log(response); // Debug: Inspect the raw response
+              var data = JSON.parse(response); // If the response is a string, parse it into JSON
+              console.log(data); // Debug: Inspect the parsed data
 
+              var orphanList = document.getElementById('orphanList');
+              orphanList.innerHTML = ''; // Clear the current list
+
+              // Adjust this loop to handle Django's serialization format
+              data.forEach(function(item) {
+              var orphan = item.fields; // Access the fields of each orphan
+              var orphanID = item.pk; // This assumes your serialization includes 'pk'. If not, you might need to adjust based on your actual JSON structure
+
+              // Adjusted logic for determining the image source
+              var orphanImageSrc = orphan.orphan_picture ? MEDIA_URL + orphan.orphan_picture : "{% static 'images/default_orphan_picture.png' %}";
+              var orphanImageAlt = orphan.firstName ? `${orphan.firstName} ${orphan.lastName}'s profile picture` : "Default profile picture";
+              var orphanProfileUrl = `profile/${orphanID}/`; // Adjusted to use relative URL
+              console.log(MEDIA_URL); // Should output: /media/
+              console.log(DEFAULT_IMAGE_URL); // Verify this outputs the correct path
+
+              // Translate status codes to full descriptions
+              var statusDescription = '';
+              switch (orphan.status) {
+                  case 'P':
+                      statusDescription = 'Pending';
+                      break;
+                  case 'C':
+                      statusDescription = 'Complete';
+                      break;
+                  // Add more cases as needed
+                  default:
+                      statusDescription = 'Unknown'; // Default case if status is not recognized
+              }
+              // Construct the orphan profile HTML
+              var orphanHtml = `
+                  <a href="${orphanProfileUrl}" class="card m-2 btn btn-light d-flex align-items-center orphancard" href="/orphan_profile/${orphan.orphanID}">
+                      <img src="${orphanImageSrc}" class="card-img-top" width="150px" height="150px" alt="${orphanImageAlt}" />
+                      <div class="card-body d-flex flex-column justify-content-between">
+                          <div>
+                              <h3 class="card-title">${orphan.firstName} ${orphan.lastName}</h3>
+                              <p class="status text-center mb-2">
+                                  <span class="badge bg-warning rounded-pill">${statusDescription}</span>
+                              </p>
+                          </div>
+                          <p class="small text-muted text-center mt-auto mb-0 pb-2">Date Admitted: ${orphan.dateAdmitted}</p>
+                      </div>
+                  </a>
+              `;
+              orphanList.innerHTML += orphanHtml;
+          });
+
+          }
+          });
+      }
+  });
+  </script>
     {% endblock %}
-

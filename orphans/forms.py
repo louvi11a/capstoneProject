@@ -9,6 +9,12 @@ from datetime import datetime  # Adjusted import
 from .models import Notes
 
 
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = Notes
+        fields = ['text']
+
+
 class OrphanForm(forms.ModelForm):
     class Meta:
         model = Info
@@ -16,14 +22,8 @@ class OrphanForm(forms.ModelForm):
                   'orphan_picture', 'birth_certificate']
 
 
-class NoteForm(forms.ModelForm):
-    class Meta:
-        model = Notes
-        fields = ['text']
-
-
-class UploadBirthCertificateForm(forms.Form):
-    birth_certificate = forms.FileField()
+# class UploadBirthCertificateForm(forms.Form):
+#     birth_certificate = forms.FileField()
 
 
 class FilesForm(forms.ModelForm):
