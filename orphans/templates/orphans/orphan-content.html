@@ -47,8 +47,39 @@
             <a class="btn btn-primary" href="{% url 'behavior_profile' orphan.orphanID %}"> 
               See Notes </a>
           </div>
-        </div>
+          <div class="row mt-3 info-icon text-end px-0 mx-5">
+            <a class="btn btn-primary" href="#" data-bs-toggle="modal"
+              data-bs-target="#changeProfilePictureModal">Change Profile Picture</a>
 
+          </div>
+        </div>
+      </div>
+
+                      <!-- Change Profile Picture Modal -->
+                      <div class="modal fade" id="changeProfilePictureModal" tabindex="-1"
+                      aria-labelledby="changeProfilePictureModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="changeProfilePictureModalLabel">Change Profile Picture</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <form id="profilePictureForm">
+                              <div class="mb-3">
+                                <label for="profilePictureInput" class="form-label">Choose Profile Picture (JPG, JPEG,
+                                  PNG)</label>
+                                <input type="file" class="form-control" id="profilePictureInput" accept=".jpg, .jpeg, .png">
+                              </div>
+                            </form>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="uploadProfilePictureBtn">Upload</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
       <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -307,8 +338,20 @@
       <th scope="col">Action</th>
     </tr>
   </thead>
-  <tbody id="tableBody">
-    <!-- Table body content will be generated dynamically -->
+  <tbody>
+
+    {% for file in files %}
+    <tr>
+      <td>{{ file.uploaded_at|date:"Y-m-d" }}</td>
+      <td>{{ file.file_name }}</td>
+      <td>{{ file.description }}</td>
+      <td>{{ file.type_of_document }}</td>
+      <td>
+        <a href="{% url 'serve_file' file_id=file.id %}">Open File</a>
+      </td>
+    </tr>
+    
+    {% endfor %}
   </tbody>
 </table>
 
@@ -431,19 +474,24 @@ aria-labelledby="additionalFilesModalLabel" aria-hidden="true">
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">
-      <form id="profilePictureForm">
+      <form id="profilePictureForm" action="{% url 'orphan_profile' orphanID=orphanID %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
         <div class="mb-3">
           <label for="profilePictureInput" class="form-label">Choose File</label>
-          <input type="file" class="form-control" id="fileInput" accept="*/*">
+          <input type="file" class="form-control" id="fileInput" name="file" accept="*/*">
+          <input type="hidden" name="orphan" value="{{ orphan.orphanID }}">
+
         </div>
         <div class="mb-3">
           <label for="fileNameInput" class="form-label">File Name (Format: OrphanName_File)</label>
-          <input type="text" class="form-control" id="fileNameInput">
+          <input type="text" class="form-control" id="fileNameInput" name="file_name">
         </div>
         <div class="mb-3">
           <label for="typeOfDocumentInput" class="form-label">Type of Document</label>
-          <select class="form-select" id="typeOfDocumentInput">
+            <select class="form-select" id="typeOfDocumentInput" name="type_of_document">
             <option selected disabled>Select type of document</option>
+            <option value="Birth Certificate">Birth Certificate</option>
             <option value="Identification">Identification</option>
             <option value="Medical Certificates">Medical Certificates</option>
             <option value="Grade Cards">Grade Cards</option>
@@ -452,45 +500,61 @@ aria-labelledby="additionalFilesModalLabel" aria-hidden="true">
         </div>
         <div class="mb-3">
           <label for="descriptionInput" class="form-label">Description</label>
-          <textarea class="form-control" id="descriptionInput" rows="3"></textarea>
+          <textarea class="form-control" id="descriptionInput" name="description" rows="3"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" id="additionalFilesModalBtn">Upload</button>
         </div>
       </form>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      <button type="button" class="btn btn-primary" id="additionalFilesModalBtn">Upload</button>
-    </div>
+
   </div>
 </div>
 </div>
 
 <script>
-  document.getElementById("additionalFilesModalBtn").addEventListener("click", function() {
-    // Fetching values from inputs
-    var fileName = document.getElementById("fileNameInput").value.trim();
-    var description = document.getElementById("descriptionInput").value.trim();
+  document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("additionalFilesModalBtn").addEventListener("click", function(event) {
+    event.preventDefault(); // Prevent the default form submission triggered by clicking the button
     
-    // Checking if fileName follows the required format
-    var fileNameRegex = /^[\w\s-]+_[\w\s-]+$/;
-    if (!fileNameRegex.test(fileName)) {
-      alert("File Name format is incorrect. It should be: OrphanName_File");
-      return;
-    }
-    
-    // Checking if all fields are filled
-    if (fileName === '' || description === '') {
-      alert("Please fill in all fields.");
-      return;
-    }
+    var form = document.getElementById("profilePictureForm");
+    var formData = new FormData(form);
 
-    // If all requirements are met
-    alert("Changes saved.");
-    // Assuming 'ok' is a button to close the modal
-    document.getElementById("additionalFilesModal").click(); // This simulates clicking 'ok' to close the modal
-    // Redirecting to the main page
-    window.location.href = "../html/orphan-content.html";
+    // Adding type of document to formData since it was missing a name attribute in the original HTML
+    var typeOfDocument = document.getElementById("typeOfDocumentInput").value;
+    if (typeOfDocument === "") {
+      alert("Please select the type of document.");
+      return;
+    }
+    formData.append("type_of_document", typeOfDocument);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+    'X-CSRFToken': getCookie('csrftoken'), // Assuming you have a function to get the cookie value
+  },
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json(); // Assuming your Django view returns a JSON response
+    }) 
+    .then(data => {
+      // Handle success
+      alert("File successfully uploaded."); // Customize message based on actual response
+      window.location.href =  data.redirect_url; // Redirect only on success
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+      alert("Failed to upload file."); // Provide feedback on failure
+    });
   });
+});
 </script>
+
 
 
 

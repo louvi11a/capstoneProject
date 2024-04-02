@@ -9,6 +9,35 @@ from django.views import View
 from django.db.models import Avg
 
 
+class OrphanFiles(models.Model):
+    TYPE_OF_DOCUMENT_CHOICES = [
+        ('Birth Certificate', 'Birth Certificate'),
+        ('Identification', 'Identification'),
+        ('Medical Certificates', 'Medical Certificates'),
+        ('Grade Cards', 'Grade Cards'),
+        ('Other Documents', 'Other Documents'),
+    ]
+
+    orphan = models.ForeignKey(
+        'Info', on_delete=models.CASCADE, related_name='orphan_files')
+    file = models.FileField(upload_to='orphan_files/')
+    file_name = models.CharField(max_length=255)
+    type_of_document = models.CharField(
+        max_length=55, choices=TYPE_OF_DOCUMENT_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    # Example method to add to the Info model to check for a birth certificate
+    def has_birth_certificate(self):
+        return self.orphan_files.filter(document_type='Birth Certificate').exists()
+
+    class Meta:
+        db_table = 'orphan_files'
+
+    def __str__(self):
+        return self.file_name
+
+
 class Files(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     fileID = models.AutoField(primary_key=True)
@@ -17,14 +46,14 @@ class Files(models.Model):
     is_archived = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(
         null=True, blank=True)  # New field for time deletion
-    # Add a ForeignKey to Info model
-    related_orphan = models.ForeignKey(
-        'Info', on_delete=models.CASCADE, related_name='files', null=True)
+    # # Add a ForeignKey to Info model
+    # related_orphan = models.ForeignKey(
+    #     'Info', on_delete=models.CASCADE, related_name='files', null=True)
     # Field for the uploaded file
     file = models.FileField(upload_to='uploads/', blank=True, null=True)
 
     class Meta:
-        db_table = 'orphan_files'
+        db_table = 'general_files'
 
     def __str__(self):
         return self.fileName

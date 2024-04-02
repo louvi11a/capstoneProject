@@ -1,23 +1,26 @@
 import datetime
-from .models import Family, Grade
-from .models import Info
 from django import forms
-from .models import Files, Education, Info, BMI
 from .utils import get_school_year_choices
 from datetime import datetime  # Adjusted import
+from . import models
 
-from .models import Notes
+
+class OrphanFileForm(forms.ModelForm):
+    class Meta:
+        model = models.OrphanFiles
+        fields = ['orphan', 'file', 'file_name',
+                  'type_of_document', 'description']
 
 
 class NoteForm(forms.ModelForm):
     class Meta:
-        model = Notes
+        model = models.Notes
         fields = ['text']
 
 
 class OrphanForm(forms.ModelForm):
     class Meta:
-        model = Info
+        model = models.Info
         fields = ['gender', 'firstName', 'middleName', 'lastName', 'birthDate', 'dateAdmitted',
                   'orphan_picture', 'birth_certificate']
 
@@ -28,7 +31,7 @@ class OrphanForm(forms.ModelForm):
 
 class FilesForm(forms.ModelForm):
     class Meta:
-        model = Files
+        model = models.Files
         # Add your file field here
         fields = ('fileName', 'fileDescription', 'file', )
 
@@ -37,21 +40,21 @@ class FilesForm(forms.ModelForm):
 
 class FamilyForm(forms.ModelForm):
     class Meta:
-        model = Family
+        model = models.Family
         fields = ['mother_name', 'mother_dob', 'mother_contact', 'mother_occupation', 'mother_address', 'mother_status',
                   'father_name', 'father_dob', 'father_contact', 'father_occupation', 'father_address', 'father_status']
 
 
 class OrphanProfileForm(forms.ModelForm):
     class Meta:
-        model = Info
+        model = models.Info
         fields = ['orphanID', 'firstName', 'middleName', 'lastName', 'gender',
                   'birthDate', 'dateAdmitted', 'orphan_picture', 'is_deleted']
 
 
 class BmiForm(forms.ModelForm):
     class Meta:
-        model = BMI
+        model = models.BMI
         fields = ['height', 'weight']
 
 
@@ -66,7 +69,7 @@ class EducationForm(forms.ModelForm):
     # school_year = forms.ChoiceField(choices=[])
 
     class Meta:
-        model = Education
+        model = models.Education
         fields = ['education_level', 'school_name',
                   'year_level', 'current_gpa']
 
@@ -77,5 +80,5 @@ class EducationForm(forms.ModelForm):
 
 class GradeForm(forms.ModelForm):
     class Meta:
-        model = Grade
+        model = models.Grade
         fields = ['subject', 'grade', 'semester', 'quarter',]

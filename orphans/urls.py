@@ -13,6 +13,9 @@ urlpatterns = [
     #     path('api/chart-sentiment/', chart_sentiment, name='chart_sentiment'),
 
     #     path('search/', SearchView.as_view(), name='search'),
+    #     path('upload_orphan_file/', views.upload_orphan_file,
+    #          name='upload_orphan_file'),
+
     path('filter_orphans/', views.filter_orphans, name='filter_orphans'),
 
 

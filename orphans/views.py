@@ -8,7 +8,7 @@ from textblob import TextBlob
 from .models import Education, Grade, get_sentiment_data, HealthDetail
 from django import forms, views
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse, FileResponse
-from .forms import NoteForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm
+from .forms import NoteForm, OrphanFileForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm
 from .models import Info, BMI, Education, Family, Subject, Grade
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import get_object_or_404, render, redirect
@@ -33,7 +33,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.views import View
 from django.db import transaction
-
+from . import models
 
 sid = SentimentIntensityAnalyzer()
 # Add new words to the Vader lexicon
@@ -149,7 +149,8 @@ class Orphan_Search(View):
                         'value': orphan_url  # This will be used for redirection
                     })
                 except Exception as e:
-                    print(f"Error generating URL for orphan {orphan.orphanID}: {e}")
+                    print(f"Error generating URL for orphan {
+                          orphan.orphanID}: {e}")
 
             return JsonResponse(data, safe=False)
         else:
@@ -254,6 +255,9 @@ def academic_profile(request, orphan_id):
     # Render the academic_profile template with the context
     return render(request, 'orphans/academic_profile.html', context)
 
+def family_detail(request, family_id):
+    family = Family.objects.get(id=family_id)
+    return render(request, 'family_detail.html', {'family': family})
 
 def orphan_view(request):
     entries_per_page = int(request.GET.get('entries', 10))
@@ -274,34 +278,8 @@ def orphan_view(request):
 
     return render(request, 'orphans/orphan.html', {'page_obj': page_obj, 'entries_per_page': entries_per_page})
 
-# def orphan_view(request):
-#     # Get the number of entries from the query string, default to 10
-#     entries_per_page = int(request.GET.get('entries', 10))  # convert to int
-#     page_number = int(request.GET.get('page', 1))  # convert to int
-#     orphans = Info.objects.filter(is_deleted=False).order_by('orphanID')
-#     # Create a Paginator object
-#     paginator = Paginator(orphans, entries_per_page)  # create a Paginator
-
-#     try:
-#         # get the Page object for the current page
-#         page_obj = paginator.page(page_number)
-#     except (EmptyPage, InvalidPage):
-#         # if the page number is invalid, show the last page
-#         page_obj = paginator.page(paginator.num_pages)
-
-#     # pass the Page object to the template
-#     return render(request, 'orphans/orphan.html', {'page_obj': page_obj, 'entries_per_page': entries_per_page})
 
 
-def family_detail(request, family_id):
-    family = Family.objects.get(id=family_id)
-    return render(request, 'family_detail.html', {'family': family})
-
-# def orphan_view(request, orphan_id):
-#     orphans = Info.objects.filter(is_deleted=False)
-#     orphan = Info.objects.get(id=orphan_id)
-#     family = orphan.family  # assuming there is a 'family' field in your Info model
-#     return render(request, "orphans/orphan.html", {'orphan': orphan, 'family': family})
 
 
 def orphan_profile(request, orphanID):
@@ -322,17 +300,32 @@ def orphan_profile(request, orphanID):
     # Assuming MEDIA_URL is set up correctly in your settings.py and your model uses the FileField for birth_certificate
     birth_certificate_url = orphan.birth_certificate.url if orphan.birth_certificate else None
 
+    # Fetch all files related to the current orphan
+    files = models.OrphanFiles.objects.filter(orphan=orphan)
     # Prepare the context with the orphan and latest education instance.
     context = {
         'orphan': orphan,
         'latest_education': latest_education,
         'physical_health_records': physical_health_records,
         'latest_physical_health': latest_physical_health,  # Add this line
-        # Add the birth certificate URL to the context
         'birth_certificate_url': birth_certificate_url,
+        'orphanID': orphanID,
+        'files': files,  # Add this line to include the files in the context
 
         # Include any other context data you need for the template.
     }
+    if request.method == 'POST':
+        form = OrphanFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            # Generate the dynamic URL for redirection
+            redirect_url = reverse('orphan_profile', kwargs={
+                                   'orphanID': orphanID})
+            return JsonResponse({"message": "File successfully uploaded", "redirect_url": redirect_url}, status=200)
+        else:
+            # Log form errors
+            print(form.errors)
+            return JsonResponse({"error": "Failed to upload file", "details": form.errors.as_json()}, status=400)
 
     # Render the template with the context.
     return render(request, 'orphans/orphan-content.html', context)
