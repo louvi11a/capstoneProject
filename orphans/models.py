@@ -219,8 +219,11 @@ class BMI(models.Model):
         max_digits=5, decimal_places=2, blank=True, null=True)
     weight = models.DecimalField(
         max_digits=5, decimal_places=2, blank=True, null=True)
+    bmi = models.DecimalField(
+        max_digits=5, decimal_places=2, blank=True, null=True)
+
     incident_count = models.IntegerField(blank=True, null=True)
-    recorded_at = models.DateField(auto_now=True)
+    recorded_at = models.DateTimeField(auto_now_add=True)
 
     BMI_CATEGORIES = [
         ('< 18.5', 'Underweight'),
@@ -249,6 +252,10 @@ class BMI(models.Model):
         if self.height is not None and self.weight is not None:
             height_m = self.height / 100  # convert cm to m
             bmi = self.weight / (height_m ** 2)
+            bmi = round(bmi, 2)  # Round the BMI value to two decimal places
+
+            self.bmi = bmi  # Store the calculated BMI value
+            self.save()  # Save the model instance to persist the BMI value
             if bmi < 18.5:
                 self.bmi_category = 'Underweight'
             elif bmi < 25:
@@ -257,6 +264,7 @@ class BMI(models.Model):
                 self.bmi_category = 'Overweight'
             else:
                 self.bmi_category = 'Obesity'
+            return bmi  # Return the calculated BMI value
 
 
 class Subject(models.Model):

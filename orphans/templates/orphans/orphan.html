@@ -82,24 +82,23 @@ Orphan List
             <a
               class="card m-2 btn btn-light d-flex align-items-center orphancard"
               href="{% url 'orphan_profile' orphan.orphanID %}">
-              
+              <div class="image-container">
+
             {% if orphan.orphan_picture %}
             <img 
             src="{{ orphan.orphan_picture.url }}"
-              class="card-img-top d-flex align-items-center img-fluid p-3"
-              width="150px" height="150px" 
+              class="orphan-image"
               alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
                 {% else %}
             <img
               src="{% static 'images/default_orphan_picture.png' %}"
-              class="card-img-top d-flex align-items-center img-fluid p-3  " 
-              width="150px" height="150px" 
+              class="orphan-image"              
               alt="Default profile picture" />
               {% endif %}
-
+        </div>  
               <div class="card-body d-flex flex-column justify-content-between">
                 <div>
-                  <h3 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}
+                  <h3 class="h4 text-truncate">{{ orphan.firstName }} {{ orphan.lastName }}
                   </h3>
                   <p class="status text-center mb-2">
                       <span class="badge bg-warning rounded-pill">{{ orphan.get_dynamic_status }}</span>
