@@ -50,6 +50,7 @@ Orphan List
               <div class="d-flex align-items-center">
                   <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
                   <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 60px;">
+                    <option value="5" {% if entries_per_page == 5 %}selected{% endif %}>5</option>
                     <option value="10" {% if entries_per_page == 10 %}selected{% endif %}>10</option>
                     <option value="20" {% if entries_per_page == 20 %}selected{% endif %}>20</option>
                     <option value="50" {% if entries_per_page == 50 %}selected{% endif %}>50</option>
@@ -82,19 +83,21 @@ Orphan List
             <a
               class="card m-2 btn btn-light d-flex align-items-center orphancard"
               href="{% url 'orphan_profile' orphan.orphanID %}">
+              
             {% if orphan.orphan_picture %}
             <img 
             src="{{ orphan.orphan_picture.url }}"
-                  class="card-img-top" 
-                  width="150px" height="150px" 
-                  alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
+              class="card-img-top d-flex align-items-center img-fluid p-3"
+              width="150px" height="150px" 
+              alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
                 {% else %}
-                <img
-                  src="{% static 'images/default_orphan_picture.png' %}"
-                  class="card-img-top d-flex align-items-center img-fluid p-3  " 
-                  width="10px" height="10px" 
-                  alt="Default profile picture" />
+            <img
+              src="{% static 'images/default_orphan_picture.png' %}"
+              class="card-img-top d-flex align-items-center img-fluid p-3  " 
+              width="150px" height="150px" 
+              alt="Default profile picture" />
               {% endif %}
+
               <div class="card-body d-flex flex-column justify-content-between">
                 <div>
                   <h3 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}
@@ -326,6 +329,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Listen for the change event on the statusFilter select element
       var MEDIA_URL = "{{ MEDIA_URL }}";
       var DEFAULT_IMAGE_URL = "{{ STATIC_URL }}images/default_orphan_picture.png"; // Assuming STATIC_URL is correctly set
+      console.log("Media URL:", MEDIA_URL);
+      console.log("Default Image URL:", DEFAULT_IMAGE_URL);
+
       document.getElementById('statusFilter').addEventListener('change', function() {
           var status = this.value; // Get the selected status
           console.log(status); // Debug print
@@ -356,8 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
               var orphanImageSrc = orphan.orphan_picture ? MEDIA_URL + orphan.orphan_picture : "{% static 'images/default_orphan_picture.png' %}";
               var orphanImageAlt = orphan.firstName ? `${orphan.firstName} ${orphan.lastName}'s profile picture` : "Default profile picture";
               var orphanProfileUrl = `profile/${orphanID}/`; // Adjusted to use relative URL
-              console.log(MEDIA_URL); // Should output: /media/
-              console.log(DEFAULT_IMAGE_URL); // Verify this outputs the correct path
+
 
               // Translate status codes to full descriptions
               var statusDescription = '';
@@ -375,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
               // Construct the orphan profile HTML
               var orphanHtml = `
                   <a href="${orphanProfileUrl}" class="card m-2 btn btn-light d-flex align-items-center orphancard" href="/orphan_profile/${orphan.orphanID}">
-                      <img src="${orphanImageSrc}" class="card-img-top" width="150px" height="150px" alt="${orphanImageAlt}" />
+                      <img src="${orphanImageSrc}" class="card-img-top d-flex align-items-center img-fluid p-3" width="150px" height="150px" alt="${orphanImageAlt}" />
                       <div class="card-body d-flex flex-column justify-content-between">
                           <div>
                               <h3 class="card-title">${orphan.firstName} ${orphan.lastName}</h3>
