@@ -255,37 +255,41 @@ def academic_profile(request, orphan_id):
     # Render the academic_profile template with the context
     return render(request, 'orphans/academic_profile.html', context)
 
+
 def family_detail(request, family_id):
     family = Family.objects.get(id=family_id)
     return render(request, 'family_detail.html', {'family': family})
 
+
 def orphan_view(request):
     entries_per_page = int(request.GET.get('entries', 10))
     page_number = int(request.GET.get('page', 1))
-    orphans = Info.objects.filter(is_deleted=False).order_by('orphanID')
-
-    # Annotate each orphan object with a status based on the birth certificate submission
-    for orphan in orphans:
-        orphan.dynamic_status = "In Process" if not orphan.has_complete_requirements(
-        ) else "Admitted"  # You can adjust these values as needed
-
-    paginator = Paginator(orphans, entries_per_page)
+    orphans_query = Info.objects.filter(is_deleted=False).order_by('orphanID')
+    paginator = Paginator(orphans_query, entries_per_page)
 
     try:
-        page_obj = paginator.page(page_number)
+        orphans = paginator.page(page_number)
     except (EmptyPage, PageNotAnInteger):
-        page_obj = paginator.page(paginator.num_pages)
+        orphans = paginator.page(paginator.num_pages)
 
-    return render(request, 'orphans/orphan.html', {'page_obj': page_obj, 'entries_per_page': entries_per_page})
+    # Annotate each orphan object with a status after pagination
+    for orphan in orphans.object_list:  # Ensure you're iterating over the paginated queryset
+        orphan.status = 'C' if orphan.has_birth_certificate() else 'P'
+    # Check if orphans are being queried correctly.
 
-
-
+    return render(request, 'orphans/orphan.html', {'orphans': orphans, 'entries_per_page': entries_per_page})
 
 
 def orphan_profile(request, orphanID):
     # Fetch the orphan instance using the provided orphanID.
     orphan = Info.objects.prefetch_related(
-        'physical_health').get(orphanID=orphanID)
+        'physical_health', 'orphan_files').get(orphanID=orphanID)
+
+    # Determine the status based on the presence of a birth certificate
+    orphan.status = 'C' if orphan.has_birth_certificate() else 'P'
+
+    # Save the updated status
+    orphan.save()
 
     # Fetch the latest education instance for the orphan.
     latest_education = orphan.educations.order_by('-id').first()
@@ -297,8 +301,11 @@ def orphan_profile(request, orphanID):
     latest_physical_health = orphan.physical_health.order_by(
         '-recorded_at').first()
 
-    # Assuming MEDIA_URL is set up correctly in your settings.py and your model uses the FileField for birth_certificate
-    birth_certificate_url = orphan.birth_certificate.url if orphan.birth_certificate else None
+    # Assuming MEDIA_URL is set up correctly in your settings.py
+    # Attempt to fetch the birth certificate file's URL if it exists
+    birth_certificate_file = orphan.orphan_files.filter(
+        type_of_document='Birth Certificate').first()
+    birth_certificate_url = birth_certificate_file.file.url if birth_certificate_file else None
 
     # Fetch all files related to the current orphan
     files = models.OrphanFiles.objects.filter(orphan=orphan)

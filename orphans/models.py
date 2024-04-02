@@ -27,10 +27,6 @@ class OrphanFiles(models.Model):
     description = models.TextField(blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
-    # Example method to add to the Info model to check for a birth certificate
-    def has_birth_certificate(self):
-        return self.orphan_files.filter(document_type='Birth Certificate').exists()
-
     class Meta:
         db_table = 'orphan_files'
 
@@ -124,7 +120,7 @@ class HealthDetail(models.Model):
 class Info(models.Model):
     STATUS_CHOICES = (
         ('P', 'Pending'),
-        ('C', 'Complete'),
+        ('C', 'Admitted'),
     )
     GENDER_CHOICES = [
         ('Male', 'Male'),
@@ -145,10 +141,14 @@ class Info(models.Model):
 
     is_deleted = models.BooleanField(default=False)
 
-    birth_certificate = models.FileField(
-        upload_to='birth_certificates/', blank=True, null=True)
+    def has_birth_certificate(self):
+        return self.orphan_files.filter(type_of_document='Birth Certificate').exists()
+
     status = models.CharField(
         max_length=1, choices=STATUS_CHOICES, default='P')
+
+    def get_dynamic_status(self):
+        return "Admitted" if self.has_birth_certificate() else "Pending"
 
     class Meta:
         db_table = 'orphan_infos'
@@ -162,10 +162,6 @@ class Info(models.Model):
     @property
     def average_sentiment(self):
         return self.notes.aggregate(Avg('sentiment_score'))['sentiment_score__avg']
-
-    def has_complete_requirements(self):
-        # Check if the orphan has submitted their birth certificate
-        return bool(self.birth_certificate)
 
 
 def get_sentiment_data():

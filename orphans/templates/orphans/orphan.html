@@ -78,8 +78,7 @@ Orphan List
 
       <div class="flex-grow-1 light-style">
           <div class="row  justify-content-center text-center" id="orphanList">
-          {% for orphan in page_obj.object_list %}
-            <!-- orphan profile -->
+            {% for orphan in orphans %}
             <a
               class="card m-2 btn btn-light d-flex align-items-center orphancard"
               href="{% url 'orphan_profile' orphan.orphanID %}">
@@ -103,7 +102,8 @@ Orphan List
                   <h3 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}
                   </h3>
                   <p class="status text-center mb-2">
-                      <span class="badge bg-warning rounded-pill">{{ orphan.dynamic_status }}</span>
+                      <span class="badge bg-warning rounded-pill">{{ orphan.get_dynamic_status }}</span>
+
                   </p>
                 </div>
               <p class="small text-muted text-center mt-auto mb-0 pb-2">Date
@@ -298,8 +298,8 @@ Orphan List
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         // Variables for current and total pages
-        var currentPage = {{ page_obj.number }};
-        var totalPages = {{ page_obj.paginator.num_pages }};
+        var currentPage = {{ orphans.number }};
+        var totalPages = {{ orphans.paginator.num_pages }};
         console.log(currentPage, totalPages);
 
         // Event listener for the "Previous" button

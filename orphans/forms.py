@@ -22,7 +22,7 @@ class OrphanForm(forms.ModelForm):
     class Meta:
         model = models.Info
         fields = ['gender', 'firstName', 'middleName', 'lastName', 'birthDate', 'dateAdmitted',
-                  'orphan_picture', 'birth_certificate']
+                  'orphan_picture']
 
 
 # class UploadBirthCertificateForm(forms.Form):
