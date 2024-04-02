@@ -105,8 +105,7 @@ Orphan List
 
                   </p>
                 </div>
-              <p class="small text-muted text-center mt-auto mb-0 pb-2">Date
-                Admitted: January 1, 2023</p>
+              <p class="small text-muted text-center mt-auto mb-0 pb-2 text-truncate">Date Admitted: {{ orphan.dateAdmitted }}</p>
               </div>
             </a>
 
@@ -195,7 +194,7 @@ Orphan List
                               </label>
                               <input type="date" class="form-control" id="birthDate" name="birthDate" required />
                           </div>
-                          <div class="col-md-4">
+                          <div class="col-md-4 ">
                             <label for="dateAdmitted" class="form-label"
                               >Date Admitted</label
                             >
@@ -328,12 +327,10 @@ document.addEventListener('DOMContentLoaded', function() {
       // Listen for the change event on the statusFilter select element
       var MEDIA_URL = "{{ MEDIA_URL }}";
       var DEFAULT_IMAGE_URL = "{{ STATIC_URL }}images/default_orphan_picture.png"; // Assuming STATIC_URL is correctly set
-      console.log("Media URL:", MEDIA_URL);
-      console.log("Default Image URL:", DEFAULT_IMAGE_URL);
+
 
       document.getElementById('statusFilter').addEventListener('change', function() {
           var status = this.value; // Get the selected status
-          console.log(status); // Debug print
           fetchOrphans(status); // Fetch orphans based on the selected status
       });
   
@@ -345,9 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
               },
               dataType: 'json',
               success: function(response) {
-              console.log(response); // Debug: Inspect the raw response
               var data = JSON.parse(response); // If the response is a string, parse it into JSON
-              console.log(data); // Debug: Inspect the parsed data
 
               var orphanList = document.getElementById('orphanList');
               orphanList.innerHTML = ''; // Clear the current list
@@ -356,6 +351,8 @@ document.addEventListener('DOMContentLoaded', function() {
               data.forEach(function(item) {
               var orphan = item.fields; // Access the fields of each orphan
               var orphanID = item.pk; // This assumes your serialization includes 'pk'. If not, you might need to adjust based on your actual JSON structure
+              var dateAdmitted = new Date(orphan.dateAdmitted);
+              var formattedDate = dateAdmitted.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
               // Adjusted logic for determining the image source
               var orphanImageSrc = orphan.orphan_picture ? MEDIA_URL + orphan.orphan_picture : "{% static 'images/default_orphan_picture.png' %}";
@@ -379,15 +376,17 @@ document.addEventListener('DOMContentLoaded', function() {
               // Construct the orphan profile HTML
               var orphanHtml = `
                   <a href="${orphanProfileUrl}" class="card m-2 btn btn-light d-flex align-items-center orphancard" href="/orphan_profile/${orphan.orphanID}">
-                      <img src="${orphanImageSrc}" class="card-img-top d-flex align-items-center img-fluid p-3" width="150px" height="150px" alt="${orphanImageAlt}" />
-                      <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="image-container">
+                      <img src="${orphanImageSrc}" class="orphan-image" alt="${orphanImageAlt}" />
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-between">
                           <div>
-                              <h3 class="card-title">${orphan.firstName} ${orphan.lastName}</h3>
+                              <h3 class="h4 text-truncate">${orphan.firstName} ${orphan.lastName}</h3>
                               <p class="status text-center mb-2">
                                   <span class="badge bg-warning rounded-pill">${statusDescription}</span>
                               </p>
                           </div>
-                          <p class="small text-muted text-center mt-auto mb-0 pb-2">Date Admitted: ${orphan.dateAdmitted}</p>
+                          <p class="small text-muted text-center mt-auto mb-0 pb-2 text-truncate">Date Admitted: ${formattedDate}</p>
                       </div>
                   </a>
               `;
@@ -400,3 +399,4 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   </script>
     {% endblock %}
+    
