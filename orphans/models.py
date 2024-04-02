@@ -223,7 +223,7 @@ class BMI(models.Model):
         max_digits=5, decimal_places=2, blank=True, null=True)
 
     incident_count = models.IntegerField(blank=True, null=True)
-    recorded_at = models.DateField(auto_now=True)
+    recorded_at = models.DateTimeField(auto_now_add=True)
 
     BMI_CATEGORIES = [
         ('< 18.5', 'Underweight'),
