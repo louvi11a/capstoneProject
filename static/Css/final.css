@@ -69,3 +69,18 @@ body {
 
 
 /* profile design */
+.image-container {
+    width: 150px; /* Fixed width */
+    height: 150px; /* Fixed height */
+    display: flex; /* Ensures the contents are flexibly aligned */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Ensures the image doesn't overflow the container */
+  }
+  
+  .orphan-image {
+    width: 100%; /* Makes the image fill the container width */
+    height: 100%; /* Makes the image fill the container height */
+    object-fit: cover; /* Ensures the image covers the space, cropping if necessary */
+  }
+  

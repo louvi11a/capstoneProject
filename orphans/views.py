@@ -356,6 +356,8 @@ def behavior_profile(request, orphan_id):
 def bmi_profile(request, orphan_id):
     orphan = get_object_or_404(Info, pk=orphan_id)
     physical_health_records = orphan.physical_health.all()
+    bmi_values = [record.calculate_bmi(
+    ) for record in physical_health_records if record.calculate_bmi() is not None]
     return render(request, 'orphans/bmi.html', {'orphan': orphan, 'physical_health_records': physical_health_records})
 
 
