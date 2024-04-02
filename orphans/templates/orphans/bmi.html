@@ -78,18 +78,141 @@
                     </div>
                   </div>
                 
-                <hr class="mt-3">
 
-                <div>
-                    <h2>BMI Details</h2>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">Date</th>
-                                <th scope="col">Height (cm)</th>
-                                <th scope="col">Weight (kg)</th>
-                                <th scope="col">Status</th>
-                            </tr>
+  <hr class="mt-3">
+<!-- Show number of Entries -->
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+                        <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
+                            <option value="all">All</option>
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            
+                        </select>
+                        <span class="me-2">entries</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                    </div>
+                </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get the select element
+            var entriesSelect = document.getElementById("entriesSelect");
+    
+            // Add event listener for change
+            entriesSelect.addEventListener("change", function() {
+                // Get the selected value
+                var selectedValue = entriesSelect.value;
+                // Call a function to update the table with the selected number of entries
+                updateTableEntries(selectedValue);
+            });
+        });
+    
+        function updateTableEntries(entries) {
+            // Get the table body
+            var tableBody = document.querySelector('#bmiDetailsTable tbody');
+            // Get all rows in the table
+            var rows = tableBody.querySelectorAll('tr');
+    
+            // Show all rows if 'All' is selected
+            if (entries === 'all') {
+                rows.forEach(function(row) {
+                    row.style.display = '';
+                });
+                return;
+            }
+    
+            // Hide all rows
+            rows.forEach(function(row) {
+                row.style.display = 'none';
+            });
+    
+            // Show only the specified number of entries
+            for (var i = 0; i < entries; i++) {
+                if (rows[i]) {
+                    rows[i].style.display = '';
+                }
+            }
+        }
+    </script>
+
+<!-- BMI Details Table -->
+<div class="mb-3">
+  <table id="bmiDetailsTable" class="table table-striped">
+      <thead>
+          <tr>
+              <th scope="col">
+                  Date 
+                  <button class="btn btn-sm me-2" onclick="toggleDropdown('date')">
+                      <i class="bi bi-filter"></i>
+                  </button>
+                  <!-- Date filter dropdown -->
+                  <div id="dateDropdown" class="dropdown-menu" style="display: none;">
+                      <a class="dropdown-item" href="#" onclick="filterByDate('all')">All</a>
+                      <a class="dropdown-item" href="#" onclick="filterByDate('ascending')">Ascending</a>
+                      <a class="dropdown-item" href="#" onclick="filterByDate('descending')">Descending</a>
+                  </div>
+              </th>
+              <th scope="col">
+                  Height
+                  <button class="btn btn-sm me-2" onclick="toggleDropdown('height')">
+                      <i class="bi bi-filter"></i>
+                  </button>
+                  <!-- Height filter dropdown -->
+                  <div id="heightDropdown" class="dropdown-menu" style="display: none;">
+                      <a class="dropdown-item" href="#" onclick="filterByHeight('all')">All</a>
+                      <a class="dropdown-item" href="#" onclick="filterByHeight('ascending')">Ascending</a>
+                      <a class="dropdown-item" href="#" onclick="filterByHeight('descending')">Descending</a>
+                  </div>
+              </th>
+              <th scope="col">
+                  Weight
+                  <button class="btn btn-sm me-2" onclick="toggleDropdown('weight')">
+                      <i class="bi bi-filter"></i>
+                  </button>
+                  <!-- Weight filter dropdown -->
+                  <div id="weightDropdown" class="dropdown-menu" style="display: none;">
+                      <a class="dropdown-item" href="#" onclick="filterByWeight('all')">All</a>
+                      <a class="dropdown-item" href="#" onclick="filterByWeight('ascending')">Ascending</a>
+                      <a class="dropdown-item" href="#" onclick="filterByWeight('descending')">Descending</a>
+                  </div>
+              </th>
+              <th scope="col">
+                  BMI
+                  <button class="btn btn-sm me-2" onclick="toggleDropdown('bmi')">
+                      <i class="bi bi-filter"></i>
+                  </button>
+                  <!-- BMI filter dropdown -->
+                  <div id="bmiDropdown" class="dropdown-menu" style="display: none;">
+                      <a class="dropdown-item" href="#" onclick="filterByBMI('all')">All</a>
+                      <a class="dropdown-item" href="#" onclick="filterByBMI('ascending')">Ascending</a>
+                      <a class="dropdown-item" href="#" onclick="filterByBMI('descending')">Descending</a>
+                  </div>
+              </th>
+              <th scope="col">
+                  Status
+                  <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
+                      <i class="bi bi-filter"></i>
+                  </button>
+                  <!-- Status filter dropdown -->
+                  <div id="statusDropdown" class="dropdown-menu" style="display: none;">
+                      <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
+                      <a class="dropdown-item" href="#" onclick="filterByStatus('underweight')">Underweight</a>
+                      <a class="dropdown-item" href="#" onclick="filterByStatus('normal weight')">Normal</a>
+                      <a class="dropdown-item" href="#" onclick="filterByStatus('overweight')">Overweight</a>
+                      <a class="dropdown-item" href="#" onclick="filterByStatus('obese')">Obese</a>
+                  </div> 
+              </th>
                         </thead>
                         <tbody>
                           {% for record in physical_health_records %}
@@ -97,6 +220,7 @@
                               <td>{{ record.recorded_at }}</td>
                               <td>{{ record.height }}</td>
                               <td>{{ record.weight }}</td>
+                              <td>{{ record.bmi }}</td>
                               <td>{{ record.bmi_category }}</td>
                             </tr>
                           {% endfor %}
@@ -104,7 +228,173 @@
                     </table>
                 </div>
 
-            
+<script>
+    function toggleDropdown(type) {
+        var dropdown = document.getElementById(type + 'Dropdown');
+        if (dropdown.style.display === 'none') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+
+    function filterByDate(option) {
+        // Implement date filtering logic here
+        console.log('Filtering by date:', option);
+    }
+
+    function filterByName(option) {
+        // Implement name filtering logic here
+        console.log('Filtering by name:', option);
+    }
+
+    function filterByHeight(option) {
+        // Implement height filtering logic here
+        console.log('Filtering by height:', option);
+    }
+
+    function filterByWeight(option) {
+        // Implement weight filtering logic here
+        console.log('Filtering by weight:', option);
+    }
+
+    function filterByBMI(option) {
+        // Implement BMI filtering logic here
+        console.log('Filtering by BMI:', option);
+    }
+
+    function filterByStatus(option) {
+        // Implement status filtering logic here
+        console.log('Filtering by status:', option);
+    }
+
+</script>
+
+<script>
+    function toggleDropdown(dropdownId) {
+        var dropdown = document.getElementById(dropdownId + 'Dropdown');
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+
+    function filterByDate(filterValue) {
+        console.log('Filter by date:', filterValue);
+        // Close dropdown after selection
+        document.getElementById('dateDropdown').style.display = 'none';
+        // Get all table rows
+        var rows = document.querySelectorAll('#bmiDetailsTable tbody tr');
+        rows.forEach(function(row) {
+            row.style.display = ''; // Reset to show all rows
+        });
+        if (filterValue === 'ascending') {
+            // Code to sort by ascending date
+            // Example: Sort the rows by date in ascending order
+            rows = Array.from(rows).sort((a, b) => new Date(a.cells[0].textContent) - new Date(b.cells[0].textContent));
+        } else if (filterValue === 'descending') {
+            // Code to sort by descending date
+            // Example: Sort the rows by date in descending order
+            rows = Array.from(rows).sort((a, b) => new Date(b.cells[0].textContent) - new Date(a.cells[0].textContent));
+        }
+        // Re-append sorted rows to the table
+        var tbody = document.querySelector('#bmiDetailsTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+        rows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+    }
+
+    function filterByHeight(filterValue) {
+        console.log('Filter by height:', filterValue);
+        // Close dropdown after selection
+        document.getElementById('heightDropdown').style.display = 'none';
+        // Get all table rows
+        var rows = document.querySelectorAll('#bmiDetailsTable tbody tr');
+        rows.forEach(function(row) {
+            row.style.display = ''; // Reset to show all rows
+        });
+        if (filterValue === 'ascending') {
+            rows = Array.from(rows).sort((a, b) => parseFloat(a.cells[1].textContent) - parseFloat(b.cells[1].textContent));
+        } else if (filterValue === 'descending') {
+            rows = Array.from(rows).sort((a, b) => parseFloat(b.cells[1].textContent) - parseFloat(a.cells[1].textContent));
+        }
+        // Re-append sorted rows to the table
+        var tbody = document.querySelector('#bmiDetailsTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+        rows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+    }
+
+    function filterByWeight(filterValue) {
+        console.log('Filter by weight:', filterValue);
+        // Close dropdown after selection
+        document.getElementById('weightDropdown').style.display = 'none';
+        // Get all table rows
+        var rows = document.querySelectorAll('#bmiDetailsTable tbody tr');
+        rows.forEach(function(row) {
+            row.style.display = ''; // Reset to show all rows
+        });
+        if (filterValue === 'ascending') {
+            rows = Array.from(rows).sort((a, b) => parseFloat(a.cells[2].textContent) - parseFloat(b.cells[2].textContent));
+        } else if (filterValue === 'descending') {
+            rows = Array.from(rows).sort((a, b) => parseFloat(b.cells[2].textContent) - parseFloat(a.cells[2].textContent));
+        }
+        // Re-append sorted rows to the table
+        var tbody = document.querySelector('#bmiDetailsTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+        rows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+    }
+
+    function filterByBMI(filterValue) {
+        console.log('Filter by BMI:', filterValue);
+        // Close dropdown after selection
+        document.getElementById('bmiDropdown').style.display = 'none';
+        // Get all table rows
+        var rows = document.querySelectorAll('#bmiDetailsTable tbody tr');
+        rows.forEach(function(row) {
+            row.style.display = ''; // Reset to show all rows
+        });
+        if (filterValue === 'ascending') {
+            rows = Array.from(rows).sort((a, b) => parseFloat(a.cells[3].textContent) - parseFloat(b.cells[3].textContent));
+        } else if (filterValue === 'descending') {
+            rows = Array.from(rows).sort((a, b) => parseFloat(b.cells[3].textContent) - parseFloat(a.cells[3].textContent));
+        }
+        // Re-append sorted rows to the table
+        var tbody = document.querySelector('#bmiDetailsTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+        rows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+    }
+
+
+
+    function filterByStatus(filterValue) {
+        console.log('Selected filter value:', filterValue);
+        
+        // Close dropdown after selection
+        document.getElementById('statusDropdown').style.display = 'none';
+
+        // Get all table rows
+        var rows = document.querySelectorAll('#bmiDetailsTable tbody tr');
+        
+        // Iterate through each row
+        rows.forEach(function(row) {
+            var status = row.cells[4].textContent.trim().toLowerCase(); // Get status text, trim leading/trailing spaces, and convert to lowercase
+            if (filterValue === 'all' || status === filterValue) {
+                row.style.display = 'table-row'; // Show the row if it matches the selected status or if 'All' is selected
+            } else {
+                row.style.display = 'none'; // Hide the row if it doesn't match the selected status
+            }
+        });
+    }
+
+</script> 
 
             </div>
         </div>

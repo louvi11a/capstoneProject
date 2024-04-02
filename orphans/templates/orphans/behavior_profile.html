@@ -41,10 +41,71 @@
                                 <hr class="m-2">
                             </div>
 
+<!-- Show number of Entries -->
+<div class="container-fluid">
+    <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex align-items-center">
+            <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+            <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
+                <option value="all">All</option>
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+                <option value="35">35</option>
+                <option value="40">40</option>
+                <option value="45">45</option>
+                <option value="50">50</option>
+                <!-- Add more options if needed -->
+            </select>
+            <span class="me-2">entries</span>
+        </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var entriesSelect = document.getElementById("entriesSelect");
+            entriesSelect.addEventListener("change", function() {
+                var selectedValue = entriesSelect.value;
+                updateTableEntries(selectedValue);
+            });
+    
+            var sortOrderSelect = document.getElementById("sortOrder");
+            sortOrderSelect.addEventListener("change", function() {
+                sortData();
+            });
+        });
+    
+        function updateTableEntries(entries) {
+            var noteBoxes = document.querySelectorAll('.card');
+    
+            noteBoxes.forEach(function(box, index) {
+                if (entries === 'all' || index < entries) {
+                    box.style.display = '';
+                } else {
+                    box.style.display = 'none';
+                }
+            });  
+    // Hide the dropdown after applying filter
+    document.getElementById(column + 'Dropdown').style.display = "none";
+}
+ </script>
+<!-- Sort by Ascending and Descending -->
+        <div class="d-flex align-items-center">
+            <button class="btn btn-sm me-2" onclick="toggleSortOrder()"><i class="bi bi-filter"></i></button>
+            <label for="sortOrder" class="form-label me-2 mb-0">Sort by</label>
+            <select class="form-select form-select-sm me-2" id="sortOrder" style="width: 120px;" onchange="sortData()">
+                <option value="all">All</option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+        </div>
+    </div>
 
-
-                            <h3>Note History</h3>
+<!-- HISTORY-->
+<div class="container-fluid">
+<h3>Note History</h3>
                             <div class="">
                                 <div class="row row-cols-12 row-cols-md-12 row-cols-lg-12 g-4">
                                     {% for note in orphan.notes.all %}
@@ -64,47 +125,49 @@
                                 </div>
                             </div>
 
-                                <!-- modal upload for notes -->
-                                <div class="modal fade" id="noteModal" tabindex="-1" role="dialog"
-                                    aria-labelledby="noteModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header  ">
-                                                <h5 class="modal-title" id="noteModalLabel">Upload Typed Notes</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                {% if error_message %}
-                                                <div class="alert alert-danger" role="alert">
-                                                    {{ error_message }}
-                                                </div>
-                                            {% endif %}
-                                                <div class="center-container">
-                                                    <div class="containerNote">
-                                                    <h1>Upload Typed Notesxx</h1>
-                                                    <form method="POST" action="{% url 'add_note' orphan.orphanID %}">                                                        
-                                                        {% csrf_token %}
-                                                        <label for="notes">Typed Notesxxx:</label>
-                                                        <textarea id="notes" name="text" rows="5"
-                                                            class="form-control" required></textarea>
-                                                        <div class="form-group">
-                                                            <button class="btn btn-primary mt-2" type="submit">Upload
-                                                                Notes</button>
-                                                        </div>
-                                                    </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
+
+<!-- modal upload for notes -->
+<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="noteModalLabel">Upload Typed Notes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+            {% endif %}
+            
+                <div class="center-container">
+                    <div class="containerNote">
+                        
+                        <form method="POST" action="{% url 'add_note' orphan.orphanID %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Typed Notes:</label>
+                                <textarea id="notes" name="text" rows="5" class="form-control" required></textarea>
                             </div>
-                        </div>
+                            <!-- Calendar form date picker -->
+                            <div class="mb-3">
+                                <label for="observationDate" class="form-label">Date of Observation:</label>
+                                <input type="date" class="form-control" id="observationDate" name="observationDate" required>
+                            </div>
+                            <!-- End Calendar form date picker -->
+                            <div class="form-group">
+                                <button class="btn btn-primary mt-2" type="submit">Upload Notes</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-
+        </div>
+    </div>
+</div>
+                            
 
     {% endblock %}  
     {% block js %}
