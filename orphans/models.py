@@ -2,11 +2,10 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from simple_history.models import HistoricalRecords
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.http import JsonResponse
 from django.views import View
-# Create your models here.
-from django.db.models import Avg
+from datetime import date
 
 
 class OrphanFiles(models.Model):
@@ -95,28 +94,6 @@ class Family(models.Model):
         db_table = 'family_infos'
 
 
-class HealthDetail(models.Model):
-    date = models.DateField()
-    temperature = models.DecimalField(max_digits=4, decimal_places=1)
-    blood_pressure = models.CharField(max_length=7)
-    heart_rate = models.IntegerField()
-    nausea = models.BooleanField(default=False)
-    vomiting = models.BooleanField(default=False)
-    headache = models.BooleanField(default=False)
-    stomachache = models.BooleanField(default=False)
-    cough = models.BooleanField(default=False)
-    dizziness = models.BooleanField(default=False)
-    pain = models.BooleanField(default=False)
-    # others_symptoms = models.CharField(max_length=255, blank=True, null=True)
-    other_details = models.TextField(blank=True, null=True)
-
-    orphan = models.ForeignKey(
-        'Info', on_delete=models.CASCADE, related_name='health_details')
-
-    def __str__(self):
-        return f"Health Details for {self.orphan.firstName} on {self.date}"
-
-
 class Info(models.Model):
     STATUS_CHOICES = (
         ('P', 'Pending'),
@@ -157,11 +134,37 @@ class Info(models.Model):
         return self.firstName or 'No name'
 
     def get_absolute_url(self):
-        return reverse('info_detail', args=[str(self.orphanID)])
+        url = reverse('orphan_profile', kwargs={'orphanID': self.orphanID})
+        print(f"Generated URL: {url}")  # Debugging print
+        return url
+
+    # def get_absolute_url(self):
+    #     return reverse('orphan_profile', kwargs={'orphanID': self.orphanID})
 
     @property
     def average_sentiment(self):
         return self.notes.aggregate(Avg('sentiment_score'))['sentiment_score__avg']
+
+    def calculate_age(self):
+        if self.birthDate:
+            today = date.today()
+            return today.year - self.birthDate.year - ((today.month, today.day) < (self.birthDate.month, self.birthDate.day))
+        else:
+            return None
+
+    def determine_age_range(self):
+        age = self.calculate_age()
+        if age is None:
+            return "Unknown"
+        elif age <= 10:
+            return '0-10'
+        elif age <= 20:
+            return '11-20'
+        elif age <= 30:
+            return '21-30'
+        # Add more conditions as necessary
+        else:
+            return "30+"
 
 
 def get_sentiment_data():
@@ -194,6 +197,28 @@ def intervention_behavior_count():
             negative += 1
 
     return negative
+
+
+class HealthDetail(models.Model):
+    date = models.DateField()
+    temperature = models.DecimalField(max_digits=4, decimal_places=1)
+    blood_pressure = models.CharField(max_length=7)
+    heart_rate = models.IntegerField()
+    nausea = models.BooleanField(default=False)
+    vomiting = models.BooleanField(default=False)
+    headache = models.BooleanField(default=False)
+    stomachache = models.BooleanField(default=False)
+    cough = models.BooleanField(default=False)
+    dizziness = models.BooleanField(default=False)
+    pain = models.BooleanField(default=False)
+    # others_symptoms = models.CharField(max_length=255, blank=True, null=True)
+    other_details = models.TextField(blank=True, null=True)
+
+    orphan = models.ForeignKey(
+        'Info', on_delete=models.CASCADE, related_name='health_details')
+
+    def __str__(self):
+        return f"Health Details for {self.orphan.firstName} on {self.date}"
 
 
 class IncidentType(models.Model):
@@ -229,7 +254,7 @@ class BMI(models.Model):
         ('< 18.5', 'Underweight'),
         ('18.5 - 24.9', 'Normal Weight'),
         ('25 - 29.9', 'Overweight'),
-        ('30 or more', 'Obesity'),
+        ('30 or more', 'Obese'),
     ]
 
     bmi_category = models.CharField(

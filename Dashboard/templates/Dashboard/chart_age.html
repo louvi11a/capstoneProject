@@ -7,7 +7,6 @@
 
 {% block extra_meta %}
   <!-- Custom styles for this template-->
-  <link href="css/sb-admin-2.min.css" rel="stylesheet">
 {% endblock %}
 
 
@@ -20,9 +19,12 @@
 
 <!-- Heading -->
     <div class="m-2">
-        <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
+        <!-- <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3"> -->
+            <!-- <a href="/orphans/profile/{{ orphan.id }}/?back_url=/Dashboard/chart_age/" class="btn btn-primary mt-3">
             <i class="fa-solid fa-arrow-left"></i>
-        </a>
+
+        </a> -->
+
         <div class="text-center mx-auto">
             <h1 class="mb-0">Orphan Age Range</h1>
         </div>
@@ -158,85 +160,31 @@
                 <th scope="col">Details</th>
             </tr>
         </thead>
-                <tbody>
-                    <tr>
-                        <td>John Doe</td>
-                        <td>2023-03-15</td>
-                        <td>1</td>
-                        <td><span class="badge bg-info text-dark">0-10</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>2020-05-20</td>
-                        <td>4</td>
-                        <td><span class="badge bg-info text-dark">11-20</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Michael Johnson</td>
-                        <td>2018-08-10</td>
-                        <td>7</td>
-                        <td><span class="badge bg-info text-dark">11-20</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Emily Brown</td>
-                        <td>2015-12-05</td>
-                        <td>10</td>
-                        <td><span class="badge bg-info text-dark">21-30</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Matthew Wilson</td>
-                        <td>2010-06-18</td>
-                        <td>15</td>
-                        <td><span class="badge bg-info text-dark">11-20</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Olivia Garcia</td>
-                        <td>2005-09-30</td>
-                        <td>20</td>
-                        <td><span class="badge bg-info text-dark">21-30</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>William Martinez</td>
-                        <td>2002-11-25</td>
-                        <td>23</td>
-                        <td><span class="badge bg-info text-dark">11-20</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Sophia Taylor</td>
-                        <td>1999-04-02</td>
-                        <td>25</td>
-                        <td><span class="badge bg-info text-dark">21-30</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Ethan Anderson</td>
-                        <td>1996-07-14</td>
-                        <td>28</td>
-                        <td><span class="badge bg-info text-dark">11-30</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Isabella Hernandez</td>
-                        <td>2019-02-28</td>
-                        <td>3</td>
-                        <td><span class="badge bg-info text-dark">1-10</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                    <tr>
-                        <td>Aiden Miller</td>
-                        <td>2016-10-08</td>
-                        <td>8</td>
-                        <td><span class="badge bg-info text-dark">1-10</span></td>
-                        <td><a href="..\html\orphan-content.html" class="btn btn-sm btn-light">View Profile</a></td>
-                    </tr>
-                </tbody>
+
+        <tbody>
+            <tr>
+                
+            {% for orphan in orphans %}
+                    <td>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</td>
+                    <td>{{ orphan.birthDate|date:"Y-m-d" }}</td>
+                    <td>{{ orphan.calculate_age }}</td>
+                    <td>
+                        <span class="badge bg-info text-dark">{{ orphan.determine_age_range }}</span>
+                    </td>
+                    <td>
+
+                        <a href="{{ orphan.get_absolute_url }}" class="btn btn-sm btn-light">View Profile</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No orphans found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        
+        
+        
             </table>
 
 <script>
@@ -401,16 +349,7 @@ function closeAllDropdowns() {
 
 
     {% block js %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Bootstrap JS (Optional, if you want to include JavaScript functionality) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-k0o3DwR4PRc2N9O2zu3f+9z0WMDrmsy+44lOv2Y/mzO+g4nDkhzL/KLrLmB0ES9k"
-    crossorigin="anonymous"></script>
-    <script src="../js/chart-bmi.js"></script>
-    <!-- <script src="../js/chart-academic.js"></script> -->
-    <script src="../js/chart-health.js"></script>
-    <script src="../js/chart-age.js"></script>
-    <script src="../js/chart-sentiments.js"></script>
+
     {% endblock %}
 
 

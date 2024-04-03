@@ -22,7 +22,7 @@ urlpatterns = [
     path('intervention_behavior/', views.intervention_behavior,
          name='intervention_behavior'),
 
-    path('chart_sentiments/', views.chart_sentiments, name='chart_sentiments'),
+    path('chart_behavior/', views.chart_behavior, name='chart_behavior'),
     path('chart_bmi/', views.chart_bmi, name='chart_bmi'),
     path('chart_age/', views.chart_age, name='chart_age'),
     path('chart_health/', views.chart_health, name='chart_health'),

@@ -16,12 +16,14 @@
   <form class="">
     <div class="container-fluid m-2" >
       <div class="">
-          <a href="{% url 'orphans' %}"  class="btn btn-primary mt-3">
+<!-- 
+          <a href="{{ back_url }}" class="btn btn-primary mt-3">
+
               <i class="fa-solid fa-arrow-left"></i>
-          </a>
+          </a> -->
       </div>
 
-      <div class="row info ">
+      <div class="row info mt-4 mb-4">
         {% if orphan.orphan_picture %}
         <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}" height="100px" width="100px" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
         {% else %}
@@ -355,7 +357,8 @@
       <td>{{ file.description }}</td>
       <td>{{ file.type_of_document }}</td>
       <td>
-        <a href="{% url 'serve_file' file_id=file.id %}">Open File</a>
+        <a href="{% url 'serve_orphan_files' file_id=file.pk %}" target="_blank">Open File</a><br>
+    
       </td>
     </tr>
     

@@ -34,6 +34,8 @@ from django.urls import reverse
 from django.views import View
 from django.db import transaction
 from . import models
+from django.utils.http import url_has_allowed_host_and_scheme
+
 
 sid = SentimentIntensityAnalyzer()
 # Add new words to the Vader lexicon
@@ -149,7 +151,8 @@ class Orphan_Search(View):
                         'value': orphan_url  # This will be used for redirection
                     })
                 except Exception as e:
-                    print(f"Error generating URL for orphan {orphan.orphanID}: {e}")
+                    print(f"Error generating URL for orphan {
+                          orphan.orphanID}: {e}")
 
             return JsonResponse(data, safe=False)
         else:
@@ -309,6 +312,13 @@ def orphan_profile(request, orphanID):
     # Fetch all files related to the current orphan
     files = models.OrphanFiles.objects.filter(orphan=orphan)
     # Prepare the context with the orphan and latest education instance.
+
+    # Set your default fallback URL here
+    referrer = request.META.get('HTTP_REFERER')
+    if not referrer:
+        # If no referrer, set a default
+        referrer = '/orphans/'  # You can adjust this default as needed
+
     context = {
         'orphan': orphan,
         'latest_education': latest_education,
@@ -317,8 +327,9 @@ def orphan_profile(request, orphanID):
         'birth_certificate_url': birth_certificate_url,
         'orphanID': orphanID,
         'files': files,  # Add this line to include the files in the context
-
         # Include any other context data you need for the template.
+        'back_url': referrer,
+
     }
     if request.method == 'POST':
         form = OrphanFileForm(request.POST, request.FILES)
@@ -507,17 +518,19 @@ def serve_file(request, file_id):
         raise PermissionDenied
 
 
-def serve_orphan_file(request, orphan_id, file_type):
-    orphan = get_object_or_404(Info, orphanID=orphan_id)
+def serve_orphan_files(request, file_id):
+    # Optional: Check user permissions here
 
-    # Assuming the user has the permission to access the file
-    # Implement any required permission checks here
+    # Retrieve the file object, ensure you're catching the correct identifier
+    orphan_file = get_object_or_404(models.OrphanFiles, pk=file_id)
 
-    if file_type == 'birth_certificate' and orphan.birth_certificate:
-        file_path = orphan.birth_certificate.path
-        if os.path.exists(file_path):
-            return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
-    raise Http404("File not found")
+    # Optional: Perform any additional checks here (e.g., file existence)
+
+    # Serve the file
+    try:
+        return FileResponse(orphan_file.file.open(), as_attachment=False, filename=orphan_file.file.name)
+    except FileNotFoundError:
+        raise Http404("File does not exist")
 
 
 def restore_files(request):
@@ -551,11 +564,6 @@ def download_file(request, file_id):
     else:
         messages.error(request, "File not found")
         return redirect('files')
-
-# trash
-
-
-# # this is for editing the orphan content.html
 
 
 def save_changes(request, orphan_id):
@@ -631,24 +639,6 @@ def save_changes(request, orphan_id):
         physical_health.save()
     # Return a JSON response
     return JsonResponse({'status': 'ok'})
-
-# def upload_birth_certificate(request, orphan_id):
-#     orphan = Info.objects.get(pk=orphan_id)
-
-#     if request.method == 'POST':
-#         form = UploadBirthCertificateForm(request.POST, request.FILES)
-
-#         if form.is_valid():
-#             orphan.birth_certificate = form.cleaned_data['birth_certificate']
-#             orphan.status = 'C'  # Update status to 'Complete'
-#             orphan.save()
-
-#             return redirect('orphan_detail', orphan_id=orphan_id)
-
-#     else:
-#         form = UploadBirthCertificateForm()
-
-#     return render(request, 'upload.html', {'form': form})
 
 
 def addOrphanForm(request):

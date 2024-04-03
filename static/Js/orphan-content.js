@@ -1,4 +1,3 @@
-console.log('orphan-content.js is loaded');
 
 
 var globalOrphanId;

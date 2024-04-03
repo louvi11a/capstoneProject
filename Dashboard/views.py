@@ -18,6 +18,7 @@ from django.db.models import Count, Case, When, Value
 from django.shortcuts import render
 from orphans.models import Education, Grade, Info  # Assuming these are your models
 from django.db.models import Max
+from datetime import date
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ def dashboard_view(request):
     bmi_data_dict = {category['bmi_category']: category['count']
                      for category in bmi_categories}
     bmi_data = [bmi_data_dict.get(category, 0) for category in [
-        'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
+        'Underweight', 'Normal Weight', 'Overweight', 'Obese']]
 
     current_year = datetime.datetime.now().year
     orphans = Info.objects.annotate(
@@ -147,12 +148,17 @@ def dashboard_view(request):
     return render(request, 'Dashboard/Dashboard.html', context)
 
 
-def chart_sentiments(request):
-    return render(request, 'Dashboard/chart_sentiments.html')
+def chart_behavior(request):
+    notes = Notes.objects.all()  # Fetch all notes
+    return render(request, 'Dashboard/chart_behavior.html', {'notes': notes})
 
 
 def chart_bmi(request):
-    return render(request, 'Dashboard/chart_bmi.html')
+    # This fetches all BMI records and their related orphan info
+    bmi_records = BMI.objects.all().select_related('orphan')
+    print("bmi records:", bmi_records)
+
+    return render(request, 'Dashboard/chart_bmi.html', {'bmi_records': bmi_records})
 
 
 def chart_health(request):
@@ -160,11 +166,15 @@ def chart_health(request):
 
 
 def chart_age(request):
-    return render(request, 'Dashboard/chart_age.html')
+    orphans = Info.objects.all()
+    return render(request, 'Dashboard/chart_age.html', {'orphans': orphans})
 
 
 def chart_academic(request):
-    return render(request, 'Dashboard/chart_academic.html')
+    # Fetch all Education records with prefetching for related grades
+    education_records = Education.objects.prefetch_related('grade_set')
+
+    return render(request, 'Dashboard/chart_academic.html', {'education_records': education_records})
 
 
 def intervention_academics(request):

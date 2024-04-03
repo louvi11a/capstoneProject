@@ -4,23 +4,16 @@ from . import views
 from orphanage_system import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
-from .views import Orphan_Search, File_Search, serve_orphan_file
-# from .views import chart_sentiment
 
 print(views.__file__)
 
 urlpatterns = [
-    #     path('api/chart-sentiment/', chart_sentiment, name='chart_sentiment'),
-
-    #     path('search/', SearchView.as_view(), name='search'),
-    #     path('upload_orphan_file/', views.upload_orphan_file,
-    #          name='upload_orphan_file'),
 
     path('filter_orphans/', views.filter_orphans, name='filter_orphans'),
+    path('files/orphan_files/<int:file_id>/',
+         views.serve_orphan_files, name='serve_orphan_files'),
+    path('files/serve/<int:file_id>/', views.serve_file, name='serve_file'),
 
-
-    path('serve_file/<int:orphan_id>/<str:file_type>/',
-         views.serve_orphan_file, name='serve_orphan_file'),
 
     path('add-health-details/', views.add_health_details,
          name='add_health_details'),
@@ -28,8 +21,8 @@ urlpatterns = [
     #     path('upload_birth_certificate/<int:orphan_id>/',
     #          views.upload_birth_certificate, name='upload_birth_certificate'),
 
-    path('search_orphans/', Orphan_Search.as_view(), name='search_orphans'),
-    path('search_files/', File_Search.as_view(), name='search_files'),
+    path('search_orphans/', views.Orphan_Search.as_view(), name='search_orphans'),
+    path('search_files/', views.File_Search.as_view(), name='search_files'),
 
     path('add_note/<int:orphan_id>/', views.add_note, name='add_note'),
     path('files/', views.files_view, name='files_view'),
@@ -66,7 +59,6 @@ urlpatterns = [
     path('files/details/<int:file_id>/',
          views.file_details, name='file_details'),
 
-    path('files/serve/<int:file_id>/', views.serve_file, name='serve_file'),
     path('download/<int:file_id>/', views.download_file, name='download_file'),
     path('delete/<int:file_id>/', views.delete_files, name='delete_files'),
 
