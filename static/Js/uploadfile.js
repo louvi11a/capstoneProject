@@ -102,29 +102,29 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function handleRename() {
-  const csrfToken = getCookie("csrftoken"); // Get the CSRF token from the cookies
-  const fileId = document.getElementById("renameFileId").value;
-  const newFileName = document.getElementById("newFileNameInput").value;
+// function handleRename() {
+//   const csrfToken = getCookie("csrftoken"); // Get the CSRF token from the cookies
+//   const fileId = document.getElementById("renameFileId").value;
+//   const newFileName = document.getElementById("newFileNameInput").value;
 
-  fetch("/orphans/rename_file/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrfToken, // Include the CSRF token in the request header
-    },
-    body: JSON.stringify({ fileId: fileId, newFileName: newFileName }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      // Handle success
-    })
-    .catch((error) => {
-      // Handle errors
-    });
-}
+//   fetch("/orphans/rename_file/", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "X-CSRFToken": csrfToken, // Include the CSRF token in the request header
+//     },
+//     body: JSON.stringify({ fileId: fileId, newFileName: newFileName }),
+//   })
+//     .then((response) => {
+//       if (!response.ok) {
+//         throw new Error("Network response was not ok");
+//       }
+//       return response.json();
+//     })
+//     .then((data) => {
+//       // Handle success
+//     })
+//     .catch((error) => {
+//       // Handle errors
+//     });
+// }

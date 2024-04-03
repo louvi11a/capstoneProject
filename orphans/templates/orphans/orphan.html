@@ -2,7 +2,9 @@
 {% load static %} 
 
 {% block css %}
-{% endblock %} 
+<link href="{% static 'Css/searchbar.css' %}" rel="stylesheet">
+{% endblock %}
+
 
 {% block extra_meta %}
 
@@ -16,16 +18,6 @@ Orphan List
   <!-- Add Orphan Profile Button -->
 <div class="container-fluid row p-2 bg-light sticky-top">
   <div class="col d-flex justify-content-between align-items-center">
-    <button
-      type="button"
-      class="btn btn-primary mx-1"
-      id="uploadBtn"
-      data-bs-toggle="modal"
-      data-bs-target="#uploadModal">
-      <i class="ion ion-md-cloud-upload"></i>
-      Add Orphan Profile
-    </button>
-
     <div class="d-flex align-items-center">
       <form action="{% url 'search_orphans' %}" method="get">
 
@@ -38,6 +30,16 @@ Orphan List
       />
       </form>
     </div>
+
+    <button
+      type="button"
+      class="btn btn-primary mx-1"
+      id="uploadBtn"
+      data-bs-toggle="modal"
+      data-bs-target="#uploadModal">
+      <i class="ion ion-md-cloud-upload"></i>
+      Add Orphan Profile
+    </button>
   </div>
 </div>
 
@@ -322,7 +324,7 @@ Orphan List
     </script>
 
 <!-- for filtering status -->
-<script type="text/javascript">
+  <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
       // Listen for the change event on the statusFilter select element
       var MEDIA_URL = "{{ MEDIA_URL }}";

@@ -448,20 +448,30 @@ def upload_file(request):
 
 @require_POST
 def rename_file(request):
-    # Parse the JSON body of the request
-    data = json.loads(request.body)
-    file_id = data.get('fileId')
-    new_name = data.get('newFileName')
+    # Ensure it's a POST request
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid request")
+
+    new_name = request.POST.get('newFileName')
+    file_id = request.POST.get('fileID')
+
+    # Validate file_id is not empty and is a digit
+    if not file_id or not file_id.isdigit():
+        return HttpResponseBadRequest("Invalid file ID")
+
+    file_id = int(file_id)  # Convert file_id to an integer
 
     try:
-        file_obj = Files.objects.get(id=file_id)
-        file_obj.fileName = new_name
-        file_obj.save()
-        return JsonResponse({'success': True, 'message': 'File renamed successfully.'})
+        file_to_rename = Files.objects.get(fileID=file_id)
     except Files.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'File not found.'}, status=404)
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': f'An error occurred: {str(e)}'}, status=500)
+        return HttpResponseBadRequest("File not found")
+
+    # Proceed to rename the file
+    file_to_rename.fileName = new_name
+    file_to_rename.save()
+
+    # Redirect or respond as necessary
+    return redirect('files_view')
 
 
 def file_details(request, file_id):

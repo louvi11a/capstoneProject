@@ -35,6 +35,7 @@ urlpatterns = [
     path('files/', views.files_view, name='files_view'),
     path('upload_file/', views.upload_file, name='upload_file'),
     path('rename_file/', views.rename_file, name='rename_file'),
+
     path('delete_files/', views.delete_files, name='delete_files'),
     path('restore_files/', views.restore_files, name='restore_files'),
     path('', views.orphan_view, name='orphans'),
