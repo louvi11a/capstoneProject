@@ -338,7 +338,7 @@
           <div id="fileTypeDropdown" class="dropdown-menu" style="display: none;">
             <!-- Dropdown choices for File Type -->
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'All')">All</button>
-            <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Identification')">Identifications</button>
+            <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Identification, Birth Certificate')">Identifications</button>
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Medical Certificates')">Medical Certificates</button>
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Grade Cards')">Grade Cards</button>
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Others')">Others</button>
@@ -367,78 +367,114 @@
 </table>
 
 <script>
-// Function to toggle dropdown menu display
-function toggleDropdown(dropdownId) {
-  var dropdownMenu = document.getElementById(dropdownId + "Dropdown");
-  var currentDisplay = window.getComputedStyle(dropdownMenu).display;
-  dropdownMenu.style.display = currentDisplay === "none" ? "block" : "none";
-}
-
-// Function to apply filter and sorting
-function applyFilter(filterType, filterValue, column) {
-  var tableBody = document.getElementById("tableBody");
-  var rows = tableBody.querySelectorAll("tr");
-
-  // Remove existing rows from the table
-  rows.forEach(function(row) {
-    tableBody.removeChild(row);
-  });
-
-  // Hide all dropdown menus
-  var dropdowns = document.querySelectorAll(".dropdown-menu");
-  dropdowns.forEach(function(dropdown) {
-    dropdown.style.display = "none";
-  });
-
-  // Get the dummy data and sort/filter accordingly
-  var dummyData = getDummyData();
-  var filteredData = dummyData;
-
-  if (filterType === "date") {
-    if (filterValue === "Ascending") {
-      filteredData.sort((a, b) => (a.date > b.date ? 1 : -1));
-    } else if (filterValue === "Descending") {
-      filteredData.sort((a, b) => (a.date < b.date ? 1 : -1));
-    }
-  } else if (filterType === "fileName") {
-    if (filterValue === "Ascending") {
-      filteredData.sort((a, b) => (a.fileName > b.fileName ? 1 : -1));
-    } else if (filterValue === "Descending") {
-      filteredData.sort((a, b) => (a.fileName < b.fileName ? 1 : -1));
-    }
-  } else if (filterType === "fileType") {
-    if (filterValue !== "All") {
-      filteredData = dummyData.filter(item => item.fileType === filterValue);
+  function toggleDropdown(dropdownId) {
+    var dropdown = document.getElementById(dropdownId + 'Dropdown');
+    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+      dropdown.style.display = 'block';
+    } else {
+      dropdown.style.display = 'none';
     }
   }
 
-  // Populate the table with filtered/sorted data
-  filteredData.forEach(function(data) {
-    var row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${data.date}</td>
-      <td>${data.fileName}</td>
-      <td>${data.description}</td>
-      <td>${data.fileType}</td>
-      <td><button class="btn btn-secondary" onclick="openFile('${data.filePath}')">Open File</button></td>
-    `;
-    tableBody.appendChild(row);
-  });
-}
+  function applyFilter(filterType, filterValue) {
+    switch (filterType) {
+      case 'date':
+        filterByDate(filterValue);
+        break;
+      case 'fileName':
+        filterByFileName(filterValue);
+        break;
+      case 'fileType':
+        filterByFileType(filterValue);
+        break;
+      default:
+        console.log('Invalid filter type');
+    }
+  }
 
-// Function to open a file
-function openFile(filePath) {
-  // This is a placeholder function. Replace it with your actual logic to open the file.
-  console.log("Opening file:", filePath);
-  window.open(filePath); // Open the provided file link
-}
+  function filterByDate(filterValue) {
+    console.log('Filter by date:', filterValue);
+    // Close dropdown after selection
+    document.getElementById('dateDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#orphanDocumentsTable tbody tr');
+    rows.forEach(function(row) {
+      row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue === 'Ascending') {
+      // Code to sort by ascending date
+      rows = Array.from(rows).sort((a, b) => new Date(a.cells[0].textContent) - new Date(b.cells[0].textContent));
+    } else if (filterValue === 'Descending') {
+      // Code to sort by descending date
+      rows = Array.from(rows).sort((a, b) => new Date(b.cells[0].textContent) - new Date(a.cells[0].textContent));
+    }
+    // Re-append sorted rows to the table
+    var tbody = document.querySelector('#orphanDocumentsTable tbody');
+    tbody.innerHTML = ''; // Clear existing rows
+    rows.forEach(function(row) {
+      tbody.appendChild(row);
+    });
+  }
 
-// Call the applyFilter function with default values when the DOM is loaded
-document.addEventListener("DOMContentLoaded", function() {
-  applyFilter("fileType", "All", "fileType");
-});
+  function filterByFileName(filterValue) {
+    console.log('Filter by file name:', filterValue);
+    // Close dropdown after selection
+    document.getElementById('fileNameDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#orphanDocumentsTable tbody tr');
+    rows.forEach(function(row) {
+      row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue === 'Ascending') {
+      // Code to sort by ascending file name
+      rows = Array.from(rows).sort((a, b) => a.cells[1].textContent.localeCompare(b.cells[1].textContent));
+    } else if (filterValue === 'Descending') {
+      // Code to sort by descending file name
+      rows = Array.from(rows).sort((a, b) => b.cells[1].textContent.localeCompare(a.cells[1].textContent));
+    }
+    // Re-append sorted rows to the table
+    var tbody = document.querySelector('#orphanDocumentsTable tbody');
+    tbody.innerHTML = ''; // Clear existing rows
+    rows.forEach(function(row) {
+      tbody.appendChild(row);
+    });
+  }
+
+  function filterByFileType(filterValue) {
+    console.log('Filter by file type:', filterValue);
+    // Close dropdown after selection
+    document.getElementById('fileTypeDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#orphanDocumentsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue !== 'All') {
+        // Filter rows based on file type
+        rows.forEach(function(row) {
+            var fileType = row.cells[3].textContent.toLowerCase();
+            var filterValues = filterValue.toLowerCase().split(', ');
+            var showRow = false;
+            filterValues.forEach(function(value) {
+                if (fileType.includes(value)) {
+                    showRow = true;
+                }
+            });
+            if (!showRow) {
+                row.style.display = 'none';
+            }
+        });
+    }
+}
 
 </script>
+
+
+
+
+
+
+
 
 
 <!--
