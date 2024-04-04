@@ -14,6 +14,8 @@ urlpatterns = [
          views.serve_orphan_files, name='serve_orphan_files'),
     path('files/serve/<int:file_id>/', views.serve_file, name='serve_file'),
 
+    path('delete-permanent/', views.permanent_file_deletion,
+         name='permanent_file_deletion'),
 
     path('add-health-details/', views.add_health_details,
          name='add_health_details'),
