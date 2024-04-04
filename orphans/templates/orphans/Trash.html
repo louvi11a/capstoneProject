@@ -15,9 +15,7 @@ Deleted Files
 {% block content %}
 
 <!-- content -->
-<div class="container-fluid row p-2"></div>
-<div class="container-fluid row p-2 mt-2"> <!-- Added 'mt-2' class here -->
-
+<div class="container-fluid row p-2 mt-2"> 
   <div class="col-md d-flex pb-1 justify-content-start">
     <form action="{% url 'search_files' %}" method="get">
       <input
@@ -31,21 +29,31 @@ Deleted Files
     </form>
   </div>  
 
+
+
+
+  
   <!-- Delete/Restore-->
   <div class="col-md d-flex justify-content-end align-items-center">
-    <form method="POST" action="{% url 'delete_files' %}" id="deleteForm">
-      {% csrf_token %}
-      <button class="btn btn-outline-danger me-2" type="submit">
-        <i class="bi bi-trash"></i> Delete
-      </button>
-    </form>
 
-    <form method="POST" action="{% url 'restore_files' %}" id="restoreForm">
-      {% csrf_token %}
-      <button class="btn btn-outline-primary" type="submit">
-        <i class="bi bi-arrow-clockwise"></i> Restore
-      </button>
+    <form method="POST" action="{% url 'permanent_file_deletion' %}" id="permanentDeleteForm">
+        {% csrf_token %}
+        <!-- Hidden input to store the file ID; you'll dynamically set this value based on which file's delete button was clicked -->
+        <input type="hidden" name="file_id" id="permanentDeleteFileId" value="">
+        <button id="permanentDeleteButton" class="btn btn-outline-danger me-2" type="button" onclick="confirmPermanentDeletion()">
+            <i class="bi bi-trash"></i> Delete Permanently
+        </button>
+
     </form>
+    
+    <form method="POST" action="{% url 'restore_files' %}" id="restoreForm">
+        {% csrf_token %}
+        <button id="restoreButton" class="btn btn-outline-primary" type="submit">
+            <i class="bi bi-arrow-clockwise"></i> Restore
+        </button>
+    </form>
+    
+      
   </div>
 </div>
 
@@ -78,35 +86,7 @@ Deleted Files
 
     
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var entriesSelect = document.getElementById("entriesSelect");
-        entriesSelect.addEventListener("change", function() {
-            var selectedValue = parseInt(entriesSelect.value);
-            updateTableEntries(selectedValue);
-        });
 
-        var sortOrderSelect = document.getElementById("sortOrder");
-        sortOrderSelect.addEventListener("change", function() {
-            sortData();
-        });
-    });
-
-    function updateTableEntries(entries) {
-        var tableRows = document.querySelectorAll('#trashTable tbody tr');
-
-        tableRows.forEach(function(row, index) {
-            if (entries === 'all' || index < entries) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });  
-    
-    // Hide the dropdown after applying filter
-    document.getElementById(column + 'Dropdown').style.display = "none";
-}
- </script>
 
  
 
@@ -146,43 +126,65 @@ Deleted Files
     <table id="trashTable" class="table">
         <thead class="border-top border-bottom">
             <tr>
-                <th scope="col">
+                <th scope="col-6">
                     File Name
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('fileName')">
                         <i class="bi bi-filter"></i>
                     </button>
                     <!-- FileName filter dropdown -->
+
+                    
+
                     <div id="fileNameDropdown" class="dropdown-menu" style="display: none;">
                         <a class="dropdown-item" href="#" onclick="filterByFileName('all')">All</a>
                         <a class="dropdown-item" href="#" onclick="filterByFileName('ascending')">Ascending</a>
                         <a class="dropdown-item" href="#" onclick="filterByFileName('descending')">Descending</a>
+
                     </div>
                 </th>
-                <th scope="col">
-                    Days Deleted 
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('dateUploaded')">
-                        <i class="bi bi-filter"></i>
-                    </button>
-                    <!-- Date Deleted filter dropdown -->
-                    <div id="dateUploadedDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterByDateUploaded('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByDateUploaded('ascending')">Ascending</a>
-                        <a class="dropdown-item" href="#" onclick="filterByDateUploaded('descending')">Descending</a>
+
+
+                <th scope="col-6">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div class="text-end">
+                            Days Deleted
+                            <button class="btn btn-sm me-2" onclick="toggleDropdown('dateUploaded')">
+                                <i class="bi bi-filter"></i>
+                            </button>
+                            <div id="dateUploadedDropdown" class="dropdown-menu" style="display: none;">
+                                <button class="dropdown-item" onclick="filterByDeletionTime('')">All</button>
+                                <button class="dropdown-item" onclick="filterByDeletionTime('ascending')">Ascending</button>
+                                <button class="dropdown-item" onclick="filterByDeletionTime('descending')">Descending</button>
+                            </div>
+                        </div>
                     </div>
-                  </th>
+                </th>
+                
+                
+
             </tr>
         </thead>
+
         <tbody>
             {% for file in files %}
             <tr>
                 <td>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="{{ file.fileID }}" id="fileCheckbox{{ forloop.counter }}" name="file_ids" form="deleteForm restoreForm">
-                        <label class="form-check-label" for="fileCheckbox{{ forloop.counter }}">{{ file.fileName }}</label>
+                    <div class="row">
+                        <div class="col-11">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ file.fileID }}" id="fileCheckbox{{ forloop.counter }}" name="file_ids" form="deleteForm restoreForm">
+                                <label class="form-check-label" for="fileCheckbox{{ forloop.counter }}">{{ file.fileName }}</label>
+                            </div>
+                        </div>
                     </div>
                 </td>
+        
                 <td>
-                    <small>{{ file.deleted_at|timesince }} ago</small>
+                    <div class="row">
+                        <div class="col-12 text-end px-5">
+                            <small>{{ file.deleted_at|timesince }} ago</small>
+                        </div>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
@@ -191,6 +193,103 @@ Deleted Files
 </div>
 
 <!-- JavaScript -->
+<script>
+    // Function to confirm permanent deletion and submit form
+    document.addEventListener('DOMContentLoaded', function() {
+    // Function modified to handle checkbox selections and include CSRF token
+    function confirmPermanentDeletion() {
+        let selectedFileIds = [];
+        document.querySelectorAll('input[name="file_ids"]:checked').forEach(checkbox => {
+            selectedFileIds.push(checkbox.value);
+        });
+
+        if (selectedFileIds.length > 0) {
+            const confirmed = confirm("Are you sure you want to permanently delete the selected file(s)?");
+            if (confirmed) {
+                const form = document.getElementById('permanentDeleteForm');
+                // Clear existing inputs except the CSRF token
+                form.querySelectorAll('input[type="hidden"]:not([name="csrfmiddlewaretoken"])').forEach(input => input.remove());
+                // Add selected file IDs as hidden inputs
+                selectedFileIds.forEach(fileId => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'file_ids';
+                    input.value = fileId;
+                    form.appendChild(input);
+                });
+
+                // Submit the form
+                form.submit();
+            }
+        } else {
+            alert("Please select at least one file to delete.");
+        }
+    }
+
+    // Attach the event listener to your delete button
+    document.getElementById('permanentDeleteButton').addEventListener('click', confirmPermanentDeletion);
+});
+
+
+
+    // Set the file ID for deletion when a delete button is clicked
+    document.querySelectorAll('.deleteFileButton').forEach(button => {
+        button.addEventListener('click', function() {
+            const fileId = this.getAttribute('data-file-id'); // Get the file ID
+            document.getElementById('permanentDeleteFileId').value = fileId; // Set the file ID
+            confirmPermanentDeletion(); // Show confirmation dialog
+        });
+    });
+
+    // Existing script for the restore button
+    document.getElementById('restoreButton').addEventListener('click', function() {
+        document.querySelectorAll('input[name="file_ids"]').forEach(checkbox => {
+            checkbox.setAttribute('form', 'restoreForm');
+        });
+        // Explicitly submit the form
+        document.getElementById('restoreForm').submit();
+    });
+
+    // Initial script setup remains unchanged
+    document.addEventListener('DOMContentLoaded', function() {
+        // You could move event listeners here if needed
+    });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var entriesSelect = document.getElementById("entriesSelect");
+        if (entriesSelect) {
+            entriesSelect.addEventListener("change", function() {
+                var selectedValue = parseInt(entriesSelect.value);
+                updateTableEntries(selectedValue);
+            });
+        }
+
+        var sortOrderSelect = document.getElementById("sortOrder");
+        if (sortOrderSelect) {
+            sortOrderSelect.addEventListener("change", function() {
+                sortData();
+            });
+        }
+    });
+
+    function updateTableEntries(entries) {
+        var tableRows = document.querySelectorAll('#trashTable tbody tr');
+
+        tableRows.forEach(function(row, index) {
+            if (entries === 'all' || index < entries) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });  
+    
+    // Hide the dropdown after applying filter
+    document.getElementById(column + 'Dropdown').style.display = "none";
+}
+ </script>
 <script>
   function toggleDropdown(dropdownId) {
       var dropdown = document.getElementById(dropdownId + 'Dropdown');
@@ -249,33 +348,54 @@ Deleted Files
       closeDropdown('fileName');
   }
 
-  function filterByDateUploaded(order) {
-      var files = document.querySelectorAll('#trashTable tbody tr');
-      var sortedFiles = Array.from(files).sort(function(a, b) {
-          var timeAgoA = a.querySelector('td:last-child small').textContent;
-          var timeAgoB = b.querySelector('td:last-child small').textContent;
 
-          var dateA = parseTimeAgo(timeAgoA);
-          var dateB = parseTimeAgo(timeAgoB);
+  function filterByDeletionTime(order) {
+    var files = document.querySelectorAll('#trashTable tbody tr');
+    
+    var sortedFiles = Array.from(files).sort(function(a, b) {
+        // Function to parse texts like "1 hour, 15 minutes ago" into total minutes
+        function parseTimeToMinutes(timeText) {
+            let totalMinutes = 0;
+            let hoursMatch = timeText.match(/(\d+)\s*hour/);
+            let minutesMatch = timeText.match(/(\d+)\s*minute/);
+            
+            if (hoursMatch) {
+                totalMinutes += parseInt(hoursMatch[1], 10) * 60; // Convert hours to minutes
+            }
+            if (minutesMatch) {
+                totalMinutes += parseInt(minutesMatch[1], 10);
+            }
+            
+            return totalMinutes;
+        }
+        
+        var timeA = parseTimeToMinutes(a.querySelector('td:last-child small').textContent);
+        var timeB = parseTimeToMinutes(b.querySelector('td:last-child small').textContent);
+        
+        return order === 'ascending' ? timeA - timeB : timeB - timeA;
+    });
 
-          if (order === 'ascending') {
-              return dateA - dateB;
-          } else if (order === 'descending') {
-              return dateB - dateA;
-          } else {
-              // No sorting
-              return 0;
-          }
-      });
+    // Re-append sorted files to the tbody
+    var tbody = document.querySelector('#trashTable tbody');
+    tbody.innerHTML = ''; // Clear existing rows
+    sortedFiles.forEach(function(file) {
+        tbody.appendChild(file);
+    });
 
-      var tbody = document.querySelector('#trashTable tbody');
-      tbody.innerHTML = ''; // Clear existing rows
-      sortedFiles.forEach(function(file) {
-          tbody.appendChild(file);
-      });
+    closeDropdown('dateUploaded');
+}
 
-      closeDropdown('dateUploaded');
-  }
+
+
+function toggleDropdown(dropdownId) {
+    var dropdown = document.getElementById(dropdownId + 'Dropdown');
+    if (dropdown.style.display === 'none') {
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+
 </script>
 
 
@@ -293,5 +413,6 @@ Deleted Files
   
   {% block js %}
   <script src="{% static 'Js/trash.js' %}"></script>
-  <script src="{% static 'Js/uploadfile.js' %}"></script>
+  <!-- <script src="{% static 'Js/uploadfile.js' %}"></script> -->
+
   {% endblock %}

@@ -1,3 +1,4 @@
+import logging
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
@@ -151,7 +152,8 @@ class Orphan_Search(View):
                         'value': orphan_url  # This will be used for redirection
                     })
                 except Exception as e:
-                    print(f"Error generating URL for orphan {orphan.orphanID}: {e}")
+                    print(f"Error generating URL for orphan {
+                          orphan.orphanID}: {e}")
 
             return JsonResponse(data, safe=False)
         else:
@@ -437,6 +439,42 @@ def delete_files(request):
     return redirect('files_view')
 
 
+def restore_files(request):
+    if request.method == 'POST':
+        # Attempt to get a list of file IDs
+        file_ids = request.POST.getlist('file_ids')
+        if not file_ids:
+            # Fallback to a single file ID if no list is found
+            single_file_id = request.POST.get('file_ids')
+            if single_file_id:
+                # Make it a list to keep the processing consistent
+                file_ids = [single_file_id]
+
+        print('Received file IDs:', file_ids)  # Debug print
+
+        # Convert file_ids to integers, filtering out any invalid entries
+        valid_file_ids = []
+        for file_id in file_ids:
+            try:
+                valid_file_ids.append(int(file_id))
+            except ValueError:
+                # Handle or log the invalid file ID as needed
+                pass
+
+        if valid_file_ids:
+            result = Files.objects.filter(
+                fileID__in=valid_file_ids).update(is_archived=False)
+            print('Number of files restored:', result)  # Debug print
+            messages.success(request, "Files restored successfully")
+        else:
+            messages.error(request, "No valid file IDs provided.")
+
+        return redirect('trash_view')
+    else:
+        messages.error(request, "Invalid request.")
+        return redirect('trash_view')
+
+
 def upload_file(request):
     if request.method != 'POST':
         return JsonResponse({'message': 'Invalid request method.'}, status=405)
@@ -532,27 +570,20 @@ def serve_orphan_files(request, file_id):
         raise Http404("File does not exist")
 
 
-def restore_files(request):
-    if request.method == 'POST':
-        file_ids = request.POST.getlist('file_ids')
-        print('Received file IDs:', file_ids)  # Debug print
-        result = Files.objects.filter(
-            fileID__in=file_ids).update(is_archived=False)
-        print('Number of files restored:', result)  # Debug print
-        messages.success(request, "Files restored successfully")
-    return redirect('trash_view')
-
-
 def trash_view(request):
-    # Get all Files where is_archived is True
-    archived_files = Files.objects.filter(is_archived=True)
-    # Get all orphan profiles where is_deleted is True
-    # Print deleted_at for each archived file
-    for file in archived_files:
-        print(f"File ID: {file.fileID}, Deleted at: {file.deleted_at}")
-    deleted_orphans = Info.objects.filter(is_deleted=True)
-    # Pass the files and orphan profiles to the template
-    return render(request, 'orphans/Trash.html', {'files': archived_files, 'orphans': deleted_orphans})
+    sort_order = request.GET.get('sort', 'desc')  # Default to descending
+    print(f"Received sort order: {sort_order}")  # Log the received sort order
+
+    if sort_order == 'asc':
+        archived_files = Files.objects.filter(
+            is_archived=True).order_by('deleted_at')
+    else:  # 'desc' or any other case
+        archived_files = Files.objects.filter(
+            is_archived=True).order_by('-deleted_at')
+
+    print(f"Files to render: {archived_files.query}")  # Log the query set
+
+    return render(request, 'orphans/Trash.html', {'files': archived_files})
 
 
 def download_file(request, file_id):
@@ -563,6 +594,24 @@ def download_file(request, file_id):
     else:
         messages.error(request, "File not found")
         return redirect('files')
+
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+def permanent_file_deletion(request):
+    file_ids = request.POST.getlist('file_ids')
+    if file_ids:
+        # Your deletion logic, assuming it loops through file_ids and deletes files
+        for file_id in file_ids:
+            file = get_object_or_404(Files, fileID=file_id, is_archived=True)
+            file.delete()
+        messages.success(request, "File(s) deleted successfully.")
+    else:
+        messages.error(request, "No files selected for deletion.")
+
+    return redirect('trash_view')
 
 
 def save_changes(request, orphan_id):
