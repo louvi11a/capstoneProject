@@ -1,105 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/Css/setting.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
     <title>Document</title>
-</head>
-<body>
-  
+    <!-- bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- boostrap 5 icon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <!-- Css -->
+    <link rel="stylesheet" href="../css/demo.css">
 
-<!-- ------------------------------start sa sidebar------------------------- -->
-  <div class="sbar ">
-    <div class="row-search ">
-        <div class="col-6">
-            <div class="input-size input-group mb-3">
-                <input type="text" class="form-control" placeholder="Search...">
-                <button class="btn btn-primary" type="button">Search</button>
+    <!-- fontawesome -->
+    <script src="https://kit.fontawesome.com/d050a6d764.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container-fluid ">
+        <div class="row ">
+            <div class="col-sm-auto sticky-top rounded-2" style="background-color: #173B7E;">
+                <div
+                    class="d-flex flex-sm-column flex-row flex-nowrap bg-transparent text-center align-items-center justify-content-center sticky-top ">
+                    <a href="https://www.obedshouse.org/" target="_blank"
+                        class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"
+                        data-bs-placement="right" data-bs-original-title="Icon-only">
+                        <img src="../image/obeds.jpg" class="img-fluid rounded-4" width="80px"></img>
+                    </a>
+                    <ul
+                        class="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap text-center align-items-center justify-content-center">
+                        <li class="nav-item">
+                            <a href="./Dboard.html" class="p-0 mt-0 text-decoration-none" title=""
+                                data-bs-toggle="tooltip" data-bs-placement="right">
+                                <i class="txtColor icon fa-solid fa-chart-line  btn btn-outline-primary border-0"
+                                    style="font-size: 35px;"></i>
+                                <p class="txtColor" style="font-size: 12px;">Dashboard</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="./Orphan.html" class="p-0 mt-0 text-decoration-none" title=""
+                                data-bs-toggle="tooltip" data-bs-placement="right">
+                                <i class="txtColor icon fa-solid fa-children fs-2  btn btn-outline-primary border-0"
+                                    style="font-size: 35px;"></i>
+                                <p class="txtColor  font-size-sm " style="font-size: 12px;">Orphan Profile</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="./Files.html" class="p-0 mt-0 text-decoration-none" title=""
+                                data-bs-toggle="tooltip" data-bs-placement="right">
+                                <i class="txtColor icon fa-solid fa-folder-open fs-2  btn btn-outline-primary border-0"
+                                    style="font-size: 35px;"></i>
+                                <p class="txtColor " style="font-size: 12px;">Orphanage Files</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="./Trash.html" class="p-0 mt-0 text-decoration-none" title=""
+                                data-bs-toggle="tooltip" data-bs-placement="right">
+                                <i class="txtColor icon fa-solid fa-trash-can fs-2  btn btn-outline-primary border-0 "
+                                    style="font-size: 35px;"></i>
+                                <p class="txtColor " style="font-size: 12px;">Trash</p>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="dropdown ">
+                        <a href="#"
+                            class="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle"
+                            id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi-person-circle h2"></i>
+                        </a>
+                        <ul class="dropdown-menu text-small shadow  " aria-labelledby="dropdownUser3">
+                            <li><a class="dropdown-item" href="./Login.html">Logout</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><a class="dropdown-item" href="./profile.html">Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm m-3 border vh-100 overflow-auto bg-light rounded-4">
+                <!-- content -->
+                <main>
+                    {% block content %}
+                    <div class="container-orphan border rounded-3">
+                        <div class="form-group container ">
+                            <div class="form-container bg-light p-4 rounded">
+                                <form id="myForm" method="post" action="{% url 'update_user_info' %}">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <h3>Account Setting</h3>
+                                        <div class="col-12 mb-3">
+                                            <label for="username" class="form-label">Username:</label>
+                                            <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly
+                                                autocomplete="username">
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <label for="firstName" class="form-label">First Name:</label>
+                                            <input type="text" class="form-control" id="firstName" value="{{ user.first_name }}" readonly>
+                                        </div>
+                                    
+                                        <div class="col-6 mb-3">
+                                            <label for="lastName" class="form-label">Last Name:</label>
+                                            <input type="text" class="form-control" id="lastName" value="{{ user.last_name }}" readonly>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="mb-3">
+                                        <label for="middleName" class="form-label">Email Address:</label>
+                                        <input type="text" class="form-control" id="email" value="{{ user.email }}"
+                                            readonly>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password:</label>
+                                        <input type="password" class="form-control" id="password" placeholder="********"
+                                            readonly autocomplete="current-password">
+                                    </div>
+                                    
+                                </form>
+                                <div class="mb-3 justify-content-end d-flex">
+                                    <button type="button" class="btn btn-success btn-sm col-3" data-bs-toggle="modal"
+                                        data-bs-target="#changePasswordModal">
+                                        Change Password
+                                    </button>
+                                </div>
+                                <div class="d-grid d-flex justify-content-end">
+                                    <button id="editButton" class="btn btn-primary btn-block col-3" data-bs-toggle="modal"
+                                        data-bs-target="#changedetails">Edit</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="modal fade" id="changePasswordModal" tabindex="-1"
+                            aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="changePasswordForm" method="post"
+                                            action="{% url 'change_password' %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3 password-field">
+                                                <label for="old_password" class="form-label">Current Password:</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="old_password"
+                                                        name="old_password" autocomplete="current-password">
+                                                    <span class="input-group-text password-toggle"
+                                                        data-toggle-password="old_password"
+                                                        onclick="togglePasswordVisibility('old_password', event)">
+                                                        <i class="bi bi-eye-fill"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 password-field">
+                                                <label for="new_password1" class="form-label">New Password:</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="new_password1"
+                                                        name="new_password1" autocomplete="new-password">
+                                                    <span class="input-group-text password-toggle"
+                                                        data-toggle-password="new_password1"
+                                                        onclick="togglePasswordVisibility('new_password1', event)">
+                                                        <i class="bi bi-eye-fill"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 password-field">
+                                                <label for="new_password2" class="form-label">Confirm New
+                                                    Password:</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="new_password2"
+                                                        name="new_password2" autocomplete="new-password">
+                                                    <span class="input-group-text password-toggle"
+                                                        data-toggle-password="new_password2"
+                                                        onclick="togglePasswordVisibility('new_password2', event)">
+                                                        <i class="bi bi-eye-fill"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="submitChangePasswordForm()">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="changedetails" tabindex="-1" aria-labelledby="changeDetailsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="changeDetailsModalLabel"></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="changeDetailsForm" method="post" action="{% url 'change_details' %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <label for="new_username" class="form-label">New Username:</label>
+                                                <input type="text" class="form-control" id="new_username" name="new_username"
+                                                    autocomplete="username">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="new_first_name" class="form-label">New First Name:</label>
+                                                <input type="text" class="form-control" id="new_first_name" name="new_first_name"
+                                                    autocomplete="given-name">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="new_last_name" class="form-label">New Last Name:</label>
+                                                <input type="text" class="form-control" id="new_last_name" name="new_last_name"
+                                                    autocomplete="family-name">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" onclick="submitChangeDetailsForm()">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {% endblock %}
+
+                        {% block js %}
+                        <script src="{% static 'Js/setting-popup.js' %}"></script>
+                        {% endblock %}
+
+
+                    </div>
             </div>
         </div>
-    </div>
-</div>
 
 
-  <div class="sidebar ">
-    <!-- Dashboard -->
-      <a class="navbar btn btn-outline-primary"  href="Dboard.html">
-        <i class="icon fa-solid fa-chart-line"></i>
-      </a>
-      <br>
-      <!-- Orphan -->
-      <a class="navbar btn btn-outline-primary" href="Orphan.html">
-        <i class="icon fa-solid fa-children" ></i>
-      </a>
-      <br>
-      <!-- Files -->
-      <a class="navbar btn btn-outline-primary" href="File.html">
-        <i class="icon fa-solid fa-folder-open"></i>
-      </a>
-      <br>
-      <!-- Trash -->
-      <a class="navbar btn btn-outline-primary" href="Trash.html">
-        <i class="icon fa-solid fa-trash-can"></i>
-      </a>
-      <br>
-      <!-- Setting -->
-      <a class="navbar btn btn-outline-primary" href="Setting.html">
-        <i class="icon fa-solid fa-gears"></i>
-      </a>
-      <br>
-      <!-- Logout -->
-      <a class="navbar btn btn-outline-primary" href="Login.html">
-        <i class="icon fa-solid fa-right-from-bracket"></i>
-      </a>
-  </div>
-
-<!-- ------------------------------end sa sidebar------------------------- -->
-
-
-
-      <div class="container-orphan">
-        
-          
-            <form id="myForm">
-              <div class="mb-3">
-                <label for="firstName" class="form-label">First Name:</label>
-                <input type="text" class="form-control" id="firstName" value="John" readonly>
-              </div>
-              <div class="mb-3">
-                <label for="middleName" class="form-label">Middle Name:</label>
-                <input type="text" class="form-control" id="middleName" value="Doe" readonly>
-              </div>
-              <div class="mb-3">
-                <label for="lastName" class="form-label">Last Name:</label>
-                <input type="text" class="form-control" id="lastName" value="Smith" readonly>
-              </div>
-              <div class="mb-3">
-                <label for="username" class="form-label">Username:</label>
-                <input type="text" class="form-control" id="username" value="johndoe123" readonly>
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" class="form-control" id="password" value="********" readonly>
-              </div>
-            </form>
-            <button id="editButton" class="btn btn-primary">Edit</button>
-            <div class="editbtn">
-            <button id="saveButton" class="btn btn-success" style="display: none;">Save</button>
-            <button id="cancelButton" class="btn btn-secondary" style="display: none;">Cancel</button>
-            
-          
-        </div>
-
-    </div>
-
-
-
-    <script src="../Js/setting-popup.js"></script>
 </body>
-</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
+</html>
