@@ -16,7 +16,8 @@ import logging
 import datetime
 from django.db.models import Count, Case, When, Value
 from django.shortcuts import render
-from orphans.models import Education, Grade, Info  # Assuming these are your models
+# Assuming these are your models
+from orphans.models import Education, Grade, Info, Subject
 from django.db.models import Max
 from datetime import date
 
@@ -171,10 +172,17 @@ def chart_age(request):
 
 
 def chart_academic(request):
-    # Fetch all Education records with prefetching for related grades
+    subjects = Subject.objects.all().order_by('name').distinct('name')
     education_records = Education.objects.prefetch_related('grade_set')
 
-    return render(request, 'Dashboard/chart_academic.html', {'education_records': education_records})
+    # Combine both context variables into a single dictionary
+    context = {
+        'education_records': education_records,
+        'subjects': subjects,
+        'education_level_choices': Education.EDUCATION_LEVEL_CHOICES,
+    }
+
+    return render(request, 'Dashboard/chart_academic.html', context)
 
 
 def intervention_academics(request):

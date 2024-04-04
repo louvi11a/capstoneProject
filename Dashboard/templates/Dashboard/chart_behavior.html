@@ -19,9 +19,9 @@
 
 <!-- Heading -->
 <div class="m-2">
-    <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
+    <!-- <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
         <i class="fa-solid fa-arrow-left"></i>
-    </a>
+    </a> -->
     <div class="text-center mx-auto">
         <h1 class="mb-0">Orphan Behavior Information</h1>
     </div>
@@ -95,7 +95,6 @@
 </script>
 
 <!-- Sentiments Details Table -->
-<!-- Sentiments Details Table -->
 <div class="mb-3">
     <table id="sentimentDetailsTable" class="table table-striped">
         <thead>
@@ -138,6 +137,7 @@
                         <a class="dropdown-item" href="#" onclick="filterByStatus('negative')">Negative</a>
                     </div>
                 </th>
+                <th scope="col">Details</th>
             </tr>
         </thead>
         <tbody>
@@ -148,14 +148,16 @@
                         <!-- Concatenating the first, middle, and last names -->
                         {{ note.related_orphan.firstName }} {{ note.related_orphan.middleName }} {{ note.related_orphan.lastName }}
                     </td>
-                    <td>{{ note.translated_note }}</td>
+                    <td>{{ note.text}}</td>
                     <td>
                         <!-- Displaying sentiment as a badge; adjust according to your needs -->
                         <span class="badge {% if note.sentiment_score > 0 %}bg-success{% elif note.sentiment_score == 0 %}bg-secondary{% else %}bg-danger{% endif %}">
                             {% if note.sentiment_score > 0 %}Positive{% elif note.sentiment_score == 0 %}Neutral{% else %}Negative{% endif %}
                         </span>
                     </td>
-
+                    <td>
+                        <a href="{{ note.related_orphan.get_absolute_url }}" class="btn btn-sm btn-light">View Profile</a>
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
@@ -259,31 +261,27 @@
             tbody.appendChild(row);
         });
     }
-
     function filterByStatus(filterValue) {
-        console.log('Filter by status:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('statusDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#sentimentDetailsTable tbody tr');
+    console.log('Filter by status:', filterValue);
+    document.getElementById('statusDropdown').style.display = 'none';
+    var rows = document.querySelectorAll('#sentimentDetailsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows initially
+    });
+    if (filterValue !== 'all') {
         rows.forEach(function(row) {
-            row.style.display = ''; // Reset to show all rows
+            // Assuming Status is the fourth column, adjust index accordingly
+            var statusText = row.cells[3].textContent.trim().toLowerCase();
+            if (statusText !== filterValue) {
+                row.style.display = 'none';
+            }
         });
-        if (filterValue !== 'all') {
-            // Filter rows by status
-            rows.forEach(function(row) {
-                if (row.cells[4].textContent.toLowerCase() !== filterValue) {
-                    row.style.display = 'none'; // Hide rows that do not match the selected status
-                }
-            });
-        }
     }
+}
+
 </script>
 
 
-</div>
-</div>
-</div>
 
 {% endblock %}
 {% block js %}

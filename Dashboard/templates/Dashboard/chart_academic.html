@@ -19,9 +19,9 @@
 
 <!-- Heading -->
     <div class="m-2">
-        <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
+        <!-- <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
             <i class="fa-solid fa-arrow-left"></i>
-        </a>
+        </a> -->
         <div class="text-center mx-auto">
             <h1 class="mb-0">Orphan Academic Informations</h1>
         </div>
@@ -51,47 +51,7 @@
     </div>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Get the select element
-    var entriesSelect = document.getElementById("entriesSelect");
 
-    // Add event listener for change
-    entriesSelect.addEventListener("change", function() {
-        // Get the selected value
-        var selectedValue = entriesSelect.value;
-        // Call a function to update the table with the selected number of entries
-        updateTableEntries(selectedValue);
-    });
-});
-
-function updateTableEntries(entries) {
-    // Get the table body
-    var tableBody = document.querySelector('#academicDetailsTable tbody'); // <-- Corrected table ID
-    // Get all rows in the table
-    var rows = tableBody.querySelectorAll('tr');
-
-    // Show all rows if 'All' is selected
-    if (entries === 'all') {
-        rows.forEach(function(row) {
-            row.style.display = '';
-        });
-        return;
-    }
-
-    // Hide all rows
-    rows.forEach(function(row) {
-        row.style.display = 'none';
-    });
-
-    // Show only the specified number of entries
-    for (var i = 0; i < entries; i++) {
-        if (rows[i]) {
-            rows[i].style.display = '';
-        }
-    }
-}
-</script>
     
 <!-- Acad Table-->
     <div class="mb-3">
@@ -122,12 +82,28 @@ function updateTableEntries(entries) {
                         <a class="dropdown-item" href="#" onclick="filterByName('descending')">Descending</a>
                     </div>
                 </th>
+
+
+                
                 <th scope="col">
+                    Education Level
+                    <i class="bi bi-filter" onclick="toggleDropdown('educationLevel')"></i>
+                    <!-- Education Level filter dropdown -->
+                    <div id="educationLevelDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByEducationLevel('all')">All Levels</a>
+                        {% for level, level_display in education_level_choices %}
+                        <a class="dropdown-item" href="#" onclick="filterByEducationLevel('{{ level }}')">{{ level_display }}</a>
+                        {% endfor %}
+                    </div>
+                </th>
+                
+                
+
+                <!-- <th scope="col">
                     Year Level
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('year')">
                         <i class="bi bi-filter"></i>
                     </button>
-                    <!-- Year Level filter dropdown -->
                     <div id="yearDropdown" class="dropdown-menu" style="display: none;">
                         <a class="dropdown-item" href="#" onclick="filterByYear('all')">All</a>
                         <a class="dropdown-item" href="#" onclick="filterByYear('Grade 1')">Grade 1</a>
@@ -143,7 +119,7 @@ function updateTableEntries(entries) {
                         <a class="dropdown-item" href="#" onclick="filterByYear('Grade 11')">Grade 11</a>
                         <a class="dropdown-item" href="#" onclick="filterByYear('Grade 12')">Grade 12</a>
                     </div>
-                </th>
+                </th> -->
                 <th scope="col">
                     Grading
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('grading')">
@@ -152,36 +128,44 @@ function updateTableEntries(entries) {
                     <!-- Grading filter dropdown -->
                     <div id="gradingDropdown" class="dropdown-menu" style="display: none;">
                         <a class="dropdown-item" href="#" onclick="filterByGrading('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByGrading('1st Grading')">1st Grading</a>
-                        <a class="dropdown-item" href="#" onclick="filterByGrading('2nd Grading')">2nd Grading</a>
-                        <a class="dropdown-item" href="#" onclick="filterByGrading('3rd Grading')">3rd Grading</a>
-                        <a class="dropdown-item" href="#" onclick="filterByGrading('4th Grading')">4th Grading</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGrading('First Quarter')">First Quarter</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGrading('Second Quarter')">Second Quarter</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGrading('Third Quarter')">Third Quarter</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGrading('Fourth Quarter')">Fourth Quarter</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGrading('First Semester')">First Semester</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGrading('Second Semester')">Second Semester</a>
                     </div>
-                </th>
-                <th scope="col">
-                    Subject
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('subject')">
-                        <i class="bi bi-filter"></i>
-                    </button>
-                    <!-- Subject filter dropdown -->
-                    <div id="subjectDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('English')">English</a>
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('Math')">Math</a>
-                        <a class="dropdown-item" href="#" onclick="filterBySubject('Science')">Science</a>
-                    </div>
-                </th>
+                    
+                    <th scope="col">
+                        
+                        <div class="dropdown">
+                            Subject
+                            <!-- <button class="bi bi-filter" type="button" id="subjectDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-filter" id="subjectDropdownButton" data-bs-toggle="dropdown"></i>
+                            </button> -->
+                            <i class="bi bi-filter" id="subjectDropdownButton" data-bs-toggle="dropdown"></i>
+
+                            <!-- Subject filter dropdown -->
+                            <ul class="dropdown-menu" aria-labelledby="subjectDropdownButton">
+                                <li><a class="dropdown-item" href="#" onclick="filterBySubject('all')">All Subjects</a></li>
+                                {% for subject in subjects %}
+                                <li><a class="dropdown-item" href="#" onclick="filterBySubject('{{ subject.name }}')">{{ subject.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </th>
+                    
                 
                 <th scope="col">
                     Grade
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('grade')">
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('gradeValue')">
                         <i class="bi bi-filter"></i>
                     </button>
                     <!-- Grade filter dropdown -->
-                    <div id="gradeDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterByGrade('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByGrade('ascending')">Ascending</a>
-                        <a class="dropdown-item" href="#" onclick="filterByGrade('descending')">Descending</a>
+                    <div id="gradeValueDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByGradeValue ('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGradeValue ('ascending')">Ascending</a>
+                        <a class="dropdown-item" href="#" onclick="filterByGradeValue ('descending')">Descending</a>
                     </div>
                 </th>
                 <th scope="col">
@@ -206,12 +190,13 @@ function updateTableEntries(entries) {
                 <tr>
                   <td>{{ grade.education.date_recorded }}</td>
                   <td>{{ grade.education.orphan.firstName }} {{ grade.education.orphan.lastName }}</td>
-                  <td>{{ grade.education.year_level }}</td>
+                  <td>{{ education.get_education_level_display }}</td>
+                  <!-- <td>{{ grade.education.year_level }}</td> -->
                   <td>
                     {% if grade.quarter %}
-                      {{ grade.get_quarter_display }} Grading
+                      {{ grade.get_quarter_display }} 
                     {% elif grade.semester %}
-                      {{ grade.get_semester_display }} Semester
+                      {{ grade.get_semester_display }} 
                     {% else %}
                       N/A
                     {% endif %}
@@ -229,15 +214,59 @@ function updateTableEntries(entries) {
                 </tr>
               {% endfor %}
             {% endfor %}
-        </tbody>
-        
+        </tbody>        
      </table>
-</div>
-</div>
-</div>
-</div>
-            
+     <div id="noRecordsMessage" style="display: none;">No records found.</div>
+    </div>
+
+
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    var entriesSelect = document.getElementById("entriesSelect");
+    entriesSelect.addEventListener("change", function() {
+        var selectedValue = entriesSelect.value;
+        updateTableEntries(selectedValue);
+    });
+});
+
+    
+    function updateTableEntries(entries) {
+        console.log("Updating table entries to show:", entries);
+        // Get the table body
+        var tableBody = document.querySelector('#academicDetailsTable tbody');
+        // Get all rows in the table
+        var rows = tableBody.querySelectorAll('tr');
+        var displayCount = 0; // Reset the counter for displayed rows
+    
+        // Hide all rows initially
+        rows.forEach(function(row) {
+            row.style.display = 'none';
+        });
+    
+        // Determine the number of rows to display based on the selected option
+        var rowsToShow = entries === 'all' ? rows.length : parseInt(entries, 10);
+    
+        // Show the specified number of entries (or all if 'all' is selected)
+        for (var i = 0; i < rowsToShow && i < rows.length; i++) {
+            if (rows[i]) {
+                rows[i].style.display = '';
+                displayCount++; // Increment only for rows that are set to display
+            }
+        }
+    
+        // Show or hide the "No records found" message based on visible rows
+// Show or hide the "No records found" message based on visible rows
+        var noRecordsMessage = document.getElementById('noRecordsMessage');
+        if (displayCount > 0) {
+            noRecordsMessage.style.display = 'none';
+        } else {
+            noRecordsMessage.style.display = 'block';
+        }
+        console.log('displayCount:', displayCount);
+        console.log('noRecordsMessage display style:', noRecordsMessage.style.display);
+    }
+    
+
     function toggleDropdown(dropdownId) {
         var dropdown = document.getElementById(dropdownId + 'Dropdown');
         if (dropdown.style.display === 'none' || dropdown.style.display === '') {
@@ -272,7 +301,6 @@ function updateTableEntries(entries) {
     }
 
     function filterByName(filterValue) {
-        console.log('Filter by name:', filterValue);
         // Close dropdown after selection
         document.getElementById('nameDropdown').style.display = 'none';
         // Get all table rows
@@ -295,118 +323,142 @@ function updateTableEntries(entries) {
         });
     }
 
-
-    // Function to filter by subject
-    function filterBySubject(filterValue) {
-        console.log('Filter by subject:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('subjectDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
-        rows.forEach(function(row) {
-            row.style.display = ''; // Reset to show all rows
-        });
-        if (filterValue !== 'all') {
-            // Filter rows based on selected subject
-            rows.forEach(function(row) {
-                if (row.cells[4].textContent !== filterValue) {
-                    row.style.display = 'none';
-                }
-            });
-        }
-    }
+    function filterByEducationLevel(filterValue) {
+    console.log('Filter by education level:', filterValue);
+    // Close dropdown after selection - Optional based on UX preference
+    document.getElementById('educationLevelDropdown').style.display = 'none';
     
-
-    // Function to filter by grade
-    function filterByGrade(filterValue) {
-        console.log('Filter by grade:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('gradeDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
-        rows.forEach(function(row) {
-            row.style.display = ''; // Reset to show all rows
-        });
-        if (filterValue === 'ascending') {
-            // Code to sort by ascending grade
-            rows = Array.from(rows).sort((a, b) => parseFloat(a.cells[5].textContent) - parseFloat(b.cells[5].textContent));
-        } else if (filterValue === 'descending') {
-            // Code to sort by descending grade
-            rows = Array.from(rows).sort((a, b) => parseFloat(b.cells[5].textContent) - parseFloat(a.cells[5].textContent));
-        }
-        // Re-append sorted rows to the table
-        var tbody = document.querySelector('#academicDetailsTable tbody');
-        tbody.innerHTML = ''; // Clear existing rows
-        rows.forEach(function(row) {
-            tbody.appendChild(row);
-        });
-    }
-
-     // Function to filter by status
-     function filterByStatus(filterValue) {
-    // console.log('Filter by status:', filterValue);
-    document.getElementById('statusDropdown').style.display = 'none';
-
     var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
-    filterValue = filterValue.toLowerCase();
-
     rows.forEach(function(row) {
-        // Ensure the cell exists before trying to access its content
-        if (row.cells.length > 6) { // Checks if there are enough cells in the row
-            var statusText = row.cells[6].textContent.trim().toLowerCase();
-
-            // Hide the row if it does not match the filter value, unless 'all' is selected
-            if (filterValue !== 'all' && statusText !== filterValue) {
-                row.style.display = 'none';
-            } else {
-                row.style.display = ''; // Show the row
-            }
+        // Adjust the index as needed based on the actual column for education level
+        var cellText = row.cells[2].textContent.trim().toLowerCase();
+        if (filterValue === 'all' || cellText.toLowerCase() === filterValue.toLowerCase()) {
+            row.style.display = '';
         } else {
-            // Optionally handle the case where the row does not have enough cells
-            // For example, you might choose to hide these rows or leave them visible
-            console.log('Row does not have a status cell:', row);
-            // row.style.display = 'none'; // Uncomment to hide rows that don't have a status cell
+            row.style.display = 'none';
         }
     });
 }
 
 
-
-
+    //     // Function to filter by year
+    // function filterByYear(filterValue) {
+    //     console.log('Filter by year:', filterValue);
+    //     // Close dropdown after selection
+    //     document.getElementById('yearDropdown').style.display = 'none';
+    //     // Get all table rows
+    //     var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    //     rows.forEach(function(row) {
+    //         var cellValue = row.cells[2].textContent.trim();
+    //         if (filterValue === 'all' || cellValue === filterValue) {
+    //             row.style.display = ''; // Show row if it matches the filter or if "All" is selected
+    //         } else {
+    //             row.style.display = 'none'; // Hide row otherwise
+    //         }
+    //     });
+    // }
 
     // Function to filter by grading
     function filterByGrading(filterValue) {
-        console.log('Filter by grading:', filterValue);
         // Close dropdown after selection
         document.getElementById('gradingDropdown').style.display = 'none';
         // Get all table rows
         var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
         rows.forEach(function(row) {
             var cellValue = row.cells[3].textContent.trim();
-            if (filterValue === 'all' || cellValue === filterValue) {
+
+            if (filterValue === 'all' || cellValue.toLowerCase() === filterValue.toLowerCase()) {
                 row.style.display = ''; // Show row if it matches the filter or if "All" is selected
             } else {
                 row.style.display = 'none'; // Hide row otherwise
+            }
+        });
+
+    }
+    // Function to filter by subject
+    function filterBySubject(filterValue) {
+        console.log('Filter by subject:', filterValue);
+        
+        // Get all table rows
+        var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+        
+        rows.forEach(function(row) {
+            // Assuming the subject is in the 5th column (index 4), adjust if necessary
+            var cellText = row.cells[4].textContent.trim();
+            
+            // Show row if it matches the filter or if "All" is selected
+            if (filterValue === 'all' || cellText.toLowerCase() === filterValue.toLowerCase()) {
+                row.style.display = '';
+            } else {
+                // Hide row otherwise
+                row.style.display = 'none';
             }
         });
     }
 
-    // Function to filter by year
-    function filterByYear(filterValue) {
-        console.log('Filter by year:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('yearDropdown').style.display = 'none';
-        // Get all table rows
+
+    function filterByGradeValue(filterValue) {
+    // Close dropdown after selection
+    document.getElementById('gradeValueDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows initially
+    });
+    if (filterValue === 'ascending') {
+        // Code to sort by ascending grade value
+        rows = Array.from(rows).sort((a, b) => {
+            var gradeA = parseFloat(a.cells[5].textContent.trim()); // Ensure the index is correct
+            var gradeB = parseFloat(b.cells[5].textContent.trim()); // Ensure the index is correct
+            return gradeA - gradeB;
+        });
+    } else if (filterValue === 'descending') {
+        // Code to sort by descending grade value
+        rows = Array.from(rows).sort((a, b) => {
+            var gradeA = parseFloat(a.cells[5].textContent.trim()); // Corrected to use the same index as ascending
+            var gradeB = parseFloat(b.cells[5].textContent.trim()); // Corrected to use the same index as ascending
+            return gradeB - gradeA;
+        });
+    }
+    // Re-append sorted rows to the table
+    var tbody = document.querySelector('#academicDetailsTable tbody');
+    tbody.innerHTML = ''; // Clear existing rows first
+    rows.forEach(function(row) {
+        tbody.appendChild(row); // Append each row back to the tbody
+    });
+}
+
+
+     // Function to filter by status
+    function filterByStatus(filterValue) {
+        // console.log('Filter by status:', filterValue);
+        document.getElementById('statusDropdown').style.display = 'none';
+
         var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+        filterValue = filterValue.toLowerCase();
+
         rows.forEach(function(row) {
-            var cellValue = row.cells[2].textContent.trim();
-            if (filterValue === 'all' || cellValue === filterValue) {
-                row.style.display = ''; // Show row if it matches the filter or if "All" is selected
+            // Ensure the cell exists before trying to access its content
+            if (row.cells.length > 6) { // Checks if there are enough cells in the row
+                var statusText = row.cells[6].textContent.trim().toLowerCase();
+
+                // Hide the row if it does not match the filter value, unless 'all' is selected
+                if (filterValue !== 'all' && statusText !== filterValue) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = ''; // Show the row
+                }
             } else {
-                row.style.display = 'none'; // Hide row otherwise
+                // Optionally handle the case where the row does not have enough cells
+                // For example, you might choose to hide these rows or leave them visible
+                console.log('Row does not have a status cell:', row);
+                // row.style.display = 'none'; // Uncomment to hide rows that don't have a status cell
             }
         });
     }
+
+
+
 
 
 </script>
