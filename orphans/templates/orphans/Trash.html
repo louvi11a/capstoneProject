@@ -76,6 +76,8 @@ Deleted Files
         </div>
       </div>
 
+    
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         var entriesSelect = document.getElementById("entriesSelect");
@@ -105,6 +107,8 @@ Deleted Files
     document.getElementById(column + 'Dropdown').style.display = "none";
 }
  </script>
+
+ 
 
 <!-- content 
 <div class="container-fluid row p-2">
@@ -155,7 +159,7 @@ Deleted Files
                     </div>
                 </th>
                 <th scope="col">
-                    Date Deleted 
+                    Days Deleted 
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('dateUploaded')">
                         <i class="bi bi-filter"></i>
                     </button>
@@ -185,6 +189,98 @@ Deleted Files
         </tbody>
     </table>
 </div>
+
+<!-- JavaScript -->
+<script>
+  function toggleDropdown(dropdownId) {
+      var dropdown = document.getElementById(dropdownId + 'Dropdown');
+      if (dropdown.style.display === 'none') {
+          dropdown.style.display = 'block';
+      } else {
+          dropdown.style.display = 'none';
+      }
+  }
+
+  function closeDropdown(dropdownId) {
+      var dropdown = document.getElementById(dropdownId + 'Dropdown');
+      dropdown.style.display = 'none';
+  }
+
+  function parseTimeAgo(timeAgo) {
+      var agoParts = timeAgo.split(', ');
+      var days = 0;
+      var hours = 0;
+
+      for (var i = 0; i < agoParts.length; i++) {
+          var part = agoParts[i];
+          if (part.includes('day')) {
+              days = parseInt(part);
+          } else if (part.includes('hour')) {
+              hours = parseInt(part);
+          }
+      }
+
+      var now = new Date();
+      now.setHours(now.getHours() - (days * 24 + hours));
+      return now;
+  }
+
+  function filterByFileName(order) {
+      var files = document.querySelectorAll('#trashTable tbody tr');
+      var sortedFiles = Array.from(files).sort(function(a, b) {
+          var fileNameA = a.querySelector('td:first-child label').textContent.toLowerCase();
+          var fileNameB = b.querySelector('td:first-child label').textContent.toLowerCase();
+          if (order === 'ascending') {
+              return fileNameA.localeCompare(fileNameB);
+          } else if (order === 'descending') {
+              return fileNameB.localeCompare(fileNameA);
+          } else {
+              // No sorting
+              return 0;
+          }
+      });
+
+      var tbody = document.querySelector('#trashTable tbody');
+      tbody.innerHTML = ''; // Clear existing rows
+      sortedFiles.forEach(function(file) {
+          tbody.appendChild(file);
+      });
+
+      closeDropdown('fileName');
+  }
+
+  function filterByDateUploaded(order) {
+      var files = document.querySelectorAll('#trashTable tbody tr');
+      var sortedFiles = Array.from(files).sort(function(a, b) {
+          var timeAgoA = a.querySelector('td:last-child small').textContent;
+          var timeAgoB = b.querySelector('td:last-child small').textContent;
+
+          var dateA = parseTimeAgo(timeAgoA);
+          var dateB = parseTimeAgo(timeAgoB);
+
+          if (order === 'ascending') {
+              return dateA - dateB;
+          } else if (order === 'descending') {
+              return dateB - dateA;
+          } else {
+              // No sorting
+              return 0;
+          }
+      });
+
+      var tbody = document.querySelector('#trashTable tbody');
+      tbody.innerHTML = ''; // Clear existing rows
+      sortedFiles.forEach(function(file) {
+          tbody.appendChild(file);
+      });
+
+      closeDropdown('dateUploaded');
+  }
+</script>
+
+
+
+
 
 
   <footer class="d-flex justify-content-between p-3 bg-light">
