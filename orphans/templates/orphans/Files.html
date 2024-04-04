@@ -14,7 +14,6 @@
 {% endblock %}
 
 {% block content %}
-        
 
 
 <!-- content -->
@@ -24,7 +23,7 @@
             <div class="col d-flex pb-1 justify-content-start">
             <form action="{% url 'search_files' %}" method="get">
                 <input
-                class="form-control"
+                class="form-control me-2"
                 name='q'
                 id="searchFiles"
                 type="search"
@@ -134,34 +133,47 @@
     </div>
 
 
+<<<<<<< HEAD
 <!-- Rename File Modal -->
+=======
+                
+                <!-- Rename File Modal -->
+>>>>>>> 9902973a145364f5ac911cf2a30181b777963c16
 <div class="modal fade" id="renameFileModal" tabindex="-1" aria-labelledby="renameFileModalLabel"
 aria-hidden="true">
   <div class="modal-dialog">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="renameFileModalLabel">Rename File</h5>
+              <h5 class="modal-title" id="renameFileModalLabel">Rename Filexx</h5>
+              
               <button type="button" class="btn-close" data-bs-dismiss="modal"
                   aria-label="Close"></button>
           </div>
           <div class="modal-body">
-              <form id="renameFileForm">
-                  <div class="mb-3">
-                      <label for="newFileNameInput" class="form-label">New File Name</label>
-                      <!-- Add the required attribute here -->
-                      <input type="text" class="form-control" id="newFileNameInput"
-                          placeholder="Enter new file name" required>
-                      <!-- Add a small element to show the validation message -->
+            <form id="renameFileForm" method="POST" action="{% url 'rename_file' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                      <label for="newFileNameInput" class="form-label">New File Namex</label>
+                      <input type="text" class="form-control" id="newFileNameInput" name="newFileName" placeholder="Enter new file name" required>
                       <div class="invalid-feedback">Please enter a new file name.</div>
                   </div>
                       <!-- Hidden input for storing the file ID -->
+<<<<<<< HEAD
                 <input type="hidden" id="renameFileId" name="fileId">
+=======
+                <input type="hidden" id="renameFileId" name="fileID">
+>>>>>>> 9902973a145364f5ac911cf2a30181b777963c16
               </form>
           </div>
           <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+<<<<<<< HEAD
               <!-- Disable the Rename button initially -->
               <button type="button" class="btn btn-primary" id="renameButton" onclick="handleRename()">Rename</button>
+=======
+              <button type="submit" form="renameFileForm" class="btn btn-primary">Rename</button>
+              
+>>>>>>> 9902973a145364f5ac911cf2a30181b777963c16
           </div>
       </div>
   </div>
@@ -382,33 +394,6 @@ aria-labelledby="downloadFileModalLabel" aria-hidden="true">
 {% block js %}
 
 <script src="{% static 'Js/uploadfile.js' %}"></script>
-<!-- <script>
-$(document).ready(function() {
-$('#searchFiles').autocomplete({
-    source: function(request, response) {
-        $.ajax({
-            url: "{% url 'search_files' %}",
-            dataType: 'json',
-            data: {
-                'q': request.term
-            },
-            success: function(data) {
-                response($.map(data, function(item) {
-                    return {
-                        label: item.label,
-                        value: item.value
-                    };
-                }));
-            }
-        });
-    },
-    minLength: 1,
-    select: function(event, ui) {
-        window.location.href = ui.item.value;
-    }
-});
-});
-</script> -->
 
 <script>
 $('#searchFiles').autocomplete({
@@ -465,9 +450,6 @@ function openFile() {
     }
 }
 
-
-
-
 </script>
 
 <script>
@@ -480,9 +462,21 @@ function openFile() {
             $('#deleteFileId').val(fileId);
         });
     });
-    </script>
-    
+</script>
 
+<script>
+
+// Using jQuery, ensure this script runs after the page has fully loaded
+$(document).ready(function() {
+    // Event listener for your rename link/button
+    $('a[data-bs-toggle="modal"]').on('click', function() {
+        var fileId = $(this).data('file-id'); // Retrieve the file ID
+        console.log("File ID:", fileId); // Debugging: log the file ID to ensure it's captured
+        $('#renameFileId').val(fileId); // Assign the file ID to the hidden input
+    });
+});
+
+</script>
 {% endblock %}
 
 

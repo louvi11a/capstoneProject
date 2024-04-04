@@ -7,7 +7,6 @@
 
 {% block extra_meta %}
   <!-- Custom styles for this template-->
-  <link href="css/sb-admin-2.min.css" rel="stylesheet">
 {% endblock %}
 
 
@@ -21,9 +20,9 @@
 
 <!-- Heading -->
     <div class="m-2">
-        <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
+        <!-- <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
             <i class="fa-solid fa-arrow-left"></i>
-        </a>
+        </a> -->
         <div class="text-center mx-auto">
             <h1 class="mb-0">Orphan Body Mass Index</h1>
         </div>
@@ -163,6 +162,7 @@
                         <a class="dropdown-item" href="#" onclick="filterByBMI('descending')">Descending</a>
                     </div>
                 </th>
+
                 <th scope="col">
                     Status
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
@@ -172,9 +172,9 @@
                     <div id="statusDropdown" class="dropdown-menu" style="display: none;">
                         <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
                         <a class="dropdown-item" href="#" onclick="filterByStatus('underweight')">Underweight</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('normal')">Normal</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('normal weight')">Normal Weight</a>
                         <a class="dropdown-item" href="#" onclick="filterByStatus('overweight')">Overweight</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('obese')">Obese</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('obesity')">Obesity</a>
                     </div> 
                 </th>
                 <th scope="col">
@@ -183,241 +183,33 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Underweight data -->
+            {% for record in bmi_records %}
             <tr>
-                <td>2024-03-01</td>
-                <td>John Doe</td>
-                <td>165 cm</td>
-                <td>50 kg</td>
-                <td>18.4</td>
-                <td><span class="badge bg-warning">Underweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-02</td>
-                <td>Alice Johnson</td>
-                <td>160 cm</td>
-                <td>45 kg</td>
-                <td>17.6</td>
-                <td><span class="badge bg-warning">Underweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-03</td>
-                <td>Michael Smith</td>
-                <td>170 cm</td>
-                <td>55 kg</td>
-                <td>19.0</td>
-                <td><span class="badge bg-warning">Underweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-04</td>
-                <td>Emily Brown</td>
-                <td>162 cm</td>
-                <td>48 kg</td>
-                <td>18.3</td>
-                <td><span class="badge bg-warning">Underweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-05</td>
-                <td>David Wilson</td>
-                <td>168 cm</td>
-                <td>58 kg</td>
-                <td>20.6</td>
-                <td><span class="badge bg-warning">Underweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-        
-            <!-- Normal weight data -->
-            <tr>
-                <td>2024-03-06</td>
-                <td>Sophia Taylor</td>
-                <td>165 cm</td>
-                <td>60 kg</td>
-                <td>22.0</td>
-                <td><span class="badge bg-success">Normal</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-07</td>
-                <td>Oliver Martinez</td>
-                <td>175 cm</td>
-                <td>70 kg</td>
-                <td>22.9</td>
-                <td><span class="badge bg-success">Normal</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-08</td>
-                <td>Emma Anderson</td>
-                <td>160 cm</td>
-                <td>55 kg</td>
-                <td>21.5</td>
-                <td><span class="badge bg-success">Normal</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-09</td>
-                <td>Aiden Garcia</td>
-                <td>180 cm</td>
-                <td>75 kg</td>
-                <td>23.1</td>
-                <td><span class="badge bg-success">Normal</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-10</td>
-                <td>Mia Thomas</td>
-                <td>170 cm</td>
-                <td>65 kg</td>
-                <td>22.5</td>
-                <td><span class="badge bg-success">Normal</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-        
-            <!-- Overweight data -->
-            <tr>
-                <td>2024-03-11</td>
-                <td>Noah Rodriguez</td>
-                <td>175 cm</td>
-                <td>80 kg</td>
-                <td>26.1</td>
-                <td><span class="badge bg-warning">Overweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-12</td>
-                <td>Isabella Lopez</td>
-                <td>160 cm</td>
-                <td>70 kg</td>
-                <td>27.3</td>
-                <td><span class="badge bg-warning">Overweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-13</td>
-                <td>Ethan Lee</td>
-                <td>170 cm</td>
-                <td>75 kg</td>
-                <td>25.9</td>
-                <td><span class="badge bg-warning">Overweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-14</td>
-                <td>Charlotte Harris</td>
-                <td>155 cm</td>
-                <td>65 kg</td>
-                <td>27.0</td>
-                <td><span class="badge bg-warning">Overweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-15</td>
-                <td>Liam Martinez</td>
-                <td>180 cm</td>
-                <td>90 kg</td>
-                <td>27.8</td>
-                <td><span class="badge bg-warning">Overweight</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
+                <td>{{ record.recorded_at|date:"Y-m-d" }}</td>
+                <td>{{ record.orphan.firstName }} {{ record.orphan.lastName }}</td>
+                <td>{{ record.height }} cm</td>
+                <td>{{ record.weight }} kg</td>
+                <td>{{ record.bmi }}</td>
+                <td><span class="badge {% if record.bmi_category == 'Underweight' %}bg-warning{% elif record.bmi_category == 'Normal Weight' %}bg-success{% elif record.bmi_category == 'Overweight' %}bg-warning{% else %}bg-danger{% endif %}">{{ record.bmi_category }}</span></td>
+                <!-- Adjust the link below to point to the correct URL for viewing the profile -->
                 
-            <!-- Obese data -->
-            <tr>
-                <td>2024-03-16</td>
-                <td>Harper Thompson</td>
-                <td>165 cm</td>
-                <td>85 kg</td>
-                <td>31.2</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
+
+
+                <td>
+                    <a href="{{ record.orphan.get_absolute_url }}" class="btn btn-sm btn-light">View Profile</a>
+
+
+                </td>
+
+
             </tr>
+            {% empty %}
             <tr>
-                <td>2024-03-17</td>
-                <td>Evelyn Davis</td>
-                <td>170 cm</td>
-                <td>90 kg</td>
-                <td>31.1</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
+                <td colspan="7">No records found.</td>
             </tr>
-            <tr>
-                <td>2024-03-18</td>
-                <td>Benjamin Clark</td>
-                <td>175 cm</td>
-                <td>95 kg</td>
-                <td>31.0</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-19</td>
-                <td>Amelia Lewis</td>
-                <td>160 cm</td>
-                <td>75 kg</td>
-                <td>29.3</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-20</td>
-                <td>William Walker</td>
-                <td>180 cm</td>
-                <td>110 kg</td>
-                <td>34.0</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            
-            <!-- Obese data -->
-            <tr>
-                <td>2024-03-16</td>
-                <td>Harper Thompson</td>
-                <td>165 cm</td>
-                <td>85 kg</td>
-                <td>31.2</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-17</td>
-                <td>Evelyn Davis</td>
-                <td>170 cm</td>
-                <td>90 kg</td>
-                <td>31.1</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-18</td>
-                <td>Benjamin Clark</td>
-                <td>175 cm</td>
-                <td>95 kg</td>
-                <td>31.0</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-19</td>
-                <td>Amelia Lewis</td>
-                <td>160 cm</td>
-                <td>75 kg</td>
-                <td>29.3</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-20</td>
-                <td>William Walker</td>
-                <td>180 cm</td>
-                <td>110 kg</td>
-                <td>34.0</td>
-                <td><span class="badge bg-danger">Obese</span></td>
-                <td><a href="../html/bmi.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            </tbody>
+            {% endfor %}
+        </tbody>
+        
                 
 <script>
     function toggleDropdown(type) {
@@ -619,15 +411,7 @@
 
 {% endblock %}
 {% block js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-k0o3DwR4PRc2N9O2zu3f+9z0WMDrmsy+44lOv2Y/mzO+g4nDkhzL/KLrLmB0ES9k"
-    crossorigin="anonymous"></script>
-<script src="../js/chart-bmi.js"></script>
-<script src="../js/chart-academic.js"></script>
-<script src="../js/chart-health.js"></script>
-<script src="../js/chart-age.js"></script>
-<script src="../js/chart-sentiments.js"></script>
+
 {% endblock %}
 
 

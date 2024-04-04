@@ -7,7 +7,6 @@
 
 {% block extra_meta %}
   <!-- Custom styles for this template-->
-  <link href="css/sb-admin-2.min.css" rel="stylesheet">
 {% endblock %}
 
 
@@ -97,7 +96,7 @@ function updateTableEntries(entries) {
 <!-- Acad Table-->
     <div class="mb-3">
         <table id="academicDetailsTable" class="table table-striped">
-            <thead>
+        <thead>
             <tr>
                 <th scope="col">
                     Date 
@@ -202,128 +201,36 @@ function updateTableEntries(entries) {
         </thead>
 
         <tbody>
-            <tr>
-                <td>2024-03-01</td>
-                <td>John Doe</td>
-                <td>Grade 9</td>
-                <td>1st Grading</td>
-                <td>Math</td>
-                <td>85</td>
-                <td><span class="badge bg-success">Passed</span></td>
-                <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-02</td>
-                <td>Jane Smith</td>
-                <td>Grade 7</td>
-                <td>2nd Grading</td>
-                <td>English</td>
-                <td>78</td>
-                <td><span class="badge bg-success">Passed</span></td>
-                <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tr>
-                <td>2024-03-03</td>
-                <td>Michael Johnson</td>
-                <td>Grade 10</td>
-                <td>3rd Grading</td>
-                <td>Science</td>
-                <td>92</td>
-                <td><span class="badge bg-danger">Failed</span></td>
-                <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-            </tr>
-            <tbody>
+            {% for education in education_records %}
+              {% for grade in education.grade_set.all %}
                 <tr>
-                    <td>2024-03-07</td>
-                    <td>Ethan Davis</td>
-                    <td>Grade 4</td>
-                    <td>1st Grading</td>
-                    <td>English</td>
-                    <td>70</td>
-                    <td><span class="badge bg-danger">Failed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
+                  <td>{{ grade.education.date_recorded }}</td>
+                  <td>{{ grade.education.orphan.firstName }} {{ grade.education.orphan.lastName }}</td>
+                  <td>{{ grade.education.year_level }}</td>
+                  <td>
+                    {% if grade.quarter %}
+                      {{ grade.get_quarter_display }} Grading
+                    {% elif grade.semester %}
+                      {{ grade.get_semester_display }} Semester
+                    {% else %}
+                      N/A
+                    {% endif %}
+                  </td>
+                  <td>{{ grade.subject.name }}</td>
+                  <td>{{ grade.grade }}</td>
+                  <td>
+                    {% if grade.grade >= 75 %}
+                      <span class="badge bg-success">Passed</span>
+                    {% else %}
+                      <span class="badge bg-danger">Failed</span>
+                    {% endif %}
+                  </td>
+                  <td><a href="{{ education.orphan.get_absolute_url }}" class="btn btn-sm btn-light">View Profile</a></td>
                 </tr>
-                <tr>
-                    <td>2024-03-08</td>
-                    <td>Olivia Wilson</td>
-                    <td>Grade 12</td>
-                    <td>2nd Grading</td>
-                    <td>Math</td>
-                    <td>80</td>
-                    <td><span class="badge bg-success">Passed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-                <tr>
-                    <td>2024-03-09</td>
-                    <td>Liam Taylor</td>
-                    <td>Grade 5</td>
-                    <td>3rd Grading</td>
-                    <td>Science</td>
-                    <td>65</td>
-                    <td><span class="badge bg-danger">Failed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-                <tr>
-                    <td>2024-03-10</td>
-                    <td>Sophia Martinez</td>
-                    <td>Grade 3</td>
-                    <td>1st Grading</td>
-                    <td>Math</td>
-                    <td>73</td>
-                    <td><span class="badge bg-danger">Failed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-                <tr>
-                    <td>2024-03-11</td>
-                    <td>James Anderson</td>
-                    <td>Grade 8</td>
-                    <td>2nd Grading</td>
-                    <td>English</td>
-                    <td>78</td>
-                    <td><span class="badge bg-success">Passed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-                <tr>
-                    <td>2024-03-12</td>
-                    <td>Emily Garcia</td>
-                    <td>Grade 11</td>
-                    <td>3rd Grading</td>
-                    <td>Science</td>
-                    <td>80</td>
-                    <td><span class="badge bg-success">Passed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-                <tr>
-                    <td>2024-03-13</td>
-                    <td>Michael Brown</td>
-                    <td>Grade 6</td>
-                    <td>1st Grading</td>
-                    <td>English</td>
-                    <td>68</td>
-                    <td><span class="badge bg-danger">Failed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-                <tr>
-                    <td>2024-03-14</td>
-                    <td>Isabella Taylor</td>
-                    <td>Grade 9</td>
-                    <td>2nd Grading</td>
-                    <td>Math</td>
-                    <td>82</td>
-                    <td><span class="badge bg-success">Passed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-                <tr>
-                    <td>2024-03-15</td>
-                    <td>Noah Rodriguez</td>
-                    <td>Grade 7</td>
-                    <td>3rd Grading</td>
-                    <td>Science</td>
-                    <td>74</td>
-                    <td><span class="badge bg-danger">Failed</span></td>
-                    <td><a href="../html/academic.html" class="btn btn-sm btn-light">View Profile</a></td>
-                </tr>
-            </tbody>  
+              {% endfor %}
+            {% endfor %}
+        </tbody>
+        
      </table>
 </div>
 </div>
@@ -437,23 +344,34 @@ function updateTableEntries(entries) {
 
      // Function to filter by status
      function filterByStatus(filterValue) {
-        console.log('Filter by status:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('statusDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
-        rows.forEach(function(row) {
-            row.style.display = ''; // Reset to show all rows
-        });
-        if (filterValue !== 'all') {
-            // Filter rows based on selected status
-            rows.forEach(function(row) {
-                if (row.cells[6].textContent.toLowerCase() !== filterValue) {
-                    row.style.display = 'none';
-                }
-            });
+    // console.log('Filter by status:', filterValue);
+    document.getElementById('statusDropdown').style.display = 'none';
+
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    filterValue = filterValue.toLowerCase();
+
+    rows.forEach(function(row) {
+        // Ensure the cell exists before trying to access its content
+        if (row.cells.length > 6) { // Checks if there are enough cells in the row
+            var statusText = row.cells[6].textContent.trim().toLowerCase();
+
+            // Hide the row if it does not match the filter value, unless 'all' is selected
+            if (filterValue !== 'all' && statusText !== filterValue) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = ''; // Show the row
+            }
+        } else {
+            // Optionally handle the case where the row does not have enough cells
+            // For example, you might choose to hide these rows or leave them visible
+            console.log('Row does not have a status cell:', row);
+            // row.style.display = 'none'; // Uncomment to hide rows that don't have a status cell
         }
-    }
+    });
+}
+
+
+
 
 
     // Function to filter by grading
@@ -493,26 +411,14 @@ function updateTableEntries(entries) {
 
 </script>
 
-</div>
-</div>
-</div>         
+       
                 
 
     {% endblock %}
 
 
     {% block js %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Bootstrap JS (Optional, if you want to include JavaScript functionality) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-k0o3DwR4PRc2N9O2zu3f+9z0WMDrmsy+44lOv2Y/mzO+g4nDkhzL/KLrLmB0ES9k"
-    crossorigin="anonymous"></script>
-    <script src="../js/chart-bmi.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- <script src="../js/chart-academic.js"></script> -->
-    <script src="../js/chart-health.js"></script>
-    <script src="../js/chart-age.js"></script>
-    <script src="../js/chart-sentiments.js"></script>
+
     {% endblock %}
 
 
