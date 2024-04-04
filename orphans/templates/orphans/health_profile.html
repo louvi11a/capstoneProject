@@ -159,7 +159,7 @@ if (rows[i]) {
                     </div>
                 </th>
                 <th scope="col">
-                    Other Symptoms
+                    Symptoms
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('otherSymptoms')">
                         <i class="bi bi-filter"></i>
                     </button>
@@ -175,6 +175,8 @@ if (rows[i]) {
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('pain in the heart')">Pain in the Heart</a>
                     </div>
                 </th>
+                <th scope="col"> 
+                    Other Details </th>
                 <th scope="col">
                     Status
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
@@ -208,6 +210,7 @@ if (rows[i]) {
                                     {% if detail.others_symptoms %}, {{ detail.others_symptoms }}{% endif %}
                                 </td>
                                 <td>{{ detail.other_details }}</td>
+                                <td>status</td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -364,7 +367,7 @@ if (rows[i]) {
         });
         if (filterValue !== 'all') {
             rows.forEach(function(row) {
-                if (!row.cells[5].textContent.toLowerCase().includes(filterValue)) {
+                if (!row.cells[6].textContent.toLowerCase().includes(filterValue)) {
                     row.style.display = 'none'; // Hide rows not matching the selected status
                 }
             });
@@ -404,6 +407,7 @@ if (rows[i]) {
                                         <small id="bloodPressureHelp" class="form-text text-muted">Enter your systolic and diastolic
                                             blood pressure separated by a slash.</small>
                                     </div>
+                                    
                                     <div class="mb-3">
                                         <label for="heartRateInput" class="form-label">Heart Rate (bpm)</label>
                                         <input type="number" class="form-control" id="heartRateInput" name="heartRateInput" aria-describedby="heartRateHelp"
@@ -431,7 +435,7 @@ if (rows[i]) {
                                         </div>
                                         <div class="col-5">
                                             <input type="checkbox" id="coughCheckbox" name="symptoms" value="cough">
-                                            <label for="coughCheckbox">Cough with phlegm and mucus</label>
+                                            <label for="coughCheckbox">Cough with phlegm</label>
                                         </div>
                                         <div class="col-5">
                                             <input type="checkbox" id="dizzinessCheckbox" name="symptoms" value="dizziness">
@@ -452,7 +456,19 @@ if (rows[i]) {
                                             symptoms.</small>
                                     </div>
                                 </form>
-                            </div>
+
+                                <div class="mb-3">
+                                    <label for="statusInput" class="form-label">Status</label>
+                                    <select class="form-select" id="statusInput" name="statusInput" aria-describedby="heartRateHelp"
+                                        required>
+                                        <option value="normal">Normal</option>
+                                        <option value="sick">Sick</option>
+                                        <option value="hospitalized">Hospitalized</option>
+                                    </select>
+                                </div>
+                            
+
+                            
                             
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

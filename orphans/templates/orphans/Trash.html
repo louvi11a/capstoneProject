@@ -15,6 +15,102 @@ Deleted Files
 {% block content %}
 
 <!-- content -->
+<div class="container-fluid row p-2"></div>
+<div class="container-fluid row p-2 mt-2"> <!-- Added 'mt-2' class here -->
+
+  <div class="col-md d-flex pb-1 justify-content-start">
+    <form action="{% url 'search_files' %}" method="get">
+      <input
+        class="form-control"
+        name='q'
+        id="searchFiles"
+        type="search"
+        placeholder="Search"
+        aria-label="Search"
+      />
+    </form>
+  </div>  
+
+  <!-- Delete/Restore-->
+  <div class="col-md d-flex justify-content-end align-items-center">
+    <form method="POST" action="{% url 'delete_files' %}" id="deleteForm">
+      {% csrf_token %}
+      <button class="btn btn-outline-danger me-2" type="submit">
+        <i class="bi bi-trash"></i> Delete
+      </button>
+    </form>
+
+    <form method="POST" action="{% url 'restore_files' %}" id="restoreForm">
+      {% csrf_token %}
+      <button class="btn btn-outline-primary" type="submit">
+        <i class="bi bi-arrow-clockwise"></i> Restore
+      </button>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Separator -->
+<hr class="my-4">
+<!-- Show number of Entries -->
+<div class="container-fluid">
+    <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex align-items-center">
+            <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+            <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
+                <option value="all">All</option>
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+                <option value="35">35</option>
+                <option value="40">40</option>
+                <option value="45">45</option>
+                <option value="50">50</option>
+                <!-- Add more options if needed -->
+            </select>
+            <span class="me-2">entries</span>
+        </div>
+      </div>
+
+    
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var entriesSelect = document.getElementById("entriesSelect");
+        entriesSelect.addEventListener("change", function() {
+            var selectedValue = parseInt(entriesSelect.value);
+            updateTableEntries(selectedValue);
+        });
+
+        var sortOrderSelect = document.getElementById("sortOrder");
+        sortOrderSelect.addEventListener("change", function() {
+            sortData();
+        });
+    });
+
+    function updateTableEntries(entries) {
+        var tableRows = document.querySelectorAll('#trashTable tbody tr');
+
+        tableRows.forEach(function(row, index) {
+            if (entries === 'all' || index < entries) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });  
+    
+    // Hide the dropdown after applying filter
+    document.getElementById(column + 'Dropdown').style.display = "none";
+}
+ </script>
+
+ 
+
+<!-- content 
 <div class="container-fluid row p-2">
   <div class="col d-flex pb-1">
     <input
@@ -28,11 +124,12 @@ Deleted Files
   <div class="col text-end">
     <!-- <button class="btn btn-danger" id="deleteSelectedFiles">Delete Selected</button> -->
     <!-- <button class="btn btn-danger" id="emptyTrash">Empty Trash</button> -->
-  </div>
+ 
+<!--  </div>
   <hr class="m-0 mt-2">
 </div>
 <!-- trash content -->
-<div class="d-flex justify-content-between align-items-center mb-3 mt-0">
+<!--<div class="d-flex justify-content-between align-items-center mb-3 mt-0">
   <div>
     <input
       class="form-check-input"
@@ -41,50 +138,149 @@ Deleted Files
       id="selectAllCheckbox"
     />
     <label class="form-check-label" for="selectAllCheckbox">Select All</label>
-  </div>
+  </div> -->
   
-  <div class="d-flex"> <!-- Add 'd-flex' class here -->
-    <form method="POST" action="{% url 'delete_files' %}" id="deleteForm">
-        {% csrf_token %}
-        <button class="btn btn-outline-danger me-2" type="submit">
-          <i class="bi bi-trash"></i> Delete
-        </button>
-      </form>
 
-      <form method="POST" action="{% url 'restore_files' %}" id="restoreForm">
-        {% csrf_token %}
-        <button class="btn btn-outline-primary" type="submit">
-          <i class="bi bi-arrow-clockwise"></i> Restore
-        </button>
-      </form>
-  </div>
+<!-- Trash -->
+  <div class="container-fluid">
+    <table id="trashTable" class="table">
+        <thead class="border-top border-bottom">
+            <tr>
+                <th scope="col">
+                    File Name
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('fileName')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- FileName filter dropdown -->
+                    <div id="fileNameDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByFileName('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByFileName('ascending')">Ascending</a>
+                        <a class="dropdown-item" href="#" onclick="filterByFileName('descending')">Descending</a>
+                    </div>
+                </th>
+                <th scope="col">
+                    Days Deleted 
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('dateUploaded')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- Date Deleted filter dropdown -->
+                    <div id="dateUploadedDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByDateUploaded('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByDateUploaded('ascending')">Ascending</a>
+                        <a class="dropdown-item" href="#" onclick="filterByDateUploaded('descending')">Descending</a>
+                    </div>
+                  </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+            <tr>
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="{{ file.fileID }}" id="fileCheckbox{{ forloop.counter }}" name="file_ids" form="deleteForm restoreForm">
+                        <label class="form-check-label" for="fileCheckbox{{ forloop.counter }}">{{ file.fileName }}</label>
+                    </div>
+                </td>
+                <td>
+                    <small>{{ file.deleted_at|timesince }} ago</small>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
-<div class="col-12">
-  <div class="list-group">
-    {% for file in files %}
-    <div class="list-group-item">
-      <div class="d-flex w-100 justify-content-between align-items-center">
-        <div>
-          <input
-            class="form-check-input me-2"
-            type="checkbox"
-            value="{{ file.fileID }}"
-            id="fileCheckbox{{ forloop.counter }}"
-            name="file_ids"
-            form="deleteForm restoreForm"
-          />
-          <label
-            class="form-check-label mb-0"
-            for="fileCheckbox{{ forloop.counter }}"
-            >{{ file.fileName }}</label
-          >
-        </div>
-        <small>{{ file.deleted_at|timesince }} days ago</small>
-      </div>
-      <p class="mb-1">{{ file.content_snippet }}</p>
-    </div>
-    {% endfor %}
+<!-- JavaScript -->
+<script>
+  function toggleDropdown(dropdownId) {
+      var dropdown = document.getElementById(dropdownId + 'Dropdown');
+      if (dropdown.style.display === 'none') {
+          dropdown.style.display = 'block';
+      } else {
+          dropdown.style.display = 'none';
+      }
+  }
+
+  function closeDropdown(dropdownId) {
+      var dropdown = document.getElementById(dropdownId + 'Dropdown');
+      dropdown.style.display = 'none';
+  }
+
+  function parseTimeAgo(timeAgo) {
+      var agoParts = timeAgo.split(', ');
+      var days = 0;
+      var hours = 0;
+
+      for (var i = 0; i < agoParts.length; i++) {
+          var part = agoParts[i];
+          if (part.includes('day')) {
+              days = parseInt(part);
+          } else if (part.includes('hour')) {
+              hours = parseInt(part);
+          }
+      }
+
+      var now = new Date();
+      now.setHours(now.getHours() - (days * 24 + hours));
+      return now;
+  }
+
+  function filterByFileName(order) {
+      var files = document.querySelectorAll('#trashTable tbody tr');
+      var sortedFiles = Array.from(files).sort(function(a, b) {
+          var fileNameA = a.querySelector('td:first-child label').textContent.toLowerCase();
+          var fileNameB = b.querySelector('td:first-child label').textContent.toLowerCase();
+          if (order === 'ascending') {
+              return fileNameA.localeCompare(fileNameB);
+          } else if (order === 'descending') {
+              return fileNameB.localeCompare(fileNameA);
+          } else {
+              // No sorting
+              return 0;
+          }
+      });
+
+      var tbody = document.querySelector('#trashTable tbody');
+      tbody.innerHTML = ''; // Clear existing rows
+      sortedFiles.forEach(function(file) {
+          tbody.appendChild(file);
+      });
+
+      closeDropdown('fileName');
+  }
+
+  function filterByDateUploaded(order) {
+      var files = document.querySelectorAll('#trashTable tbody tr');
+      var sortedFiles = Array.from(files).sort(function(a, b) {
+          var timeAgoA = a.querySelector('td:last-child small').textContent;
+          var timeAgoB = b.querySelector('td:last-child small').textContent;
+
+          var dateA = parseTimeAgo(timeAgoA);
+          var dateB = parseTimeAgo(timeAgoB);
+
+          if (order === 'ascending') {
+              return dateA - dateB;
+          } else if (order === 'descending') {
+              return dateB - dateA;
+          } else {
+              // No sorting
+              return 0;
+          }
+      });
+
+      var tbody = document.querySelector('#trashTable tbody');
+      tbody.innerHTML = ''; // Clear existing rows
+      sortedFiles.forEach(function(file) {
+          tbody.appendChild(file);
+      });
+
+      closeDropdown('dateUploaded');
+  }
+</script>
+
+
+
+
 
 
   <footer class="d-flex justify-content-between p-3 bg-light">
