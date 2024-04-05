@@ -68,7 +68,9 @@ Orphan List
                   <select class="form-select form-select-sm me-2" id="statusFilter" style="width: 100px;">
                     <option value="">All</option>
                     <option value="P">Pending</option>
-                    <option value="C">Complete</option>
+                    <option value="A">Admitted</option>
+                    <option value="G">Graduated</option>
+
                 </select>
               </div>
           </div>
@@ -102,8 +104,14 @@ Orphan List
                 <div>
                   <h3 class="h4 text-truncate">{{ orphan.firstName }} {{ orphan.lastName }}
                   </h3>
+                  
                   <p class="status text-center mb-2">
-                      <span class="badge bg-warning rounded-pill">{{ orphan.get_dynamic_status }}</span>
+                    {% if orphan.has_birth_certificate_attr %}
+                        <span class="badge bg-warning rounded-pill">Admitted</span>
+                    {% else %}
+                        <span class="badge bg-warning rounded-pill">Pending</span>
+                    {% endif %}
+                      <!-- <span class="badge bg-warning rounded-pill">{{ orphan.get_dynamic_status }}</span> -->
 
                   </p>
                 </div>
@@ -325,7 +333,7 @@ Orphan List
 
 <!-- for filtering status -->
   <script type="text/javascript">
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
       // Listen for the change event on the statusFilter select element
       var MEDIA_URL = "{{ MEDIA_URL }}";
       var DEFAULT_IMAGE_URL = "{{ STATIC_URL }}images/default_orphan_picture.png"; // Assuming STATIC_URL is correctly set
@@ -359,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
               // Adjusted logic for determining the image source
               var orphanImageSrc = orphan.orphan_picture ? MEDIA_URL + orphan.orphan_picture : "{% static 'images/default_orphan_picture.png' %}";
               var orphanImageAlt = orphan.firstName ? `${orphan.firstName} ${orphan.lastName}'s profile picture` : "Default profile picture";
-              var orphanProfileUrl = `profile/${orphanID}/`; // Adjusted to use relative URL
+              var orphanProfileUrl = `orphan_profile/${orphanID}/`; // Adjusted to use relative URL
 
 
               // Translate status codes to full descriptions
@@ -368,8 +376,11 @@ document.addEventListener('DOMContentLoaded', function() {
                   case 'P':
                       statusDescription = 'Pending';
                       break;
-                  case 'C':
-                      statusDescription = 'Complete';
+                  case 'A':
+                      statusDescription = 'Admitted';
+                      break;
+                  case 'G':
+                      statusDescription = 'Graduated';
                       break;
                   // Add more cases as needed
                   default:
@@ -402,3 +413,4 @@ document.addEventListener('DOMContentLoaded', function() {
   </script>
     {% endblock %}
     
+

@@ -36,8 +36,9 @@ urlpatterns = [
     path('', views.orphan_view, name='orphans'),
     path('add_orphan/', views.addOrphanForm, name='add_orphan'),
 
-    path('profile/<int:orphanID>/',
+    path('orphan_profile/<int:orphanID>/',
          views.orphan_profile, name='orphan_profile'),
+
     path('profile/<int:orphan_id>/academic/',
          views.academic_profile, name='academic_profile'),
     path('save_academic_details/<int:orphan_id>/',

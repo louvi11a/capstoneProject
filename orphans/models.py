@@ -97,7 +97,8 @@ class Family(models.Model):
 class Info(models.Model):
     STATUS_CHOICES = (
         ('P', 'Pending'),
-        ('C', 'Admitted'),
+        ('A', 'Admitted'),
+        ('G', 'Graduated'),
     )
     GENDER_CHOICES = [
         ('Male', 'Male'),
@@ -137,9 +138,6 @@ class Info(models.Model):
         url = reverse('orphan_profile', kwargs={'orphanID': self.orphanID})
         print(f"Generated URL: {url}")  # Debugging print
         return url
-
-    # def get_absolute_url(self):
-    #     return reverse('orphan_profile', kwargs={'orphanID': self.orphanID})
 
     @property
     def average_sentiment(self):

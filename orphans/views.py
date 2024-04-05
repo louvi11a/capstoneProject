@@ -36,7 +36,7 @@ from django.views import View
 from django.db import transaction
 from . import models
 from django.utils.http import url_has_allowed_host_and_scheme
-
+from django.db.models import Prefetch
 
 sid = SentimentIntensityAnalyzer()
 # Add new words to the Vader lexicon
@@ -267,7 +267,15 @@ def family_detail(request, family_id):
 def orphan_view(request):
     entries_per_page = int(request.GET.get('entries', 10))
     page_number = int(request.GET.get('page', 1))
-    orphans_query = Info.objects.filter(is_deleted=False).order_by('orphanID')
+
+    # Prefetch OrphanFiles to reduce database queries in the loop
+    birth_certificates = models.OrphanFiles.objects.filter(
+        type_of_document='Birth Certificate')
+    orphans_query = Info.objects.filter(is_deleted=False).order_by('orphanID').prefetch_related(
+        Prefetch('orphan_files', queryset=birth_certificates,
+                 to_attr='birth_certificate_files')
+    )
+
     paginator = Paginator(orphans_query, entries_per_page)
 
     try:
@@ -275,12 +283,16 @@ def orphan_view(request):
     except (EmptyPage, PageNotAnInteger):
         orphans = paginator.page(paginator.num_pages)
 
-    # Annotate each orphan object with a status after pagination
-    for orphan in orphans.object_list:  # Ensure you're iterating over the paginated queryset
-        orphan.status = 'C' if orphan.has_birth_certificate() else 'P'
-    # Check if orphans are being queried correctly.
+    # Use the prefetched birth certificate information to annotate each orphan
+    for orphan in orphans.object_list:
+        # Here, 'birth_certificate_files' is the list of prefetched birth certificates from 'OrphanFiles'
+        orphan.has_birth_certificate_attr = bool(
+            orphan.birth_certificate_files)
 
-    return render(request, 'orphans/orphan.html', {'orphans': orphans, 'entries_per_page': entries_per_page})
+    return render(request, 'orphans/orphan.html', {  # Ensure the template name is correct
+        'orphans': orphans,
+        'entries_per_page': entries_per_page
+    })
 
 
 def orphan_profile(request, orphanID):
@@ -289,7 +301,9 @@ def orphan_profile(request, orphanID):
         'physical_health', 'orphan_files').get(orphanID=orphanID)
 
     # Determine the status based on the presence of a birth certificate
-    orphan.status = 'C' if orphan.has_birth_certificate() else 'P'
+    if orphan.status != 'G' and orphan.has_birth_certificate():
+        orphan.status = 'A'
+        orphan.save()
 
     # Save the updated status
     orphan.save()
@@ -314,11 +328,29 @@ def orphan_profile(request, orphanID):
     files = models.OrphanFiles.objects.filter(orphan=orphan)
     # Prepare the context with the orphan and latest education instance.
 
-    # Set your default fallback URL here
-    referrer = request.META.get('HTTP_REFERER')
-    if not referrer:
-        # If no referrer, set a default
-        referrer = '/orphans/'  # You can adjust this default as needed
+    if request.method == 'POST':
+        if 'graduate_orphan' in request.POST:
+            print(f"Received request to graduate orphan with ID: {orphanID}")
+            orphan.status = 'G'
+            orphan.save()
+            print(f"Status after update: {orphan.status}")
+            return JsonResponse({'status': 'ok'}, safe=False)
+        else:
+            # Handle file upload form
+            form = OrphanFileForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                redirect_url = reverse('orphan_profile', kwargs={
+                                       'orphanID': orphanID})
+                return JsonResponse({"message": "File successfully uploaded", "redirect_url": redirect_url}, status=200)
+            else:
+                print(form.errors)
+                return JsonResponse({"error": "Failed to upload file", "details": form.errors.as_json()}, status=400)
+
+        # Log status after update
+        print(f"Status after update: {orphan.status}")
+        # Respond with JSON indicating success
+        return JsonResponse({'status': 'ok'}, safe=False)
 
     context = {
         'orphan': orphan,
@@ -329,21 +361,8 @@ def orphan_profile(request, orphanID):
         'orphanID': orphanID,
         'files': files,  # Add this line to include the files in the context
         # Include any other context data you need for the template.
-        'back_url': referrer,
 
     }
-    if request.method == 'POST':
-        form = OrphanFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            # Generate the dynamic URL for redirection
-            redirect_url = reverse('orphan_profile', kwargs={
-                                   'orphanID': orphanID})
-            return JsonResponse({"message": "File successfully uploaded", "redirect_url": redirect_url}, status=200)
-        else:
-            # Log form errors
-            print(form.errors)
-            return JsonResponse({"error": "Failed to upload file", "details": form.errors.as_json()}, status=400)
 
     # Render the template with the context.
     return render(request, 'orphans/orphan-content.html', context)
@@ -572,7 +591,6 @@ def serve_orphan_files(request, file_id):
 
 def trash_view(request):
     sort_order = request.GET.get('sort', 'desc')  # Default to descending
-    print(f"Received sort order: {sort_order}")  # Log the received sort order
 
     if sort_order == 'asc':
         archived_files = Files.objects.filter(
@@ -580,8 +598,6 @@ def trash_view(request):
     else:  # 'desc' or any other case
         archived_files = Files.objects.filter(
             is_archived=True).order_by('-deleted_at')
-
-    print(f"Files to render: {archived_files.query}")  # Log the query set
 
     return render(request, 'orphans/Trash.html', {'files': archived_files})
 
@@ -693,29 +709,40 @@ def addOrphanForm(request):
     if request.method == 'POST':
         info_form = OrphanForm(request.POST, request.FILES)
         family_form = FamilyForm(request.POST)
-        # Assuming FilesForm is used for additional files and not the birth certificate anymore
 
         if info_form.is_valid() and family_form.is_valid():
             family = family_form.save()
             info = info_form.save(commit=False)
             info.family = family
-
-            # Check and save the birth certificate within the same form handling
-            # The OrphanForm now includes the birth_certificate field, so it's handled by info_form.save()
-            # Update status based on birth certificate upload
-            info.status = 'C' if info.birth_certificate else 'P'
-
             info.save()
-            info_form.save_m2m()  # If there are many-to-many fields to save
+            info_form.save_m2m()  # Save any many-to-many relationships
 
-            # Assuming you want to link other files to the Info instance similar to previous logic
-            # This part remains unchanged, adjust if necessary
-            if 'file' in request.FILES:  # Example handling for an additional file, adjust as needed
-                files_form = FilesForm(request.POST, request.FILES)
-                if files_form.is_valid():
-                    file_instance = files_form.save(commit=False)
-                    file_instance.related_orphan = info
-                    file_instance.save()
+            # Process birth certificate and other file separately
+            # You need to manually create OrphanFiles instances for each file
+
+            # Handling the birth certificate
+            birth_certificate_file = request.FILES.get('birth_certificate')
+            if birth_certificate_file:
+                models.OrphanFiles.objects.create(
+                    orphan=info,
+                    file=birth_certificate_file,
+                    file_name=birth_certificate_file.name,
+                    type_of_document='Birth Certificate',
+                    description='Birth certificate for {}'.format(
+                        info.firstName)
+                )
+
+            # Handling any other file
+            other_file = request.FILES.get('file')
+            if other_file:
+                models.OrphanFiles.objects.create(
+                    orphan=info,
+                    file=other_file,
+                    file_name=other_file.name,
+                    # Or dynamically set based on user input if needed
+                    type_of_document='Other Document',
+                    description='Additional document for {}'.format(info.name)
+                )
 
             messages.success(
                 request, "Orphan profile has been successfully created.")
@@ -725,11 +752,9 @@ def addOrphanForm(request):
     else:
         info_form = OrphanForm()
         family_form = FamilyForm()
-        # Initialize here if you're using it in the template regardless
-        files_form = FilesForm()
+        # No need to initialize OrphanFileForm here since files are handled manually in the view
 
     return render(request, 'orphans/orphan.html', {
         'info_form': info_form,
         'family_form': family_form,
-        'files_form': files_form,  # Pass to template if you're using it
     })
