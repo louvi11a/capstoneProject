@@ -12,26 +12,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="">
-  <form class="">
-    <div class="container-fluid m-2" >
-      <div class="">
-<!-- 
-          <a href="{{ back_url }}" class="btn btn-primary mt-3">
-
-              <i class="fa-solid fa-arrow-left"></i>
-          </a> -->
-      </div>
-
-      <div class="row info mt-4 mb-4">
+  <div>
+      <div class="row info mt-4 mb-lg-5">
         {% if orphan.orphan_picture %}
         <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}" height="100px" width="100px" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
         {% else %}
         <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
         {% endif %}                  
-
-
-
 
         <div class="col-5 mt-3">
           <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
@@ -46,10 +33,7 @@
           {% elif orphan.status == "P" %}
               <span class="badge bg-warning rounded-pill">Pending</span>
           {% endif %}
-      </div>
-    
-    
-
+        </div>
     
         <div class="col text-end align-items-end justify-content-end">
           <div class="row mt-3 text-end px-0 mx-5 info-icon">
@@ -73,32 +57,31 @@
         </div>
       </div>
 
-                      <!-- Change Profile Picture Modal -->
-                      <div class="modal fade" id="changeProfilePictureModal" tabindex="-1"
-                      aria-labelledby="changeProfilePictureModalLabel" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="changeProfilePictureModalLabel">Change Profile Picture</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body">
-                            <form id="profilePictureForm">
-                              <div class="mb-3">
-                                <label for="profilePictureInput" class="form-label">Choose Profile Picture (JPG, JPEG,
-                                  PNG)</label>
-                                <input type="file" class="form-control" id="profilePictureInput" accept=".jpg, .jpeg, .png">
-                              </div>
-                            </form>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="uploadProfilePictureBtn">Upload</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
+      <!-- Change Profile Picture Modal -->
+      <div class="modal fade" id="changeProfilePictureModal" tabindex="-1"
+      aria-labelledby="changeProfilePictureModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changeProfilePictureModalLabel">Change Profile Picture</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="profilePictureForm">
+              <div class="mb-3">
+                <label for="profilePictureInput" class="form-label">Choose Profile Picture (JPG, JPEG,
+                  PNG)</label>
+                <input type="file" class="form-control" id="profilePictureInput" accept=".jpg, .jpeg, .png">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="uploadProfilePictureBtn">Upload</button>
+          </div>
+        </div>
+      </div>
+      </div>
 
 
 
@@ -192,7 +175,7 @@
           </p>
         </div>
         </div>
-      </div>
+  
 
       <hr class="mt-2" />
       <div class="container-fluid row">
@@ -215,11 +198,10 @@
         </p>
       </div>
 
-
       <!-- Orphan Documents -->
       <hr class="mt-2" />
-      <div class="container-fluid row">
-        <div class="row ">
+
+      <div class="row">
           <div class="col-10 me-5">
             <h2>Orphan Documents</h2>
           </div>
@@ -230,55 +212,33 @@
         </div>
 
 <!-- Show number of Entries -->
-<div class="container-fluid">
-  <div class="d-flex justify-content-between mb-3">
-    <div class="d-flex align-items-center">
-      <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
-      <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
-        <option value="all">All</option>
-        <option value="5">5</option>
-        <option value="10" selected>10</option>
-        <option value="15">15</option>
-        <option value="20">20</option>
-        <option value="25">25</option>
-        <option value="30">30</option>
-        <option value="35">35</option>
-        <option value="40">40</option>
-        <option value="45">45</option>
-        <option value="50">50</option>
-        <!-- Add more options if needed -->
-      </select>
-      <span class="me-2">entries</span>
-    </div>
-  </div>
-</div>
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+            <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+            <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
+              <option value="all">All</option>
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+              <option value="35">35</option>
+              <option value="40">40</option>
+              <option value="45">45</option>
+              <option value="50">50</option>
+              <!-- Add more options if needed -->
+            </select>
+            <span class="me-2">entries</span>
+          </div>
+        </div>
+      </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    var entriesSelect = document.getElementById("entriesSelect");
-    entriesSelect.addEventListener("change", function() {
-      var selectedValue = entriesSelect.value;
-      updateTableEntries(selectedValue);
-    });
-  });
-
-  function updateTableEntries(entries) {
-    var rows = document.querySelectorAll('#orphanDocumentsTable tbody tr');
-
-    rows.forEach(function(row, index) {
-      if (entries === 'all' || index < entries) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    });
-  }
-</script>
 
 
 <!-- Orphan Documents Table -->
-
-<table id="orphanDocumentsTable" class="table table-striped">
+<table id="orphanDocumentsTable" class="table table-striped ">
   <thead>
     <tr>
       <th scope="col">
@@ -322,7 +282,8 @@
           <div id="fileTypeDropdown" class="dropdown-menu" style="display: none;">
             <!-- Dropdown choices for File Type -->
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'All')">All</button>
-            <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Identification, Birth Certificate')">Identifications</button>
+            <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Birth Certificate')">Birth Certificate</button>
+            <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Identification')">Identifications</button>
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Medical Certificates')">Medical Certificates</button>
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Grade Cards')">Grade Cards</button>
             <button class="dropdown-item" type="button" onclick="applyFilter('fileType', 'Others')">Others</button>
@@ -349,6 +310,79 @@
     {% endfor %}
   </tbody>
 </table>
+  </div>
+
+
+<!-- Upload modal for orphan files -->
+    <div class="modal fade" id="additionalFilesModal" tabindex="-1"
+    aria-labelledby="additionalFilesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="additionalFilesModalLabel">Upload Orphan File</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="profilePictureForm" action="{% url 'orphan_profile' orphanID=orphanID %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="profilePictureInput" class="form-label">Choose File</label>
+              <input type="file" class="form-control" id="fileInput" name="file" accept="*/*">
+              <input type="hidden" name="orphan" value="{{ orphan.orphanID }}">
+
+            </div>
+            <div class="mb-3">
+              <label for="fileNameInput" class="form-label">File Name (Format: OrphanName_File)</label>
+              <input type="text" class="form-control" id="fileNameInput" name="file_name">
+            </div>
+            <div class="mb-3">
+              <label for="typeOfDocumentInput" class="form-label">Type of Document</label>
+                <select class="form-select" id="typeOfDocumentInput" name="type_of_document">
+                <option selected disabled>Select type of document</option>
+                <option value="Birth Certificate">Birth Certificate</option>
+                <option value="Identification">Identification</option>
+                <option value="Medical Certificates">Medical Certificates</option>
+                <option value="Grade Cards">Grade Cards</option>
+                <option value="Other Documents">Other Documents</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="descriptionInput" class="form-label">Description</label>
+              <textarea class="form-control" id="descriptionInput" name="description" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" id="additionalFilesModalBtn">Upload</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+    </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var entriesSelect = document.getElementById("entriesSelect");
+    entriesSelect.addEventListener("change", function() {
+      var selectedValue = entriesSelect.value;
+      updateTableEntries(selectedValue);
+    });
+  });
+
+  function updateTableEntries(entries) {
+    var rows = document.querySelectorAll('#orphanDocumentsTable tbody tr');
+
+    rows.forEach(function(row, index) {
+      if (entries === 'all' || index < entries) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -383,167 +417,55 @@ function toggleDropdown(dropdownId) {
   dropdownMenu.style.display = currentDisplay === "none" ? "block" : "none";
 }
 
-// // Function to apply filter and sorting
-// function applyFilter(filterType, filterValue, column) {
-//   var tableBody = document.getElementById("tableBody");
-//   if (!tableBody) {
-//     console.error("Element with ID 'tableBody' not found.");
-//     return; // Exit the function if the element is not found
-//  }
-//   var rows = tableBody.querySelectorAll("tr");
+// Function to apply filter and sorting
+function applyFilter(filterType, filterValue) {
+  var tableBody = document.getElementById("tableBody");
+  var rows = Array.from(tableBody.querySelectorAll("tr"));
 
-//   // Remove existing rows from the table
-//   rows.forEach(function(row) {
-//     tableBody.removeChild(row);
-//   });
+  // Close any open dropdowns
+  var dropdowns = document.querySelectorAll(".dropdown-menu");
+  dropdowns.forEach(function(dropdown) {
+    dropdown.style.display = "none";
+  });
 
-//   // Hide all dropdown menus
-//   var dropdowns = document.querySelectorAll(".dropdown-menu");
-//   dropdowns.forEach(function(dropdown) {
-//     dropdown.style.display = "none";
-//   });
+  // Handle different filter types
+  if (filterType === "date") {
+    // Sort by date
+    rows.sort(function(rowA, rowB) {
+      var dateA = new Date(rowA.cells[0].textContent.trim()); // Assuming date is in the first cell
+      var dateB = new Date(rowB.cells[0].textContent.trim());
+      return (filterValue === "Ascending" ? dateA - dateB : dateB - dateA);
+    });
+  } else if (filterType === "fileName") {
+    // Sort by file name
+    rows.sort(function(rowA, rowB) {
+      var nameA = rowA.cells[1].textContent.trim().toLowerCase(); // Assuming file name is in the second cell
+      var nameB = rowB.cells[1].textContent.trim().toLowerCase();
+      if (nameA < nameB) return (filterValue === "Ascending" ? -1 : 1);
+      if (nameA > nameB) return (filterValue === "Ascending" ? 1 : -1);
+      return 0;
+    });
+  } else if (filterType === "fileType") {
+    // Filter by file type
+    rows.forEach(function(row) {
+      var cellValue = row.cells[3].textContent.trim(); // Assuming file type is in the fourth cell
+      if (filterValue === "All" || cellValue === filterValue) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    return; // No need to reorder rows for a filter operation
+  }
 
-//   // Get the dummy data and sort/filter accordingly
-//   var dummyData = getDummyData();
-//   var filteredData = dummyData;
-
-//   if (filterType === "date") {
-//     if (filterValue === "Ascending") {
-//       filteredData.sort((a, b) => (a.date > b.date ? 1 : -1));
-//     } else if (filterValue === "Descending") {
-//       filteredData.sort((a, b) => (a.date < b.date ? 1 : -1));
-//     }
-//   } else if (filterType === "fileName") {
-//     if (filterValue === "Ascending") {
-//       filteredData.sort((a, b) => (a.fileName > b.fileName ? 1 : -1));
-//     } else if (filterValue === "Descending") {
-//       filteredData.sort((a, b) => (a.fileName < b.fileName ? 1 : -1));
-//     }
-//   } else if (filterType === "fileType") {
-//     if (filterValue !== "All") {
-//       filteredData = dummyData.filter(item => item.fileType === filterValue);
-//     }
-//   }
-
-  // Populate the table with filtered/sorted data
-  filteredData.forEach(function(data) {
-    var row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${data.date}</td>
-      <td>${data.fileName}</td>
-      <td>${data.description}</td>
-      <td>${data.fileType}</td>
-      <td><button class="btn btn-secondary" onclick="openFile('${data.filePath}')">Open File</button></td>
-    `;
+  // Reorder the table rows if a sort operation was performed
+  rows.forEach(function(row) {
     tableBody.appendChild(row);
   });
 }
 
-// Function to open a file
-function openFile(filePath) {
-  // This is a placeholder function. Replace it with your actual logic to open the file.
-  console.log("Opening file:", filePath);
-  window.open(filePath); // Open the provided file link
-}
-
-// Call the applyFilter function with default values when the DOM is loaded
-document.addEventListener("DOMContentLoaded", function() {
- console.log(document.getElementById("tableBody")); // Check if the element is correctly selected
- applyFilter("fileType", "All", "fileType");
-});
 
 </script>
-
-
-
-
-
-
-
-
-
-<!--
-      <hr class="mt-2">
-      <div class="container-fluid">
-        <h2>Orphan Files</h2>
-        <div class="row">
-          <!-- Check if there is a birth certificate URL -->
-     <!--   {% if orphan.birth_certificate %}
-            <div class="col-lg-3 card file-card m-1">
-              <div class="card-body">
-                <h5 class="card-title">Birth Certificate</h5>
-                <p class="card-text">This is the birth certificate of the orphan.</p>
-                <!-- Use the new view for serving the birth certificate -->
-             <!--          <a class="btn btn-primary" href="{% url 'serve_orphan_file' orphan_id=orphan.orphanID file_type='birth_certificate' %}" target="_blank">Open File</a>
-              </div>
-            </div>
-          {% else %}
-            <div class="col-lg-3 card file-card m-1">
-              <div class="card-body">
-                <h5 class="card-title">Birth Certificate</h5>
-                <p class="card-text">No birth certificate uploaded.</p>
-                <button class="btn btn-primary disabled">Open File</button>
-              </div>
-            </div>
-          {% endif %}
-
-          <!-- Repeat similar blocks for other files as needed, adjusting the context and template accordingly -->
-  <!--      </div>
-     </div>-->  
-      
-
-    </div>
-  </div>
-
-
-<!-- Upload modal for orphan files -->
-<div class="modal fade" id="additionalFilesModal" tabindex="-1"
-aria-labelledby="additionalFilesModalLabel" aria-hidden="true">
-<div class="modal-dialog">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title" id="additionalFilesModalLabel">Upload Orphan File</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-      <form id="profilePictureForm" action="{% url 'orphan_profile' orphanID=orphanID %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        
-        <div class="mb-3">
-          <label for="profilePictureInput" class="form-label">Choose File</label>
-          <input type="file" class="form-control" id="fileInput" name="file" accept="*/*">
-          <input type="hidden" name="orphan" value="{{ orphan.orphanID }}">
-
-        </div>
-        <div class="mb-3">
-          <label for="fileNameInput" class="form-label">File Name (Format: OrphanName_File)</label>
-          <input type="text" class="form-control" id="fileNameInput" name="file_name">
-        </div>
-        <div class="mb-3">
-          <label for="typeOfDocumentInput" class="form-label">Type of Document</label>
-            <select class="form-select" id="typeOfDocumentInput" name="type_of_document">
-            <option selected disabled>Select type of document</option>
-            <option value="Birth Certificate">Birth Certificate</option>
-            <option value="Identification">Identification</option>
-            <option value="Medical Certificates">Medical Certificates</option>
-            <option value="Grade Cards">Grade Cards</option>
-            <option value="Other Documents">Other Documents</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="descriptionInput" class="form-label">Description</label>
-          <textarea class="form-control" id="descriptionInput" name="description" rows="3"></textarea>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="additionalFilesModalBtn">Upload</button>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
-</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
@@ -588,7 +510,7 @@ aria-labelledby="additionalFilesModalLabel" aria-hidden="true">
 </script>
 
 
-<script type="text/javascript">
+<script>
 
 function confirmGraduation(orphanID) {
     if (confirm("Are you sure you want to mark this orphan as graduated? This action cannot be undone.")) {
@@ -631,90 +553,10 @@ function confirmGraduation(orphanID) {
         console.log("Graduation cancelled.");
     }
 }
-
-
-
 </script>
 
 
 
-<!-- <div id="physical-health" class="row">
-  <div class="btn btn-primary" style="float: right;" onclick="toggleEdit('physical-health', globalOrphanId)" id="edit-physical-health"> 
-    Edit 
-  </div> -->
-  <!-- <h2>Body mass index (BMI)</h2>
-  <p><strong>Height:</strong> <input id="height" class="form-control" value="{{ orphan.physical_health.height|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter height in cm" readonly></p>
-  <p><strong>Weight:</strong> <input id="weight" class="form-control" value="{{ orphan.physical_health.weight|default:'' }}" type="text" aria-label="Disabled input example" placeholder="Enter weight in kg" readonly></p>
-  <p><strong>BMI Category:</strong> <input id="bmi_category" class="form-control" value="{{ orphan.physical_health.bmi_category|default:'' }}" type="text" aria-label="Disabled input example" readonly></p> -->
-
-  <!-- </div> -->
-    <!-- <hr class="m-0" /> -->
-
-    <!-- <div id="educational-background" class="orphan-info-3">
-      <button class="btn btn-primary" style="float: right;" onclick="toggleEdit('educational-background', globalOrphanId)" id="edit-educational-background">Edit</button>
-      <h2>Educational Background</h2>
-      <div class="education-record">
-          <p><strong>Quarter:</strong>
-              <select id="quarter" class="form-control" aria-label="Quarter">
-                  <option value="">Select Quarter</option>
-                  <option value="1" {% if latest_education.quarter == 1 %}selected{% endif %}>1</option>
-                  <option value="2" {% if latest_education.quarter == 2 %}selected{% endif %}>2</option>
-                  <option value="3" {% if latest_education.quarter == 3 %}selected{% endif %}>3</option>
-                  <option value="4" {% if latest_education.quarter == 4 %}selected{% endif %}>4</option>
-              </select>
-          </p>
-          <p><strong>School Year:</strong> <input id="school_year" class="form-control" value="{{ latest_education.school_year|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
-          <p><strong>Education Level:</strong>
-              <select id="education_level" class="form-control" aria-label="Education Level">
-                  <option value="">Select Education Level</option>
-                  <option value="Elementary" {% if latest_education.education_level == "Elementary" %}selected{% endif %}>Elementary</option>
-                  <option value="High School" {% if latest_education.education_level == "High School" %}selected{% endif %}>High School</option>
-                  <option value="College" {% if latest_education.education_level == "College" %}selected{% endif %}>College</option>
-              </select>
-          </p>
-          <p><strong>School Name:</strong> <input id="school_name" class="form-control" value="{{ latest_education.school_name|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
-          <p class="gpa"><strong>Current GPA:</strong> <input id="current_gpa" class="form-control" value="{{ latest_education.current_gpa|default_if_none:'' }}" type="text" aria-label="Disabled input example" readonly></p>
-      </div>
-      {% if not latest_education %}
-          <p>No education records found.</p>
-      {% endif %}
-    </div> -->
-
-    <!-- <hr class="m-0" /> -->
-
-  
-
-    
-<!-- Modal for upload notes is in behavior_profile.html -->
-
-      <!-- <div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header  ">
-              <h5 class="modal-title" id="noteModalLabel">Upload Typed Notes</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-              <div class="center-container">
-                <div class="containerNote">
-                  <h1>Upload Typed Notes</h1>
-                  <form method="POST" action="{% url 'add_note' orphan.orphanID %}" enctype="multipart/form-data">
-                  </form>
-                    {% csrf_token %}
-                  <label for="notes">
-                    Typed Notes:
-                  </label>
-                  <textarea id="notes" name="text" rows="5" class="form-control" required></textarea>
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-primary" type="submit">Upload Notes</button>                    
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
 
 
@@ -723,11 +565,6 @@ function confirmGraduation(orphanID) {
 
 {% block js %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'Js/note.js' %}"></script>
-<script src="{% static 'Js/orphan-content.js' %}"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> -->
 {% endblock %}
 
 </body>
