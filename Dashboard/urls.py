@@ -3,6 +3,11 @@ from . import views
 from django.contrib.auth.views import LogoutView
 from . import views
 urlpatterns = [
+    path('get_orphan_bmi_data/<int:orphan_id>/',
+         views.get_orphan_bmi_data, name='get_orphan_bmi_data'),
+
+    path('overall_analysis/',
+         views.overall_analysis, name='overall_analysis'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
 
     path('intervention_behavior/', views.intervention_behavior,

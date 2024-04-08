@@ -49,7 +49,7 @@
                         <select class="form-select mb-3" id="individual-orphan-bmi">
                           <option value="">Select Orphan</option>
                           {% for orphan in orphans %}
-                          <option value="{{ orphan.id }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                          <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
                           {% endfor %}
 
                           </select>
@@ -117,14 +117,21 @@
     console.log("Script running")
     document.getElementById('individual-orphan-bmi').addEventListener('change', function() {
         var orphanId = this.value;
+        var url = `/Dashboard/get_orphan_bmi_data/${orphanId}`;
+        console.log("Fetch URL:", url); // Add this to log the fetch URL
+
         if (orphanId) {
             fetch(`/Dashboard/get_orphan_bmi_data/${orphanId}`)  // Adjusted to reflect your Django app's URL structure
             .then(response => response.json())
             .then(data => {
                 updateBmiChart(data);
-            });
+            })
+            .catch(error => console.error('Fetch error:', error));  // Log any errors
+
         }
     });
+
+
 
     
     function updateBmiChart(data) {

@@ -15,30 +15,33 @@
     Dashboard
 {% endblock %}
 
-{% block content %}
+{% block content %}        
+
+
+
     <!-- content -->
         <div class="container-fluid mb-0  ">
           <div class="row align-items-center mb-3 mt-3">
 
                 <div class="col mb-3 ">
-                    <div class="card bgdash shadow h-75 w-100 p-3 m-0">
+                  <a class="card bgdash shadow h-75 w-100 p-3 m-0 btn btn-outline-primary" href="{% url 'overall_analysis' %}">
                       <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="card-title text-info">Total Orphans</h5>
+                        <h5 class="card-title text-info">Orphan Analysis</h5>
                         <i class="txtColor icon fa-solid fa-children fs-2   border-0" style="font-size: 35px;"></i>
                       </div>
                       <div class="card-body text-center mb-5 p-0">
                       <h1 class="display-4">
-                        {{ total_orphans }}
+                        <!-- {{ total_orphans }} -->
                       </h1>
                     </div>
-                  </div>
+                  </a>
                 </div>
 
                 <div class="col mb-3">
 
-                    <div class="card bgdash shadow h-75 w-100 p-3 m-0">
+                    <div class="card bgdash shadow w-100 p-3 m-0">
                       <div class="card-body d-flex justify-content-between align-items-center">
-                        <h5 class="card-title text-info">Gender Count</h5>
+                        <h5 class="card-title text-info">Orphan Count</h5>
                         <i class="txtColor icon fa-solid fa-venus-mars fs-2   border-0" style="font-size: 35px;"></i>
                       </div>
                       <div class="card-body text-center mb-5 p-0">
@@ -50,6 +53,10 @@
                           <li class="list-group-item bgdash d-flex justify-content-between align-items-center">
                             Female
                             <span class="badge bg-danger rounded-pill">{{ female_count }}</span>
+                          </li>
+                          <li class="list-group-item bgdash d-flex justify-content-between align-items-center">
+                            Total
+                            <span class="badge bg-danger rounded-pill"> {{ total_orphans }}</span>
                           </li>
                         </ul>
                       </div>
@@ -110,7 +117,7 @@
             <div class="container mt-0 mb-lg-5">
               <div class="row">
                 <div class="col-md-4">
-                  <div id="sentimentsChartContainer" class="container rounded-4 border border-2 mt-3 canvas-container" style=" position: relative; height: 54.5vh;">
+                  <div id="sentimentsChartContainer" class="container rounded-4  border-2 mt-3 canvas-container" style=" position: relative; height: 54.5vh;">
                     <a href="{% url 'chart_behavior' %}"  style="position: absolute; width: 100%; height: 25%; z-index: 1;"></a>
                     <h4 class="text-center">Sentiments Chart</h4>
                     <canvas id="sentimentChart"></canvas>
@@ -124,7 +131,7 @@
                   </div>
 
                   <div class="container rounded-4 border border-2 mt-3 canvas-container bar-chart-container" style="height: 26.1h;">
-                    <a href="{% url 'chart_age' %}" style="position: absolute; width: 100%; height: 25%; z-index: 1;"></a>
+                    <a href="{% url 'chart_age' %}" style="position: absolute;  height: 25%; z-index: 1;"></a>
                     <h4 class="text-center">Age Chart</h4>
                     <canvas id="ageChart"></canvas>
                   </div>
@@ -132,12 +139,12 @@
                 <div class="col-md-4">
 
                   <div class="container rounded-4 border border-2 mt-3 canvas-container bar-chart-container" style="height: 26.1h;">
-                    <a href="{% url 'chart_health' %}" style="position: absolute; width: 100%; height: 25%; z-index: 1;"></a>
+                    <a href="{% url 'chart_health' %}" style="position: absolute;  height: 25%; z-index: 1;"></a>
                     <h4 class="text-center">Health Chart</h4>
                     <canvas id="healthChart"></canvas>
                   </div>
                   <div class="container rounded-4 border border-2 mt-3 canvas-container bar-chart-container" style="height: 26.1h;">
-                    <a href="{% url 'chart_bmi' %}" style="position: absolute; width: 100%; height: 25%; z-index: 1;"></a>
+                    <a href="{% url 'chart_bmi' %}" style="position: absolute;  height: 25%; z-index: 1;"></a>
                     <h4 class="text-center">BMI Chart</h4>
                     <canvas id="bmiChart"></canvas>
                   </div>
