@@ -38,11 +38,59 @@
                                 <button type="button" class="btn btn-primary" onclick="downloadData()">Download Data</button>
                             </div>
                         </div>
-                        
-                        
-                        
                     </div>
                 </div>
+
+<script>
+
+    function downloadData() {
+    // Prepare the data you want to download. This example assumes you want to download the table data as CSV.
+    // You might need to adjust this part based on your actual data structure and format.
+    let table = document.getElementById('academicDetailsTable');
+    let data = [];
+
+    // Extract only the orphan's information
+    for (let row of table.rows) {
+        let rowData = [];
+        // Assuming the first cell contains the name
+        let nameCell = row.cells[0];
+        if (nameCell.textContent.trim() === orphanName) {
+            for (let cell of row.cells) {
+                rowData.push(cell.textContent);
+            }
+            data.push(rowData.join(','));
+        }
+    }
+
+    // If no data is found for the orphan, display a message or handle it accordingly
+    if (data.length === 0) {
+        alert("No academic information found for " + orphanName);
+        return;
+    }
+
+    let csvContent = data.join('\n');
+
+    // Create a Blob from the CSV content
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    // Create a link element
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = orphanName + '_AcademicInformation.csv'; // Automatically name the file
+
+    // Append the link to the body
+    document.body.appendChild(link);
+
+    // Trigger the download
+    link.click();
+
+    // Remove the link from the body
+    document.body.removeChild(link);
+}
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js"></script>
                 
 <hr class="mt-3">
 
