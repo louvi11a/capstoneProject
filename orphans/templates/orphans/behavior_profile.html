@@ -31,13 +31,13 @@
                                     <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
                                     <p>Orphan ID: {{ orphan.orphanID }}</p>
                                 </div>
-                                <div class="col-4 mt-3 info-icon text-end px-0 mx-0">
-                                    <a class="btn btn-primary me-5 " data-bs-toggle="modal" data-bs-target="#noteModal">
-                                        Add
-                                        Notes </a>
-                                    <!-- <a class="btn btn-primary" href=""> See
-                                        Notes </a> -->
+                                <div class="col text-end align-items-end justify-content-end">
+                                    <div class="row mt-3 info-icon text-end px-0 mx-5 d-flex flex-column">
+                                        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#noteModal">Add Note</button>
+                                        <button type="button" class="btn btn-primary" onclick="downloadData()">Download Data</button>
+                                    </div>
                                 </div>
+                                
                                 <hr class="m-2">
                             </div>
 
