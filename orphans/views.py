@@ -62,11 +62,8 @@ def add_note(request, orphan_id):
                 translated_text = GoogleTranslator(
                     source='ceb', target='english').translate(bisaya_text)
 
-                # # Conduct sentiment analysis using TextBlob
-                # blob = TextBlob(translated_text)
-                # sentiment = blob.sentiment.polarity
+                # Conduct sentiment analysis using
 
-                # Conduct sentiment analysis using NLTK's Vader SentimentIntensityAnalyzer
                 sentiment = sid.polarity_scores(translated_text)
 
                 # Save the Bisaya text, translated text, and sentiment to the Note instance
@@ -87,6 +84,33 @@ def add_note(request, orphan_id):
     else:
         form = NoteForm()
     return render(request, 'orphans/behavior_profile.html', {'form': form, 'orphan': orphan})
+
+
+def standardize_grade(self):
+    # Define the max and min scores for high school
+    high_school_max_score = 100
+    high_school_min_passing_score = 75
+
+    # Define the max and min scores for college
+    college_max_score = 1.00
+    college_min_score = 3.00
+
+    if self.education_level == 'college':
+        # Check for failing grade
+        if self.grade >= college_min_score:
+            # Assign a standardized score below the high school passing threshold
+            return high_school_min_passing_score - 1
+        # Convert the grade using the linear transformation formula
+        standardized_grade = ((high_school_max_score - high_school_min_passing_score) /
+                              (college_min_score - college_max_score)) * (self.grade - college_max_score) + high_school_max_score
+    else:  # 'elementary' or 'high_school'
+        # Check for failing grade
+        if self.grade < high_school_min_passing_score:
+            return self.grade - 1  # Slightly lower to differentiate from the lowest passing grade
+        standardized_grade = ((self.grade - 75) / (98 - 75)) * (high_school_max_score -
+                                                                high_school_min_passing_score) + high_school_min_passing_score
+
+    return standardized_grade
 
 
 def filter_orphans(request):

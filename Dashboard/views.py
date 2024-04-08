@@ -1,3 +1,4 @@
+import json
 from django.db.models import Avg
 from django.db.models import Count
 # from behavior.models import Notes
@@ -20,9 +21,73 @@ from django.shortcuts import render
 from orphans.models import Education, Grade, Info, Subject
 from django.db.models import Max
 from datetime import date
+from django.db import models
+from orphans.models import models
+from django.db.models.functions import TruncMonth
+from orphans.models import BMI
+from django.db.models import Count
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+
+def get_orphan_bmi_data(request, orphan_id):
+    bmi_records = BMI.objects.filter(orphan=orphan_id).order_by(
+        'recorded_at').values('bmi', 'recorded_at')
+    data = list(bmi_records)
+    return JsonResponse(data, safe=False)
+
+
+def overall_analysis(request):
+    # Assuming calculate_behavior_score, calculate_overall_physical_wellbeing, and calculate_education_score
+    # are instance methods that you've already implemented on the Info model
+    orphans = Info.objects.all()
+    bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
+        'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
+
+    # Organize data for Chart.js
+    trend_data = {}
+    for record in bmi_records:
+        month = record['month'].strftime("%Y-%m")  # Format month as "YYYY-MM"
+        category = record['bmi_category']
+        count = record['count']
+
+        if month not in trend_data:
+            trend_data[month] = {}
+        trend_data[month][category] = count
+
+    # Ensure all months have all categories, even if count is 0
+    all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obese']
+    for month in trend_data.keys():
+        for category in all_categories:
+            if category not in trend_data[month]:
+                trend_data[month][category] = 0
+
+                # Prepare lists for chart
+    months = list(trend_data.keys())
+    categories_data = {category: [trend_data[month].get(
+        category, 0) for month in months] for category in all_categories}
+
+    # Calculating averages for all orphans
+    average_behavior_score = sum(
+        [orphan.calculate_behavior_score() or 0 for orphan in orphans]) / orphans.count()
+    average_physical_wellbeing_score = sum(
+        [orphan.calculate_overall_physical_wellbeing() or 0 for orphan in orphans]) / orphans.count()
+    average_education_score = sum(
+        [orphan.calculate_education_score() or 0 for orphan in orphans]) / orphans.count()
+    average_composite_score = sum(
+        [orphan.calculate_composite_score() or 0 for orphan in orphans]) / orphans.count()
+
+    context = {
+        'orphans': orphans,
+        'months': json.dumps(months),
+        'categories_data': json.dumps(categories_data),
+        'average_behavior_score': average_behavior_score,
+        'average_physical_wellbeing_score': average_physical_wellbeing_score,
+        'average_education_score': average_education_score,
+        'average_composite_score': average_composite_score,
+    }
+    return render(request, 'Dashboard/overall_analysis.html', context)
 
 
 def sentiment_chart_view(request):
