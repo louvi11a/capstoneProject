@@ -1,6 +1,7 @@
 import json
 from django.db.models import Avg
 from django.db.models import Count
+from django.forms import CharField
 # from behavior.models import Notes
 from orphans.models import BMI, Info, Files, Notes, get_sentiment_data, intervention_behavior_count
 from django.views import View
@@ -26,9 +27,46 @@ from orphans.models import models
 from django.db.models.functions import TruncMonth
 from orphans.models import BMI
 from django.db.models import Count
+from django.core import serializers
+from django.db.models import Case, When, Value, CharField
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+
+def categorize_grades(grades):
+    categories = {
+        'Excellent': 0,
+        'Good': 0,
+        'Needs_Improvement': 0,
+    }
+
+    print(f"Starting to categorize grades. Total grades: {
+          grades.count()}")  # Debugging
+
+    for grade_instance in grades:
+        standardized_grade = grade_instance.standardize_grade()
+        print(f"Processing grade instance for {grade_instance.subject} in {grade_instance.education.education_level} with raw grade {
+              grade_instance.grade} and standardized grade {standardized_grade}")  # Debugging
+
+        if standardized_grade >= 90:
+            categories['Excellent'] += 1
+        elif 75 <= standardized_grade < 90:
+            categories['Good'] += 1
+        else:
+            categories['Needs_Improvement'] += 1
+
+    print(f"Categorized grades: {categories}")  # Debugging
+    return categories
+
+
+def get_orphan_data():
+    grades = Grade.objects.all()
+    print(f"Fetched grades from database. Type of grades: {
+          type(grades)}, Total grades: {grades.count()}")  # Debugging
+
+    categorized_data = categorize_grades(grades)
+    return categorized_data
 
 
 def get_orphan_bmi_data(request, orphan_id):
@@ -42,6 +80,8 @@ def overall_analysis(request):
     # Assuming calculate_behavior_score, calculate_overall_physical_wellbeing, and calculate_education_score
     # are instance methods that you've already implemented on the Info model
     orphans = Info.objects.all()
+    categorized_data = get_orphan_data()
+
     bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
         'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
 
@@ -86,6 +126,8 @@ def overall_analysis(request):
         'average_physical_wellbeing_score': average_physical_wellbeing_score,
         'average_education_score': average_education_score,
         'average_composite_score': average_composite_score,
+        'categorized_data': categorized_data,
+
     }
     return render(request, 'Dashboard/overall_analysis.html', context)
 
