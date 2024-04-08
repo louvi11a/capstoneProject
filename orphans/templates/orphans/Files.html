@@ -246,18 +246,6 @@ aria-hidden="true">
         <thead class="border-top border-bottom">
             <tr>
                 <th scope="col">
-                    File Name
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('fileName')">
-                        <i class="bi bi-filter"></i>
-                    </button>
-                    <!-- FileName filter dropdown -->
-                    <div id="fileNameDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterByFileName('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByFileName('ascending')">Ascending</a>
-                        <a class="dropdown-item" href="#" onclick="filterByFileName('descending')">Descending</a>
-                    </div>
-                </th>
-                <th scope="col">
                     Date Uploaded 
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('dateUploaded')">
                         <i class="bi bi-filter"></i>
@@ -269,6 +257,19 @@ aria-hidden="true">
                         <a class="dropdown-item" href="#" onclick="filterByDateUploaded('descending')">Descending</a>
                     </div>
                 </th>
+                <th scope="col">
+                    File Name
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('fileName')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- FileName filter dropdown -->
+                    <div id="fileNameDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByFileName('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByFileName('ascending')">Ascending</a>
+                        <a class="dropdown-item" href="#" onclick="filterByFileName('descending')">Descending</a>
+                    </div>
+                </th>
+                
                 <th scope="col">Details</th>
             </tr>
         </thead>
@@ -276,14 +277,14 @@ aria-hidden="true">
             <!-- Table content -->
             {% for file in files %}
             <tr>
+                
+                    <td>{{ file.uploaded_at|date:"Y-m-d" }}</td>
                 <td>
                     <a href="{% url 'serve_file' file_id=file.fileID %}" target="_blank">{{ file.fileName }}</a>
                 </td>
-                <td>{{ file.uploaded_at|date:"Y-m-d" }}</td>
                 <td>
                     <div class="dropdown">
                         <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                            Actions
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
                             <li><a class="dropdown-item" href="#" data-file-id="{{ file.fileID }}" data-bs-toggle="modal" data-bs-target="#detailsModal">Details</a></li>
@@ -299,11 +300,12 @@ aria-hidden="true">
     </table>
 </div>
 
-<!-- Dropdown FUnctions -->
+<!-- Dropdown Functions -->
 <script>
     function toggleDropdown(dropdownId) {
         var dropdown = document.getElementById(dropdownId + 'Dropdown');
-        if (dropdown.style.display === 'none') {
+        var dropdownStyle = window.getComputedStyle(dropdown);
+        if (dropdownStyle.display === 'none') {
             dropdown.style.display = 'block';
         } else {
             dropdown.style.display = 'none';
@@ -318,8 +320,8 @@ aria-hidden="true">
     function filterByFileName(order) {
         var rows = document.querySelectorAll('#filesTable tbody tr');
         var sortedRows = Array.from(rows).sort(function(a, b) {
-            var fileNameA = a.querySelector('td:first-child a').textContent.toLowerCase();
-            var fileNameB = b.querySelector('td:first-child a').textContent.toLowerCase();
+            var fileNameA = a.querySelector('td:nth-child(2) a').textContent.toLowerCase();
+            var fileNameB = b.querySelector('td:nth-child(2) a').textContent.toLowerCase();
             if (order === 'ascending') {
                 return fileNameA.localeCompare(fileNameB);
             } else if (order === 'descending') {
@@ -342,8 +344,8 @@ aria-hidden="true">
     function filterByDateUploaded(order) {
         var rows = document.querySelectorAll('#filesTable tbody tr');
         var sortedRows = Array.from(rows).sort(function(a, b) {
-            var dateUploadedA = new Date(a.querySelector('td:nth-child(2)').textContent);
-            var dateUploadedB = new Date(b.querySelector('td:nth-child(2)').textContent);
+            var dateUploadedA = new Date(a.querySelector('td:first-child').textContent);
+            var dateUploadedB = new Date(b.querySelector('td:first-child').textContent);
   
             if (order === 'ascending') {
                 return dateUploadedA - dateUploadedB;
@@ -364,6 +366,7 @@ aria-hidden="true">
         closeDropdown('dateUploaded');
     }
 </script>
+
 
 
 
