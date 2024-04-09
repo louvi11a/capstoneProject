@@ -1,5 +1,6 @@
 from decimal import Decimal
 import json
+from django.db.models.functions import Concat
 from django.db.models import Avg
 from django.db.models import Count
 from django.forms import CharField
@@ -31,14 +32,11 @@ from django.db.models import Count
 from django.core import serializers
 from django.db.models import Case, When, Value, CharField
 import logging
+from django.db.models import F
+from django.db.models.functions import ExtractYear, Cast, Concat
 
 # Set up logging
 logger = logging.getLogger(__name__)
-
-
-def get_grades_with_year():
-    # Annotate each Grade instance with the year extracted from the related Education instance's date_recorded field
-    return Grade.objects.annotate(year=ExtractYear('education__date_recorded'))
 
 
 def categorize_grades_by_year(grades_with_year):
@@ -57,33 +55,128 @@ def categorize_grades_by_year(grades_with_year):
             categorized_data[year]['Good'] += 1
         else:
             categorized_data[year]['Needs Improvement'] += 1
-
     return categorized_data
 
 
-def prepare_chart_data(categorized_data):
-    chart_data = {
-        'years': sorted(categorized_data.keys()),
-        'Excellent': [],
-        'Good': [],
-        'Needs Improvement': []
+# def overall_gpa_summary(request):
+#     overall_gpa = Grade.objects.annotate(
+#         # Correctly extracting the year from the related Education model
+#         year=ExtractYear('education__date_recorded')
+#     ).values(
+#         'semester', 'year'  # Now 'year' is correctly annotated and can be used here
+#     ).annotate(
+#         average_grade=Avg('grade')
+#     ).order_by('year', 'semester')
+#     print(overall_gpa)
+
+#     return JsonResponse(list(overall_gpa), safe=False)
+def overall_gpa_summary(request):
+    grades = Grade.objects.annotate(
+        year=ExtractYear('education__date_recorded'),
+        time_period=Case(
+            When(semester__isnull=False,
+                 then=Concat(Value('Semester '), Cast('semester', CharField()), output_field=CharField())),
+            When(quarter__isnull=False,
+                 then=Concat(Value('Quarter '), Cast('quarter', CharField()), output_field=CharField())),
+            default=Value('N/A'),  # Handle records with neither as needed
+            output_field=CharField(),
+        )
+    ).values('year', 'time_period').annotate(
+        average_grade=Avg('grade')
+    ).order_by('year', 'time_period')
+    print("overall_gpa_summary:", grades)
+
+    return JsonResponse(list(grades), safe=False)
+
+
+# def individual_gpa_summary(request, orphan_id):
+#     grades = Grade.objects.filter(education__orphan__orphanID=orphan_id).annotate(
+#         year=ExtractYear('education__date_recorded')
+#     ).values('semester', 'year').annotate(
+#         # This assumes 'grade' field can represent GPA, adjust as needed
+#         average_grade=Avg('grade')
+#     ).order_by('year', 'semester')
+
+#     return JsonResponse(list(grades), safe=False)
+def individual_gpa_summary(request, orphan_id):
+    grades = Grade.objects.filter(education__orphan__orphanID=orphan_id).annotate(
+        year=ExtractYear('education__date_recorded'),
+        time_period=Case(
+            When(semester__isnull=False,
+                 then=Concat(Value('Semester '), Cast('semester', output_field=CharField()))),
+            When(quarter__isnull=False,
+                 then=Concat(Value('Quarter '), Cast('quarter', output_field=CharField()))),
+            # Optional: Handle cases where neither semester nor quarter is set
+            default=Value('N/A'),
+            output_field=CharField()
+        )
+    ).values('year', 'time_period').annotate(
+        average_grade=Avg('grade')
+    ).order_by('year', 'time_period')
+
+    return JsonResponse(list(grades), safe=False)
+
+
+def overall_analysis(request):
+    orphans = Info.objects.all()
+    bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
+        'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
+
+    trend_data = {}
+    for record in bmi_records:
+        month = record['month'].strftime("%Y-%m")
+        category = record['bmi_category']
+        count = record['count']
+        if month not in trend_data:
+            trend_data[month] = {}
+        trend_data[month][category] = count
+
+    all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obesity']
+    for month in trend_data:
+        for category in all_categories:
+            if category not in trend_data[month]:
+                trend_data[month][category] = 0
+
+    months = list(trend_data.keys())
+    categories_data = {category: [trend_data[month].get(
+        category, 0) for month in months] for category in all_categories}
+
+    grades_by_semester = Grade.objects.annotate(
+        year=ExtractYear('education__date_recorded'),
+    ).values('semester', 'year', 'education__orphan__firstName', 'education__orphan__lastName').annotate(
+        average_grade=Avg('grade')
+    ).order_by('year', 'semester')
+
+    orphan_count = max(orphans.count(), 1)  # Prevent division by zero
+    average_behavior_score = sum(
+        (orphan.calculate_behavior_score() or 0 for orphan in orphans), 0) / orphan_count
+    average_physical_wellbeing_score = sum(
+        (orphan.calculate_overall_physical_wellbeing() or 0 for orphan in orphans), 0) / orphan_count
+    average_education_score = sum(
+        (orphan.calculate_education_score() or 0 for orphan in orphans), 0) / orphan_count
+    average_composite_score = sum(
+        (orphan.calculate_composite_score() or 0 for orphan in orphans), 0) / orphan_count
+
+    context = {
+        'orphans': orphans,
+        'months': json.dumps(months),
+        'categories_data': json.dumps(categories_data),
+        'average_behavior_score': average_behavior_score,
+        'average_physical_wellbeing_score': average_physical_wellbeing_score,
+        'average_education_score': average_education_score,
+        'average_composite_score': average_composite_score,
+        'gpa_data': json.dumps(list(grades_by_semester), default=str),
     }
 
-    for year in chart_data['years']:
-        yearly_data = categorized_data[year]
-        for category in ['Excellent', 'Good', 'Needs Improvement']:
-            chart_data[category].append(yearly_data.get(category, 0))
+    return render(request, 'Dashboard/overall_analysis.html', context)
 
-    return chart_data
+# def get_orphan_data():
+#     grades = Grade.objects.all()
+#     print(f"Fetched grades from database. Type of grades: {
+#           type(grades)}, Total grades: {grades.count()}")  # Debugging
 
-
-def get_orphan_data():
-    grades = Grade.objects.all()
-    print(f"Fetched grades from database. Type of grades: {
-          type(grades)}, Total grades: {grades.count()}")  # Debugging
-
-    categorized_data = categorize_grades(grades)
-    return categorized_data
+#     categorized_data = categorize_grades(grades)
+#     return categorized_data
 
 
 def get_orphan_bmi_data(request, orphan_id):
@@ -95,65 +188,6 @@ def get_orphan_bmi_data(request, orphan_id):
     logger = logging.getLogger(__name__)  # Get a logger
     logger.info(f"Data to be returned: {data}, Type: {type(data[0])}")
     return JsonResponse(data, safe=False)
-
-
-def overall_analysis(request):
-    # Assuming calculate_behavior_score, calculate_overall_physical_wellbeing, and calculate_education_score
-    # are instance methods that you've already implemented on the Info model
-    orphans = Info.objects.all()
-    grades_with_year = get_grades_with_year()
-    categorized_data = categorize_grades_by_year(grades_with_year)
-    chart_data = prepare_chart_data(categorized_data)
-
-    bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
-        'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
-
-    # Organize data for Chart.js
-    trend_data = {}
-    for record in bmi_records:
-        month = record['month'].strftime("%Y-%m")  # Format month as "YYYY-MM"
-        category = record['bmi_category']
-        count = record['count']
-
-        if month not in trend_data:
-            trend_data[month] = {}
-        trend_data[month][category] = count
-
-    # Ensure all months have all categories, even if count is 0
-    all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obesity']
-    for month in trend_data.keys():
-        for category in all_categories:
-            if category not in trend_data[month]:
-                trend_data[month][category] = 0
-
-                # Prepare lists for chart
-    months = list(trend_data.keys())
-    categories_data = {category: [trend_data[month].get(
-        category, 0) for month in months] for category in all_categories}
-    orphan_count = Decimal(orphans.count())
-
-# Use Decimal('0') for the initial sum to ensure the operation stays within the Decimal domain
-    average_behavior_score = sum(
-        [Decimal(orphan.calculate_behavior_score() or 0) for orphan in orphans]) / orphan_count
-    average_physical_wellbeing_score = sum(
-        [Decimal(orphan.calculate_overall_physical_wellbeing() or 0) for orphan in orphans]) / orphan_count
-    average_education_score = sum(
-        [Decimal(orphan.calculate_education_score() or 0) for orphan in orphans]) / orphan_count
-    average_composite_score = sum(
-        [Decimal(orphan.calculate_composite_score() or 0) for orphan in orphans]) / orphan_count
-
-    context = {
-        'orphans': orphans,
-        'months': json.dumps(months),
-        'categories_data': json.dumps(categories_data),
-        'average_behavior_score': average_behavior_score,
-        'average_physical_wellbeing_score': average_physical_wellbeing_score,
-        'average_education_score': average_education_score,
-        'average_composite_score': average_composite_score,
-        'categorized_data': categorized_data,
-        'chart_data': chart_data,
-    }
-    return render(request, 'Dashboard/overall_analysis.html', context)
 
 
 def sentiment_chart_view(request):

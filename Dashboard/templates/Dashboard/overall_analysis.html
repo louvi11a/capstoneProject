@@ -42,7 +42,8 @@
                     <div class="col-md-6">
 
                     <h3>Overall Education Summary</h3>
-                    <canvas id="educationTrendChart"></canvas>
+                    <canvas id="overallPerformanceChart" class="chart-container"></canvas>
+
                     <div>
                         <h3>Individual Education Trends</h3>
                         <select class="form-select mb-3" id="individual-orphan-education">
@@ -52,7 +53,7 @@
                         {% endfor %}
                         </select>
 
-                        <canvas id="individualEducationChart"></canvas>  
+                        <canvas id="individualPerformanceChart"></canvas>  
                     </div>                
                 </div>
                 </div>
@@ -80,61 +81,104 @@
 
 
 
-        <!-- <div class="container mt-0 mb-lg-5">
-            <div class="row">
-                <div class="col-md-4">
-                    <canvas id="bmiTrendChart"></canvas>
-
-                    <canvas id="behaviorChart"></canvas>
-                    <canvas id="educationChart"></canvas>
-                    <canvas id="compositeChart"></canvas>
-                    <canvas id="bmiGaugeChart"></canvas>
-                    <canvas id="summaryChart" width="400" height="400"></canvas>
-
-                </div>
-
-            </div>
-        </div> -->
     </div>
 
 
 
 
-<!-- EDUCATION CHARTS -->
-<script>
-    var ctx = document.getElementById('educationTrendChart').getContext('2d');
-    var chartData = {{ chart_data|safe }};
+    <script>
+    var chart; // Declare the chart variable at a higher scope
+    console.log(document.getElementById('overallPerformanceChart'));
+    // Assuming 'gpa_data' is passed to the template and available as a JSON string
+    const gpaData = JSON.parse('{{ gpa_data|safe }}');
+    console.log("gpaData is:", gpaData);  // Check the structure of received data
     
-    var chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: chartData.years,
-            datasets: [{
-                label: 'Excellent',
-                data: chartData.Excellent,
-                borderColor: '#4caf50',
-                fill: false,
-            }, {
-                label: 'Good',
-                data: chartData.Good,
-                borderColor: '#2196f3',
-                fill: false,
-            }, {
-                label: 'Needs Improvement',
-                data: chartData['Needs Improvement'],
-                borderColor: '#f44336',
-                fill: false,
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                }
+    // Fetch and load the data
+    fetch('/Dashboard/overall_gpa_summary/')
+        .then(response => response.json())
+        .then(data => {
+            console.log("overallPerformanceChart data:", data);  
+            const ctxeducation = document.getElementById('overallPerformanceChart').getContext('2d');
+    
+            // Initialize the chart if it hasn't been initialized yet
+            if (!chart) { 
+                chart = new Chart(ctxeducation, { 
+                    type: 'line',
+                    data: {
+                        labels: gpaData.map(item => `${item.time_period} ${item.year}`),  // Initialize chart with 'time_period' for consistency 
+                        datasets: [{
+                            label: 'GPA thru semsters/quarters',
+                            data: [],
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top' 
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                            }
+                                }
+                            
+                });  
+            }
+    
+            // ALWAYS Update chart data on fetch completion
+            chart.data.labels = data.map(item => `${item.time_period} ${item.year}`);
+            chart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade)); // Convert to numbers
+            chart.update(); 
+            console.log("Chart Labels:", chart.data.labels);
+            console.log("Chart Data:", chart.data.datasets[0].data);
+       });
+
+    var ctxIndividual = document.getElementById('individualPerformanceChart').getContext('2d');
+    var individualChart = new Chart(ctxIndividual, {
+    type: 'line',
+    data: {
+        labels: [], // Initial empty labels array
+        datasets: [{
+            label: 'Individual GPA',
+            data: [], // Initial empty data array for your dataset
+            // Define other properties like borderColor, backgroundColor as needed
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
             }
         }
-    });
-    </script>
+    }
+});
+
+document.getElementById('individual-orphan-education').addEventListener('change', function() {
+    var orphanId = this.value;
+    var url = `/Dashboard/individual_gpa_summary/${orphanId}`;
+
+    if (orphanId) {
+
+    fetch(`/Dashboard/individual_gpa_summary/${orphanId}/`)
+        .then(response => response.json())
+        .then(data => {
+            individualChart.data.labels = data.map(item => `${item.time_period} ${item.year}`);
+            individualChart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade));
+            individualChart.update();
+        });
+    }
+});
+
+</script>
+
+
+    
 
 
 <!-- BMI CHARTS -->
@@ -176,7 +220,6 @@
 
 
 <script>
-    console.log("Script running")
     document.getElementById('individual-orphan-bmi').addEventListener('change', function() {
         var orphanId = this.value;
         var url = `/Dashboard/get_orphan_bmi_data/${orphanId}`;
@@ -220,7 +263,7 @@
 </script>
     
 
-
+<!-- 
     <script>
     var ctx = document.getElementById('behaviorChart').getContext('2d');
     var behaviorChart = new Chart(ctx, {
@@ -245,7 +288,10 @@
     });
     
 
-//     var ctx = document.getElementById('educationChart').getContext('2d');
+</script> -->
+
+
+<!-- //     var ctx = document.getElementById('educationChart').getContext('2d');
 // var educationChart = new Chart(ctx, {
 //     type: 'bar',
 //     data: {
@@ -275,6 +321,22 @@
 //     }
 // });
 
+//  <div class="container mt-0 mb-lg-5">
+//             <div class="row">
+//                 <div class="col-md-4">
+//                     <canvas id="bmiTrendChart"></canvas>
+
+//                     <canvas id="behaviorChart"></canvas>
+//                     <canvas id="educationChart"></canvas>
+//                     <canvas id="compositeChart"></canvas>
+//                     <canvas id="bmiGaugeChart"></canvas>
+//                     <canvas id="summaryChart" width="400" height="400"></canvas>
+
+//                 </div>
+
+//             </div>
+//         </div>  -->
+<!-- <script>
 var ctx = document.getElementById('compositeChart').getContext('2d');
 var compositeChart = new Chart(ctx, {
     type: 'radar',
@@ -371,6 +433,6 @@ var summaryChart = new Chart(ctx, {
         }
     }
 });
-    </script>
+    </script> -->
     {% endblock %}
 

@@ -217,27 +217,26 @@ def save_academic_details(request, orphan_id):
         school_name = request.POST.get('school_name')
         education_level = request.POST.get('education_level')
         year_level = request.POST.get('year_level')
-        quarter = request.POST.get('quarter')
+        quarter_or_semester = request.POST.get('quarter')
 
         # Initialize lists to hold all subjects and grades
         all_subjects = []
         all_grades = []
 
         # Add the initial subject and grade to the lists
-        initial_subject = request.POST.get('subject')  # Without brackets
-        initial_grade = request.POST.get('grade')  # Without brackets
-        if initial_subject and initial_grade:  # Ensure they are not empty
+        initial_subject = request.POST.get('subject')
+        initial_grade = request.POST.get('grade')
+        if initial_subject and initial_grade:
             all_subjects.append(initial_subject)
             all_grades.append(initial_grade)
 
         # Extend the lists with additional subjects and grades
-        additional_subjects = request.POST.getlist(
-            'subject[]')  # With brackets
-        additional_grades = request.POST.getlist('grade[]')  # With brackets
+        additional_subjects = request.POST.getlist('subject[]')
+        additional_grades = request.POST.getlist('grade[]')
         all_subjects.extend(additional_subjects)
         all_grades.extend(additional_grades)
 
-        if not all([school_name, education_level, year_level, quarter, all_subjects, all_grades]):
+        if not all([school_name, education_level, year_level, all_subjects, all_grades]):
             return HttpResponseBadRequest("Missing required fields")
 
         orphan = get_object_or_404(Info, pk=orphan_id)
@@ -249,15 +248,23 @@ def save_academic_details(request, orphan_id):
                 education_level=education_level,
                 year_level=year_level,
             )
+            is_college = education_level == 'College'
 
             for subject_name, grade_value in zip(all_subjects, all_grades):
                 subject, _ = Subject.objects.get_or_create(
                     name=subject_name.strip())
+                # Conditionally save quarter or semester
+                # Conditional Logic for Quarter vs. Semester
+                if is_college:
+                    field_to_save = 'semester'
+                else:
+                    field_to_save = 'quarter'
+
                 Grade.objects.create(
                     subject=subject,
                     education=education,
                     grade=Decimal(grade_value),
-                    quarter=quarter
+                    **{field_to_save: request.POST.get('quarter')},
                 )
 
         return redirect('academic_profile', orphan_id=orphan_id)
