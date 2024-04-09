@@ -13,55 +13,85 @@
 
                 <!-- content -->
                 <div>
-                        <div class="container m-2">
-                            <div class="">
-                                <a href="{% url 'orphan_profile' orphan.orphanID %}" class="btn btn-primary mt-3">
-                                    <i class="fa-solid fa-arrow-left"></i>
-                                </a>
-                            </div>
-                            <div class="row info">
-                                {% if orphan.orphan_picture %}
+                     
+                    <div class="m-2">
+                        <a href="{% url 'orphan_profile' orphan.orphanID %}" class="btn btn-primary mt-3">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </a>
+                    </div>
 
-                                <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}"
-                                    height="100px" width="100px" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
-                                {% else %}
-                                <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
-                                {% endif %}
-                                <div class="col-5 mt-3">
-                                    <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
-                                    <p>Orphan ID: {{ orphan.orphanID }}</p>
-                                </div>
-                                <div class="col text-end align-items-end justify-content-end">
-                                    <div class="row mt-3 info-icon text-end px-0 mx-5 d-flex flex-column">
-                                        <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#noteModal">Add Note</button>
-                                        <button type="button" class="btn btn-primary" onclick="downloadData()">Download Data</button>
-                                    </div>
-                                </div>
+                    <div class="row info mt-3">
+                        {% if orphan.orphan_picture %}
+                        <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}"  height="100px" width="100px"
+                        alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+                        {% else %}
+                        <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
+                        {% endif %}                  
+                        <div class="col-5 mt-3">
+                            <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
+                            <p>Orphan ID: {{ orphan.orphanID }}</p>
+                        </div>
+                        <div class="col text-end align-items-end justify-content-end">
+                            <div class="row mt-3 info-icon text-end px-0 mx-5 d-flex flex-column">
+                                <a class="btn btn-primary me-5 " data-bs-toggle="modal" data-bs-target="#noteModal">
+                                    Add Notes </a>
                                 
-                                <hr class="m-2">
                             </div>
+                        </div>
+                        
+                    </div>
+                </div>
 
-<!-- Show number of Entries -->
-<div class="container-fluid">
-    <div class="d-flex justify-content-between mb-3">
-        <div class="d-flex align-items-center">
-            <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
-            <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
-                <option value="all">All</option>
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="25">25</option>
-                <option value="30">30</option>
-                <option value="35">35</option>
-                <option value="40">40</option>
-                <option value="45">45</option>
-                <option value="50">50</option>
-                <!-- Add more options if needed -->
-            </select>
-            <span class="me-2">entries</span>
-        </div>
+                <hr class="mt-3">
+                <!-- Show number of Entries -->
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+                            <select class="form-select form-select-sm me-2" id="entriesSelect" style="width: 100px;">
+                                <option value="all">All</option>
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <!-- Add more options if needed -->
+                            </select>
+                            <span class="me-2">entries</span>
+                        </div>
+
+                        <!-- Sort by Ascending and Descending -->
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm me-2" onclick="toggleSortOrder()"><i class="bi bi-filter"></i></button>
+                            <label for="sortOrder" class="form-label me-2 mb-0">Sort by</label>
+                            <select class="form-select form-select-sm me-2" id="sortOrder" style="width: 120px;" onchange="sortData()">
+                                <option value="all">All</option>
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                    </div>
+                        
+                        <!-- Download section 
+                        <div class="d-flex align-items-center">
+                            <label for="downloadSelect" class="form-label me-2 mb-0">Download</label>
+                            <select class="form-select form-select-sm me-2" id="downloadSelect" style="width: 150px;">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="quarterly">Quarterly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" onclick="downloadData()"><i class="bi bi-download"></i></button>
+                        </div>
+                    </div> -->
+                
+                
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -91,39 +121,61 @@
     document.getElementById(column + 'Dropdown').style.display = "none";
 }
  </script>
-<!-- Sort by Ascending and Descending -->
-        <div class="d-flex align-items-center">
-            <button class="btn btn-sm me-2" onclick="toggleSortOrder()"><i class="bi bi-filter"></i></button>
-            <label for="sortOrder" class="form-label me-2 mb-0">Sort by</label>
-            <select class="form-select form-select-sm me-2" id="sortOrder" style="width: 120px;" onchange="sortData()">
-                <option value="all">All</option>
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-            </select>
-        </div>
-    </div>
+
 
 <!-- HISTORY-->
+
 <div class="container-fluid">
-<h3>Note History</h3>
-                            <div class="">
-                                <div class="row row-cols-12 row-cols-md-12 row-cols-lg-12 g-4">
-                                    {% for note in orphan.notes.all %}
-                                        <div class="card rounded-4">
-                                            <div class="card-body">
-                                                <h5 class="card-title">{{ note.timestamp }}</h5>
-                                                <p class="card-text">{{ note.text }}</p>
-                                            </div>
-                                        </div>
-                                    {% empty %}
-                                        <div class="card rounded-4">
-                                            <div class="card-body">
-                                                <p class="card-text">No notes found.</p>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
+    <h3>Note History</h3>
+    <div id="orphanSentiment" class="row">
+        <!-- Note boxes will be added here -->
+        {% for note in orphan.notes.all %}
+        <div class="col-md-4">
+            <div class="card rounded-4 mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ note.timestamp }}</h5>
+                    <p class="card-text">{{ note.text }}</p>
+                    <!-- Edit Note Button -->
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editNoteModal{{ note.id }}">Edit</button>
+                </div>
+            </div>
+        </div>
+        <!-- Edit Note Modal -->
+        <div class="modal fade" id="editNoteModal{{ note.id }}" tabindex="-1" aria-labelledby="editNoteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editNoteModalLabel">Edit Note</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Edit Note Form -->
+                        <form>
+                            <div class="mb-3">
+                                <label for="editNoteText" class="form-label">Note Text</label>
+                                <textarea class="form-control" id="editNoteText{{ note.id }}" rows="3">{{ note.text }}</textarea>
                             </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <!-- Submit Edit Note Button -->
+                        <button type="button" class="btn btn-primary" onclick="saveEditedNote('{{ note.id }}')">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-4">
+            <div class="card rounded-4 mb-3">
+                <div class="card-body">
+                    <p class="card-text">No notes found.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
 
 
@@ -151,11 +203,11 @@
                                 <label for="notes" class="form-label">Typed Notes:</label>
                                 <textarea id="notes" name="text" rows="5" class="form-control" required></textarea>
                             </div>
-                            <!-- Calendar form date picker -->
+                            <!-- Calendar form date picker 
                             <div class="mb-3">
                                 <label for="observationDate" class="form-label">Date of Observation:</label>
                                 <input type="date" class="form-control" id="observationDate" name="observationDate" required>
-                            </div>
+                            </div> -->
                             <!-- End Calendar form date picker -->
                             <div class="form-group">
                                 <button class="btn btn-primary mt-2" type="submit">Upload Notes</button>
@@ -172,5 +224,3 @@
     {% endblock %}  
     {% block js %}
     {% endblock %}
-
-
