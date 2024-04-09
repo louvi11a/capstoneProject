@@ -37,6 +37,7 @@ from django.db import transaction
 from . import models
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.db.models import Prefetch
+from decimal import Decimal
 
 sid = SentimentIntensityAnalyzer()
 # Add new words to the Vader lexicon
@@ -255,7 +256,7 @@ def save_academic_details(request, orphan_id):
                 Grade.objects.create(
                     subject=subject,
                     education=education,
-                    grade=int(grade_value),
+                    grade=Decimal(grade_value),
                     quarter=quarter
                 )
 

@@ -37,38 +37,45 @@
                 <p>This is the content for the Behavior Chart Summary tab. You can display an overall behavior trend chart here or provide options to view individual behavior trends.</p>
                 </div>
 
-                <div class="tab-pane fade" id="education">
+
+                <div class="tab-pane fade row" id="education">
+                    <div class="col-md-6">
+
                     <h3>Overall Education Summary</h3>
-                    <canvas id="educationSummaryChart"></canvas>
+                    <canvas id="educationTrendChart"></canvas>
                     <div>
                         <h3>Individual Education Trends</h3>
-                        <select class="form-select mb-3" id="individual-orphan-bmi">
+                        <select class="form-select mb-3" id="individual-orphan-education">
                         <option value="">Select Orphan</option>
                         {% for orphan in orphans %}
                         <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
                         {% endfor %}
-
                         </select>
+
                         <canvas id="individualEducationChart"></canvas>  
                     </div>                
                 </div>
+                </div>
 
-                <div class="tab-pane fade h-25" id="physical">
+                <div class="tab-pane fade row" id="physical">
+                    <div class="col-md-6">
+
                     <h3>Overall BMI Summary</h3>
                         <canvas id="bmiTrendChart"></canvas>
-                    <div>
+
+                    <div class="">
                         <h3>Individual BMI Trends</h3>
                         <select class="form-select mb-3" id="individual-orphan-bmi">
                           <option value="">Select Orphan</option>
                           {% for orphan in orphans %}
                           <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
                           {% endfor %}
-
                           </select>
-                        <canvas id="individualBmiChart"></canvas>  
+                          
+                                <canvas id="individualBmiChart"></canvas>
+                            </div>
+                        </div>                    
                     </div>
-                </div>
-        </div>
 
 
 
@@ -95,37 +102,39 @@
 
 <!-- EDUCATION CHARTS -->
 <script>
-    var ctx = document.getElementById('educationSummaryChart').getContext('2d');
-    var educationSummaryChart = new Chart(ctx, {
-        type: 'bar',  // You can change this to 'pie', 'line', etc. based on your preference
+    var ctx = document.getElementById('educationTrendChart').getContext('2d');
+    var chartData = {{ chart_data|safe }};
+    
+    var chart = new Chart(ctx, {
+        type: 'line',
         data: {
-            labels: ['Excellent', 'Good', 'Needs Improvement'],
+            labels: chartData.years,
             datasets: [{
-                label: 'Number of Orphans',
-                data: [{{ categorized_data.Excellent }}, {{ categorized_data.Good }}, {{ categorized_data.Needs_Improvement }}],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1
+                label: 'Excellent',
+                data: chartData.Excellent,
+                borderColor: '#4caf50',
+                fill: false,
+            }, {
+                label: 'Good',
+                data: chartData.Good,
+                borderColor: '#2196f3',
+                fill: false,
+            }, {
+                label: 'Needs Improvement',
+                data: chartData['Needs Improvement'],
+                borderColor: '#f44336',
+                fill: false,
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
                 }
             }
         }
     });
     </script>
-
 
 
 <!-- BMI CHARTS -->
@@ -151,8 +160,8 @@
                 data: categoriesData['Overweight'],
                 backgroundColor: 'rgba(255, 206, 86, 0.2)',
             }, {
-                label: 'Obese',
-                data: categoriesData['Obese'],
+                label: 'Obesity',
+                data: categoriesData['Obesity'],
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
             }]
         },
@@ -295,7 +304,7 @@ var ctx = document.getElementById('bmiGaugeChart').getContext('2d');
 var bmiGaugeChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-        labels: ['Underweight', 'Normal', 'Overweight', 'Obese'],
+        labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
         datasets: [{
             label: 'BMI Categories',
             data: [25, 50, 20, 5], // Example data showing distribution, replace with your actual data

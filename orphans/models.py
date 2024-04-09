@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
@@ -166,8 +167,8 @@ class Info(models.Model):
 
     def calculate_overall_physical_wellbeing(self):
         # Updated weights for BMI and HealthDetail scores
-        bmi_weight = 0.3
-        health_detail_weight = 0.7
+        bmi_weight = Decimal('0.3')
+        health_detail_weight = Decimal('0.7')
 
         # Get the latest BMI record and its standardized score
         latest_bmi_record = self.physical_health.last()
@@ -178,7 +179,8 @@ class Info(models.Model):
         current_date = datetime.now().date()
         health_detail_score = 0
         total_weight = 0
-        decay_rate = 0.1  # Defines how quickly the weight of older records decays
+        # Defines how quickly the weight of older records decays
+        decay_rate = Decimal('0.1')
 
         for index, detail in enumerate(health_detail_records):
             # Calculate days since the record was created
@@ -285,12 +287,13 @@ class Info(models.Model):
         if len(scores) < 2:
             return "Insufficient data"
 
+        scores = [Decimal(score) for score in scores]
+
         # Calculate the moving average of the last 3 scores
-        moving_average = sum(scores[-3:]) / 3
+        moving_average = sum(scores[-3:]) / Decimal('3')
 
         # Compare the moving average with the average of the scores before the last 3
-        previous_average = sum(scores[:-3]) / \
-            (len(scores) - 3) if len(scores) > 3 else 0
+        previous_average = sum(scores[:-3]) / Decimal(max(len(scores) - 3, 1))
 
         if moving_average > previous_average:
             trend_analysis_result = "improving"
@@ -303,22 +306,21 @@ class Info(models.Model):
 
     def calculate_composite_score(self):
         # Define weightings
-        education_weight = 0.3
-        physical_wellbeing_weight = 0.4
-        behavior_weight = 0.3
+        education_weight = Decimal('0.3')
+        physical_wellbeing_weight = Decimal('0.4')
+        behavior_weight = Decimal('0.3')
 
         # Calculate or retrieve individual scores
         # Assuming you have a method or logic to calculate the education score
-        education_score = self.calculate_education_score()  # Placeholder for actual method
-        if education_score is None:
-            return None
-        physical_wellbeing_score = self.calculate_overall_physical_wellbeing()
-        behavior_score = self.calculate_behavior_score()
+        # Retrieve individual scores, ensuring they're not None
+        education_score = self.calculate_education_score() or Decimal('0')
+        physical_wellbeing_score = self.calculate_overall_physical_wellbeing() or Decimal('0')
+        behavior_score = self.calculate_behavior_score() or Decimal('0')
 
-        # Calculate the weighted sum of the scores
+        # Calculate the weighted sum of the scores, ensuring all calculations are done with Decimal
         composite_score = (education_score * education_weight +
                            physical_wellbeing_score * physical_wellbeing_weight +
-                           behavior_score * behavior_weight)
+                           Decimal(behavior_score) * Decimal(behavior_weight))
 
         return composite_score
 
@@ -452,7 +454,7 @@ class BMI(models.Model):
         ('< 18.5', 'Underweight'),
         ('18.5 - 24.9', 'Normal Weight'),
         ('25 - 29.9', 'Overweight'),
-        ('30 or more', 'Obese'),
+        ('30 or more', 'Obesity'),
     ]
 
     bmi_category = models.CharField(
@@ -546,7 +548,9 @@ class Education(models.Model):
 
 
 class Grade(models.Model):
-    GRADE_CHOICES = [(i, i) for i in range(1, 101)]  # Grades from 1 to 100
+    GRADE_CHOICES = [(i, i) for i in range(1, 101)] + [(i/100, i/100)
+                                                       # Grades from 1 to 100 and 1.00 to 5.00
+                                                       for i in range(100, 501, 25)]
 
     QUARTER_CHOICES = [
         (1, 'First Quarter'),
@@ -561,35 +565,34 @@ class Grade(models.Model):
 
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     education = models.ForeignKey(Education, on_delete=models.CASCADE)
-    grade = models.IntegerField(choices=GRADE_CHOICES)
+    grade = models.DecimalField(
+        choices=GRADE_CHOICES, max_digits=5, decimal_places=2)
+
     quarter = models.IntegerField(
         choices=QUARTER_CHOICES, null=True, blank=True)
     semester = models.IntegerField(
         choices=SEMESTER_CHOICES, null=True, blank=True)
 
     def standardize_grade(self):
-        # Ensure you reference the education level from the related Education instance
+        # Convert float literals to Decimal
+        high_school_max_score = Decimal('100')
+        high_school_min_passing_score = Decimal('75')
+        college_max_score = Decimal('1.00')
+        college_min_score = Decimal('5.00')
+
         education_level = self.education.education_level
 
-        # Define the max and min scores for high school
-        high_school_max_score = 100
-        high_school_min_passing_score = 75
-
-        # Define the max and min passing scores for college
-        college_max_score = 1.00
-        college_min_score = 3.00
-
         if education_level == 'College':
-            # Assuming college grades are inversely scored (lower is better)
             if self.grade >= college_min_score:
-                return high_school_min_passing_score - 1  # Handle failing grades
-            # Linear transformation for college grades
+                # Return a Decimal value
+                return high_school_min_passing_score - Decimal('1')
+            # Ensure all operands are Decimal instances
             standardized_grade = ((high_school_max_score - high_school_min_passing_score) /
                                   (college_min_score - college_max_score)) * (self.grade - college_max_score) + high_school_max_score
+            standardized_grade = min(standardized_grade, high_school_max_score)
         else:  # Elementary or High School
-            # Direct conversion for grades already on a 0-100 scale
             if self.grade < high_school_min_passing_score:
-                return self.grade - 1  # Adjust for failing grades
+                return self.grade - Decimal('1')  # Adjust for failing grades
             standardized_grade = self.grade  # No conversion needed
 
         return standardized_grade

@@ -99,11 +99,22 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
+    'loggers': {
+        '': {  # The 'root' logger - catches most things
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+        'django': {  # Add this if you want to see general Django logs
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'your_app_name': {  # Replace 'your_app_name' with the name of your app
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Set to 'DEBUG' to see more detailed logs
+        },
     },
 }
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

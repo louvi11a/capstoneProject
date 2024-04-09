@@ -1,3 +1,4 @@
+from decimal import Decimal
 import json
 from django.db.models import Avg
 from django.db.models import Count
@@ -29,35 +30,51 @@ from orphans.models import BMI
 from django.db.models import Count
 from django.core import serializers
 from django.db.models import Case, When, Value, CharField
+import logging
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 
-def categorize_grades(grades):
-    categories = {
-        'Excellent': 0,
-        'Good': 0,
-        'Needs_Improvement': 0,
+def get_grades_with_year():
+    # Annotate each Grade instance with the year extracted from the related Education instance's date_recorded field
+    return Grade.objects.annotate(year=ExtractYear('education__date_recorded'))
+
+
+def categorize_grades_by_year(grades_with_year):
+    categorized_data = {}
+
+    for grade_instance in grades_with_year:
+        year = grade_instance.year
+        if year not in categorized_data:
+            categorized_data[year] = {'Excellent': 0,
+                                      'Good': 0, 'Needs Improvement': 0}
+
+        standardized_grade = grade_instance.standardize_grade()
+        if standardized_grade >= 90:
+            categorized_data[year]['Excellent'] += 1
+        elif 75 <= standardized_grade < 90:
+            categorized_data[year]['Good'] += 1
+        else:
+            categorized_data[year]['Needs Improvement'] += 1
+
+    return categorized_data
+
+
+def prepare_chart_data(categorized_data):
+    chart_data = {
+        'years': sorted(categorized_data.keys()),
+        'Excellent': [],
+        'Good': [],
+        'Needs Improvement': []
     }
 
-    print(f"Starting to categorize grades. Total grades: {
-          grades.count()}")  # Debugging
+    for year in chart_data['years']:
+        yearly_data = categorized_data[year]
+        for category in ['Excellent', 'Good', 'Needs Improvement']:
+            chart_data[category].append(yearly_data.get(category, 0))
 
-    for grade_instance in grades:
-        standardized_grade = grade_instance.standardize_grade()
-        print(f"Processing grade instance for {grade_instance.subject} in {grade_instance.education.education_level} with raw grade {
-              grade_instance.grade} and standardized grade {standardized_grade}")  # Debugging
-
-        if standardized_grade >= 90:
-            categories['Excellent'] += 1
-        elif 75 <= standardized_grade < 90:
-            categories['Good'] += 1
-        else:
-            categories['Needs_Improvement'] += 1
-
-    print(f"Categorized grades: {categories}")  # Debugging
-    return categories
+    return chart_data
 
 
 def get_orphan_data():
@@ -70,9 +87,13 @@ def get_orphan_data():
 
 
 def get_orphan_bmi_data(request, orphan_id):
+    logger = logging.getLogger(__name__)
+    logger.debug("Inside get_orphan_bmi_data view")
     bmi_records = BMI.objects.filter(orphan=orphan_id).order_by(
         'recorded_at').values('bmi', 'recorded_at')
     data = list(bmi_records)
+    logger = logging.getLogger(__name__)  # Get a logger
+    logger.info(f"Data to be returned: {data}, Type: {type(data[0])}")
     return JsonResponse(data, safe=False)
 
 
@@ -80,7 +101,9 @@ def overall_analysis(request):
     # Assuming calculate_behavior_score, calculate_overall_physical_wellbeing, and calculate_education_score
     # are instance methods that you've already implemented on the Info model
     orphans = Info.objects.all()
-    categorized_data = get_orphan_data()
+    grades_with_year = get_grades_with_year()
+    categorized_data = categorize_grades_by_year(grades_with_year)
+    chart_data = prepare_chart_data(categorized_data)
 
     bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
         'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
@@ -97,7 +120,7 @@ def overall_analysis(request):
         trend_data[month][category] = count
 
     # Ensure all months have all categories, even if count is 0
-    all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obese']
+    all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obesity']
     for month in trend_data.keys():
         for category in all_categories:
             if category not in trend_data[month]:
@@ -107,16 +130,17 @@ def overall_analysis(request):
     months = list(trend_data.keys())
     categories_data = {category: [trend_data[month].get(
         category, 0) for month in months] for category in all_categories}
+    orphan_count = Decimal(orphans.count())
 
-    # Calculating averages for all orphans
+# Use Decimal('0') for the initial sum to ensure the operation stays within the Decimal domain
     average_behavior_score = sum(
-        [orphan.calculate_behavior_score() or 0 for orphan in orphans]) / orphans.count()
+        [Decimal(orphan.calculate_behavior_score() or 0) for orphan in orphans]) / orphan_count
     average_physical_wellbeing_score = sum(
-        [orphan.calculate_overall_physical_wellbeing() or 0 for orphan in orphans]) / orphans.count()
+        [Decimal(orphan.calculate_overall_physical_wellbeing() or 0) for orphan in orphans]) / orphan_count
     average_education_score = sum(
-        [orphan.calculate_education_score() or 0 for orphan in orphans]) / orphans.count()
+        [Decimal(orphan.calculate_education_score() or 0) for orphan in orphans]) / orphan_count
     average_composite_score = sum(
-        [orphan.calculate_composite_score() or 0 for orphan in orphans]) / orphans.count()
+        [Decimal(orphan.calculate_composite_score() or 0) for orphan in orphans]) / orphan_count
 
     context = {
         'orphans': orphans,
@@ -127,7 +151,7 @@ def overall_analysis(request):
         'average_education_score': average_education_score,
         'average_composite_score': average_composite_score,
         'categorized_data': categorized_data,
-
+        'chart_data': chart_data,
     }
     return render(request, 'Dashboard/overall_analysis.html', context)
 
@@ -153,7 +177,7 @@ def dashboard_view(request):
     bmi_data_dict = {category['bmi_category']: category['count']
                      for category in bmi_categories}
     bmi_data = [bmi_data_dict.get(category, 0) for category in [
-        'Underweight', 'Normal Weight', 'Overweight', 'Obese']]
+        'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
 
     current_year = datetime.datetime.now().year
     orphans = Info.objects.annotate(

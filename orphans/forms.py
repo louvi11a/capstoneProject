@@ -73,10 +73,6 @@ class EducationForm(forms.ModelForm):
         fields = ['education_level', 'school_name',
                   'year_level', 'current_gpa']
 
-    # def __init__(self, *args, **kwargs):
-    #     super(EducationForm, self).__init__(*args, **kwargs)
-    #     self.fields['school_year'].choices = get_school_years_choices()
-
 
 class GradeForm(forms.ModelForm):
     class Meta:
