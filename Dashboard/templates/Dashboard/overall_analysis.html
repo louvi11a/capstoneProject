@@ -7,7 +7,7 @@
 
 {% block css %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" href="{% static 'Css/final.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -33,29 +33,47 @@
             <div class="tab-pane fade show active" id="summary">
                 <p>This is the content for the Summary of Trends tab. You can display overall trends for all orphans here (e.g., average behavior scores, education levels, health metrics).</p>
                 </div>
-            <div class="tab-pane fade" id="behavior">
-                <p>This is the content for the Behavior Chart Summary tab. You can display an overall behavior trend chart here or provide options to view individual behavior trends.</p>
+
+                <div class="tab-pane fade row" id="behavior">
+                    <div class="col-md-6">
+                        <h3>Overall Behavior Summary</h3>
+
+                        <canvas id="sentimentHistogram" class="chart-container"></canvas>
+
+                        <div>
+                            <h3>Individual Behavior Trends</h3>
+                            <select class="form-select mb-3" id="individual-orphan-education">
+                            <option value="">Select Orphan</option>
+                            {% for orphan in orphans %}
+                            <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                            {% endfor %}
+                            </select>
+    
+                            <canvas id="IndividualBehaviorChart"></canvas>  
+                        </div>                
+                    </div>
                 </div>
 
 
                 <div class="tab-pane fade row" id="education">
                     <div class="col-md-6">
-
+                <div class="mb-5">
                     <h3>Overall Education Summary</h3>
                     <canvas id="overallPerformanceChart" class="chart-container"></canvas>
-
+                    
+                </div>
                     <div>
                         <h3>Individual Education Trends</h3>
+
                         <select class="form-select mb-3" id="individual-orphan-education">
                         <option value="">Select Orphan</option>
                         {% for orphan in orphans %}
                         <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
                         {% endfor %}
                         </select>
-
                         <canvas id="individualPerformanceChart"></canvas>  
+                    </div>
                     </div>                
-                </div>
                 </div>
 
                 <div class="tab-pane fade row" id="physical">
@@ -63,6 +81,7 @@
 
                     <h3>Overall BMI Summary</h3>
                         <canvas id="bmiTrendChart"></canvas>
+                        <canvas id="healthChart"></canvas>
 
                     <div class="">
                         <h3>Individual BMI Trends</h3>
@@ -74,19 +93,112 @@
                           </select>
                           
                                 <canvas id="individualBmiChart"></canvas>
-                            </div>
-                        </div>                    
                     </div>
-
-
-
-
+                    </div>                    
+                </div>
     </div>
 
 
+<script>
+    console.log('{{ histogram_data | safe }}');
+    
+    function initializeSentimentHistogram() {
+        try {
+            // Before initializing your histogram chart
+            const ctxBehavior = document.getElementById('sentimentHistogram').getContext('2d');
+            
+            // Attempt to parse the histogram data
+            const histogramData = JSON.parse('{{ histogram_data | safe }}');
 
+            const sentimentHistogram = new Chart(ctxBehavior, {
+                type: 'bar', 
+                data: {
+                    labels: histogramData.labels, // These are your years
+                    datasets: histogramData.datasets // This should be an array of objects, each representing a sentiment score range
+                },
+                options: {
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true // Display the legend if you have multiple datasets
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error initializing sentiment histogram:", error);
+        }
+    }
+    
+    // Call the function when the window has loaded
+    window.addEventListener('load', initializeSentimentHistogram);
+</script>
+    
+<script>
+    // Parse the individual sentiments passed from the Django view
+    var individualSentiments = JSON.parse('{{ individual_sentiments | safe }}');
+    var ctxIndividualBehavior = document.getElementById('IndividualBehaviorChart').getContext('2d');
+    var IndividualBehaviorChart;
 
-    <script>
+    document.getElementById('individual-orphan-education').addEventListener('change', function(e) {
+        var orphanId = e.target.value;
+        
+        // Clear the previous chart data if exists
+        if (IndividualBehaviorChart) {
+            IndividualBehaviorChart.destroy();
+        }
+        
+        // Create a new line chart for the selected orphan
+        IndividualBehaviorChart = new Chart(ctxIndividualBehavior, {
+            type: 'line',
+            data: {
+                labels: individualSentiments[orphanId].map(s => 'Week ' + s.week),
+                datasets: [{
+                    label: 'Sentiment Score',
+                    data: individualSentiments[orphanId].map(s => s.average_score),
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                    plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                var score = context.parsed.y;
+                                var index = context.dataIndex;
+                                var improvement = '';
+                                if (index > 0) {
+                                    var previousScore = context.dataset.data[index - 1];
+                                    if (score > previousScore) {
+                                        improvement = ' (improved)';
+                                    } else if (score < previousScore) {
+                                        improvement = ' (declined)';
+                                    }
+                                }
+                                return label + ': ' + score + improvement;
+                            }
+                        },
+                    },
+                }
+            }
+        });
+    });
+</script>
+
+<!-- Education CHARTS -->
+
+<script>
     var chart; // Declare the chart variable at a higher scope
     console.log(document.getElementById('overallPerformanceChart'));
     // Assuming 'gpa_data' is passed to the template and available as a JSON string
@@ -150,8 +262,7 @@
                 }
             ];
             chart.update(); 
-            console.log("Chart Labels:", chart.data.labels);
-            console.log("Chart Data:", chart.data.datasets[0].data);
+
        });
 
     var ctxIndividual = document.getElementById('individualPerformanceChart').getContext('2d');
@@ -190,10 +301,37 @@ document.getElementById('individual-orphan-education').addEventListener('change'
     }
 });
 
+
+
+
+
+
 </script>
 
 
     
+<!-- health chart -->
+<script>
+    var healthChartData = JSON.parse('{{ health_chart_data_json | safe }}');
+    var ctxHealth = document.getElementById('healthChart').getContext('2d');
+    var healthChart = new Chart(ctxHealth, {
+        type: 'line',
+        data: healthChartData,
+        options: {
+            scales: {
+                y: {
+                    stacked: true
+                }
+            },
+            elements: {
+                line: {
+                    fill: true
+                }
+            }
+        }
+    });
+</script>
+
 
 
 <!-- BMI CHARTS -->

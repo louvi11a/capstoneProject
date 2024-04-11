@@ -409,7 +409,7 @@ class HealthDetail(models.Model):
             self.pain,
             # Add more if you have other symptoms
         ]
-        symptom_penalty = 5  # Penalty points for each symptom
+        symptom_penalty = 10  # Penalty points for each symptom
         health_score -= sum(symptom is True for symptom in symptoms) * \
             symptom_penalty
 

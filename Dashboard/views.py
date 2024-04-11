@@ -4,8 +4,9 @@ from django.db.models.functions import Concat
 from django.db.models import Avg
 from django.db.models import Count
 from django.forms import CharField
+import numpy as np
 # from behavior.models import Notes
-from orphans.models import BMI, Info, Files, Notes, get_sentiment_data, intervention_behavior_count
+from orphans.models import BMI, Info, Files, Notes, get_sentiment_data, intervention_behavior_count, HealthDetail
 from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -34,7 +35,9 @@ from django.db.models import Case, When, Value, CharField
 import logging
 from django.db.models import F
 from django.db.models.functions import ExtractYear, Cast, Concat
-
+from django.db.models.functions import ExtractWeek
+from django.db.models.functions import TruncMonth
+from collections import defaultdict
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -58,18 +61,6 @@ def categorize_grades_by_year(grades_with_year):
     return categorized_data
 
 
-# def overall_gpa_summary(request):
-#     overall_gpa = Grade.objects.annotate(
-#         # Correctly extracting the year from the related Education model
-#         year=ExtractYear('education__date_recorded')
-#     ).values(
-#         'semester', 'year'  # Now 'year' is correctly annotated and can be used here
-#     ).annotate(
-#         average_grade=Avg('grade')
-#     ).order_by('year', 'semester')
-#     print(overall_gpa)
-
-#     return JsonResponse(list(overall_gpa), safe=False)
 def overall_gpa_summary(request):
     grades = Grade.objects.annotate(
         year=ExtractYear('education__date_recorded'),
@@ -89,15 +80,6 @@ def overall_gpa_summary(request):
     return JsonResponse(list(grades), safe=False)
 
 
-# def individual_gpa_summary(request, orphan_id):
-#     grades = Grade.objects.filter(education__orphan__orphanID=orphan_id).annotate(
-#         year=ExtractYear('education__date_recorded')
-#     ).values('semester', 'year').annotate(
-#         # This assumes 'grade' field can represent GPA, adjust as needed
-#         average_grade=Avg('grade')
-#     ).order_by('year', 'semester')
-
-#     return JsonResponse(list(grades), safe=False)
 def individual_gpa_summary(request, orphan_id):
     grades = Grade.objects.filter(education__orphan__orphanID=orphan_id).annotate(
         year=ExtractYear('education__date_recorded'),
@@ -117,11 +99,141 @@ def individual_gpa_summary(request, orphan_id):
     return JsonResponse(list(grades), safe=False)
 
 
+def get_color_for_bin(bin_label):
+    """
+    Determines the color for a given sentiment score range.
+
+    :param bin_label: A string representing the sentiment score range, e.g., "-1.0 to -0.9".
+    :return: A string representing the RGBA color for the bin.
+    """
+    # Extract the start of the range from the bin label
+    start_of_range = float(bin_label.split(' to ')[0])
+
+    # Assign colors based on the range
+    if start_of_range < -0.5:
+        return 'rgba(255, 88, 132)'  # Red for negative sentiment
+    elif start_of_range > 0.5:
+        return 'rgba(62, 181, 94)'  # Green for positive sentiment
+    else:
+        return 'rgba(192, 192, 192)'  # Grey for neutral sentiment
+
+
 def overall_analysis(request):
     orphans = Info.objects.all()
+
+    individual_sentiments = {}
+    for orphan in orphans:
+        # Initialize an empty list for each orphan
+        individual_sentiments[orphan.orphanID] = []
+
+        # Get sentiment scores per week for the orphan
+        weekly_scores = Notes.objects.filter(
+            related_orphan=orphan
+        ).annotate(
+            week=ExtractWeek('timestamp')
+        ).values(
+            'week'
+        ).annotate(
+            average_score=Avg('sentiment_score')
+        ).order_by('week')
+
+        for week_score in weekly_scores:
+            # Append the weekly average sentiment score to the orphan's list
+            individual_sentiments[orphan.orphanID].append({
+                'week': week_score['week'],
+                'average_score': week_score['average_score']
+            })
+    # Determine the years present in your data
+    years = Notes.objects.annotate(year=ExtractYear('timestamp')).order_by(
+        'year').values_list('year', flat=True).distinct()
+    years = list(years)
+
+    negative_counts = [0 for _ in years]
+    neutral_counts = [0 for _ in years]
+    positive_counts = [0 for _ in years]
+
+    # Query to get year, sentiment_score and count distinct orphans
+    queryset = Notes.objects.annotate(year=ExtractYear('timestamp')).values(
+        'year', 'sentiment_score', 'related_orphan').distinct()
+
+    for note in queryset:
+        year = note['year']
+        score = note['sentiment_score']
+
+        # Find the index for the year to increment the count
+        year_index = years.index(year)
+
+        if score < -0.5:
+            negative_counts[year_index] += 1
+        elif score > 0.5:
+            positive_counts[year_index] += 1
+        else:
+            neutral_counts[year_index] += 1
+
+    datasets = [
+        {'label': 'Negative', 'data': negative_counts,
+            'backgroundColor': 'rgba(255, 88, 132)'},
+        {'label': 'Neutral', 'data': neutral_counts,
+            'backgroundColor': 'rgba(192, 192, 192)'},
+        {'label': 'Positive', 'data': positive_counts,
+            'backgroundColor': 'rgba(62, 181, 192)'}
+    ]
+
+    histogram_data_json = json.dumps({
+        # Convert year numbers to strings
+        'labels': [str(year) for year in years],
+        'datasets': datasets,
+    })
+
+    health_details = HealthDetail.objects.annotate(
+        month=TruncMonth('date')).order_by('month')
+
+    health_data_by_month = defaultdict(lambda: defaultdict(int))
+    for detail in health_details:
+        health_score = detail.calculate_health_score()
+        month = detail.month.strftime("%Y-%m")
+
+        # Categorize the health score
+        if health_score >= 80:
+            category = 'Normal'
+        elif 50 <= health_score < 80:
+            category = 'At-Risk'
+        else:
+            category = 'Critical'
+
+        health_data_by_month[month][category] += 1
+
+    # Prepare data for Chart.js
+    health_trend_data = []
+    for month, categories in health_data_by_month.items():
+        month_data = {'month': month}
+        month_data.update(categories)
+        health_trend_data.append(month_data)
+
+    months = sorted(health_data_by_month.keys())
+    health_chart_data = {
+        'labels': months,
+        'datasets': [
+            {
+                'label': 'Normal',
+                'data': [health_data_by_month[month]['Normal'] for month in months],
+                'backgroundColor': 'rgba(75, 192, 192)',
+            },
+            {
+                'label': 'At-Risk',
+                'data': [health_data_by_month[month]['At-Risk'] for month in months],
+                'backgroundColor': 'rgba(255, 206, 86)',
+            },
+            {
+                'label': 'Critical',
+                'data': [health_data_by_month[month]['Critical'] for month in months],
+                'backgroundColor': 'rgba(255, 99, 132)',
+            },
+        ],
+    }
+
     bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
         'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
-
     trend_data = {}
     for record in bmi_records:
         month = record['month'].strftime("%Y-%m")
@@ -159,6 +271,10 @@ def overall_analysis(request):
 
     context = {
         'orphans': orphans,
+        'health_chart_data_json': json.dumps(health_chart_data),
+        'individual_sentiments': json.dumps(individual_sentiments),
+
+        'histogram_data': histogram_data_json,
         'months': json.dumps(months),
         'categories_data': json.dumps(categories_data),
         'average_behavior_score': average_behavior_score,
