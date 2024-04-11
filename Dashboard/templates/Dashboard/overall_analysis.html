@@ -36,21 +36,39 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="summary">
                 <input type="text" id="statusFilter" class="form-control mb-3" placeholder="Filter by status...">
-                
-                <div id="orphanList">
+            
+                <div class="row" id="orphanList">
                     {% for orphan in orphans %}
-                    <div class="card mb-3" data-status="{{ orphan_statuses|get_item:orphan.orphanID }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
-                            <p class="card-text">
-                                Status: <span class="badge bg-primary status-text">{{ orphan_statuses|get_item:orphan.orphanID }}</span>
-                            </p>
-                            
+
+                    <div class="col-12 col-md-6 col-lg-4 orphan-card">
+                        <div class="card mb-3 bg-light-style w-auto text-center"> <!-- This centers text horizontally -->
+                            <a href="{% url 'orphan_profile' orphan.orphanID %}">
+                                <div class="d-flex justify-content-center align-items-center" style="height: 100px;"> <!-- Adjust the height as needed -->
+                                    {% if orphan.orphan_picture %}
+                                        <img src="{{ orphan.orphan_picture.url }}" class="rounded-circle" style="max-height: 100%;" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
+                                    {% else %}
+                                        <img src="{% static 'images/default_orphan_picture.png' %}" class="rounded-circle" style="max-height: 100%;" alt="Default profile picture" />
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
+                                    <p class="card-text">
+                                        Status: <span class="badge bg-primary status-text">{{ orphan_statuses|get_item:orphan.orphanID }}</span>
+                                    </p>
+                                </div>
+                            </a>
                         </div>
                     </div>
+                    
+                    
                     {% endfor %}
                 </div>
+                
+                
+
+                </div>
             </div>
+            
             
             
 
@@ -593,25 +611,26 @@ document.getElementById('individual-orphan-education').addEventListener('change'
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const filterInput = document.getElementById('statusFilter');
-        const orphanList = document.getElementById('orphanList').children;
-    
+
         filterInput.addEventListener('keyup', function() {
             const filterValue = filterInput.value.toLowerCase();
-    
-            // Iterate over each orphan entry
-            for (let orphan of orphanList) {
-                const status = orphan.getAttribute('data-status').toLowerCase();
-    
-                // If the orphan's status includes the filter input value, show it; otherwise, hide it.
-                if (status.includes(filterValue)) {
-                    orphan.style.display = '';
+            const orphanCards = document.querySelectorAll('.orphan-card'); // Select only the card containers
+
+            orphanCards.forEach(function(orphanCard) {
+                const status = orphanCard.querySelector('.status-text').textContent.toLowerCase();
+                const name = orphanCard.querySelector('.card-title').textContent.toLowerCase(); // Get name 
+
+                // Check if filter matches status OR name
+                if (status.includes(filterValue) || name.includes(filterValue)) {
+                    orphanCard.style.display = '';
                 } else {
-                    orphan.style.display = 'none';
+                    orphanCard.style.display = 'none';
                 }
-            }
+            });
         });
     });
-    </script>
+</script>
+
     
     {% endblock %}
 

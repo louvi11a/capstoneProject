@@ -336,7 +336,7 @@ def change_profile_picture(request, orphan_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile picture updated successfully.')
-            return redirect('orphan_profile', orphanID=orphan_id)
+        return redirect('orphan_profile', orphanID=orphan.orphanID)
     else:
         form = ProfilePictureForm(instance=orphan)
 
