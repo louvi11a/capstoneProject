@@ -9,7 +9,7 @@ from textblob import TextBlob
 from .models import Education, Grade, get_sentiment_data, HealthDetail
 from django import forms, views
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse, FileResponse
-from .forms import NoteForm, OrphanFileForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm
+from .forms import NoteForm, OrphanFileForm, OrphanProfileForm, FamilyForm, BmiForm, FilesForm, OrphanForm, EducationForm, GradeForm, ProfilePictureForm
 from .models import Info, BMI, Education, Family, Subject, Grade
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import get_object_or_404, render, redirect
@@ -177,7 +177,8 @@ class Orphan_Search(View):
                         'value': orphan_url  # This will be used for redirection
                     })
                 except Exception as e:
-                    print(f"Error generating URL for orphan {orphan.orphanID}: {e}")
+                    print(f"Error generating URL for orphan {
+                          orphan.orphanID}: {e}")
 
             return JsonResponse(data, safe=False)
         else:
@@ -326,6 +327,26 @@ def orphan_view(request):
     })
 
 
+def change_profile_picture(request, orphan_id):
+    # Use orphan_id to fetch the orphan
+    orphan = get_object_or_404(Info, orphanID=orphan_id)
+
+    if request.method == 'POST':
+        form = ProfilePictureForm(request.POST, request.FILES, instance=orphan)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile picture updated successfully.')
+            return redirect('orphan_profile', orphanID=orphan_id)
+    else:
+        form = ProfilePictureForm(instance=orphan)
+
+    context = {
+        'form': form,
+        'orphan': orphan
+    }
+    return render(request, 'orphans/orphan-content.html', context)
+
+
 def orphan_profile(request, orphanID):
     # Fetch the orphan instance using the provided orphanID.
     orphan = Info.objects.prefetch_related(
@@ -390,7 +411,7 @@ def orphan_profile(request, orphanID):
         'latest_physical_health': latest_physical_health,  # Add this line
         'birth_certificate_url': birth_certificate_url,
         'orphanID': orphanID,
-        'files': files,  # Add this line to include the files in the context
+        'files': files,
         # Include any other context data you need for the template.
 
     }

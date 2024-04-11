@@ -324,6 +324,40 @@ class Info(models.Model):
 
         return composite_score
 
+    def calculate_status(self):
+        # Define base weights
+        weights = {
+            'education': Decimal('0.3'),
+            'health': Decimal('0.4'),
+            'behavior': Decimal('0.3')
+        }
+
+        # Assuming the individual score methods return float, convert them to Decimal
+        education_score = Decimal(self.calculate_education_score() or 0)
+        health_score = Decimal(
+            self.calculate_overall_physical_wellbeing() or 0)
+        behavior_score = Decimal(self.calculate_behavior_score() or 0)
+
+        # Apply conditional weightings based on specific criteria
+        if health_score < Decimal('50'):
+            weights['health'] += Decimal('0.2')
+            weights['education'] -= Decimal('0.1')
+            weights['behavior'] -= Decimal('0.1')
+        # Add more conditions as necessary
+
+        # Calculate the composite score using Decimal for all arithmetic
+        composite_score = (education_score * weights['education'] +
+                           health_score * weights['health'] +
+                           behavior_score * weights['behavior'])
+
+        # Determine status based on composite score
+        if composite_score < Decimal('50'):
+            return 'Critical Attention Needed'
+        elif composite_score < Decimal('70'):
+            return 'Monitoring Required'
+        else:
+            return 'Stable'
+
 
 def get_sentiment_data():
     orphans = Info.objects.all()

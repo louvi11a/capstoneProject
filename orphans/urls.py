@@ -8,6 +8,8 @@ from django.conf.urls.static import static
 print(views.__file__)
 
 urlpatterns = [
+    path('change-profile-picture/<int:orphan_id>/',
+         views.change_profile_picture, name='change_profile_picture'),
 
     path('filter_orphans/', views.filter_orphans, name='filter_orphans'),
     path('files/orphan_files/<int:file_id>/',

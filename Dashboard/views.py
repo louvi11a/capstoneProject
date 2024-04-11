@@ -39,6 +39,9 @@ from django.db.models.functions import ExtractWeek
 from django.db.models.functions import TruncMonth
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render, get_object_or_404
+from .clustering_logic import perform_clustering
+import pandas as pd
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -163,6 +166,9 @@ def get_orphan_health_data(request, orphan_id):
 
 def overall_analysis(request):
     orphans = Info.objects.all()
+ 
+    # Calculate status for each orphan
+    orphan_statuses = {orphan.orphanID: orphan.calculate_status() for orphan in orphans}
 
     individual_sentiments = {}
     for orphan in orphans:
@@ -314,6 +320,8 @@ def overall_analysis(request):
 
     context = {
         'orphans': orphans,
+        'orphan_statuses': orphan_statuses,  # Add the status data here
+
         'health_chart_data_json': json.dumps(health_chart_data),
         'individual_sentiments': json.dumps(individual_sentiments),
 
