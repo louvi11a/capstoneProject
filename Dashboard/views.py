@@ -38,6 +38,8 @@ from django.db.models.functions import ExtractYear, Cast, Concat
 from django.db.models.functions import ExtractWeek
 from django.db.models.functions import TruncMonth
 from collections import defaultdict
+from django.core.exceptions import ObjectDoesNotExist
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -116,6 +118,47 @@ def get_color_for_bin(bin_label):
         return 'rgba(62, 181, 94)'  # Green for positive sentiment
     else:
         return 'rgba(192, 192, 192)'  # Grey for neutral sentiment
+
+
+def get_orphan_health_data(request, orphan_id):
+    try:
+        logger.debug("Fetching health data for orphan_id: %s", orphan_id)
+
+        # Assume 'orphan' is the ForeignKey to the Orphan model
+        health_data = HealthDetail.objects.filter(orphan_id=orphan_id).annotate(
+            month=TruncMonth('date')
+        ).values('month').distinct().order_by('month')
+
+        # Preparing the response data
+        data = {'labels': [], 'data': []}
+
+        for record in health_data:
+            month = record['month'].strftime('%Y-%m')
+            # Get all HealthDetail objects for this orphan and month
+            details = HealthDetail.objects.filter(
+                orphan_id=orphan_id,
+                date__month=record['month'].month,
+                date__year=record['month'].year,
+            )
+            # Calculate average health score
+            average_score = sum([detail.calculate_health_score()
+                                for detail in details]) / len(details) if details else 0
+
+            data['labels'].append(month)
+            data['data'].append(average_score)
+
+        # Check if data is empty
+        if not data['labels']:
+            return JsonResponse({'error': 'No health data found for the given orphan.'}, status=404)
+
+    except Exception as e:
+        # This could be improved with more specific exception types and messages
+        logger.error(
+            "An error occurred while fetching health data: %s", str(e))
+
+        return JsonResponse({'error': 'Server error or invalid request.'}, status=500)
+
+    return JsonResponse(data)
 
 
 def overall_analysis(request):
@@ -297,13 +340,27 @@ def overall_analysis(request):
 
 def get_orphan_bmi_data(request, orphan_id):
     logger = logging.getLogger(__name__)
-    logger.debug("Inside get_orphan_bmi_data view")
-    bmi_records = BMI.objects.filter(orphan=orphan_id).order_by(
-        'recorded_at').values('bmi', 'recorded_at')
-    data = list(bmi_records)
-    logger = logging.getLogger(__name__)  # Get a logger
-    logger.info(f"Data to be returned: {data}, Type: {type(data[0])}")
-    return JsonResponse(data, safe=False)
+    try:
+        logger.debug("Inside get_orphan_bmi_data view")
+        bmi_records = BMI.objects.filter(orphan=orphan_id).order_by(
+            'recorded_at').values('bmi', 'recorded_at')
+        data = list(bmi_records)
+
+        if not data:  # Check if 'data' is empty before accessing
+            logger.info("No data available to return.")
+            return JsonResponse({'error': 'No BMI data found for the orphan'}, status=404)
+
+        # If data is found, return it
+        logger.info(f"Data to be returned: {data}")
+        return JsonResponse({'data': data}, safe=False)
+
+    except ObjectDoesNotExist:
+        logger.error(f"No orphan found with ID {orphan_id}")
+        return JsonResponse({'error': 'Orphan not found'}, status=404)
+
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        return JsonResponse({'error': 'Internal Server Error'}, status=500)
 
 
 def sentiment_chart_view(request):

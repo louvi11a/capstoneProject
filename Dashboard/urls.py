@@ -5,6 +5,8 @@ from . import views
 urlpatterns = [
 
 
+    path('get_orphan_health_data/<int:orphan_id>/',
+         views.get_orphan_health_data, name='get_orphan_health_data'),
 
 
     path('overall_gpa_summary/',
@@ -12,6 +14,7 @@ urlpatterns = [
 
     path('individual_gpa_summary/<int:orphan_id>/',
          views.individual_gpa_summary, name='individual_gpa_summary'),
+
 
     path('get_orphan_bmi_data/<int:orphan_id>/',
          views.get_orphan_bmi_data, name='get_orphan_bmi_data'),
