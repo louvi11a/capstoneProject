@@ -11,8 +11,10 @@
 
     <link rel="stylesheet" href="{% static 'Css/final.css' %}">
 {% endblock %}
+{% load your_custom_filters %}
 
 {% block content %}
+
 <!-- <div class="main-content"> -->
     <div class="m-2">
 
@@ -33,8 +35,42 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane fade show active" id="summary">
-                <p>This is the content for the Summary of Trends tab. You can display overall trends for all orphans here (e.g., average behavior scores, education levels, health metrics).</p>
+                <input type="text" id="statusFilter" class="form-control mb-3" placeholder="Filter by status...">
+            
+                <div class="row" id="orphanList">
+                    {% for orphan in orphans %}
+
+                    <div class="col-12 col-md-6 col-lg-4 orphan-card">
+                        <div class="card mb-3 bg-light-style w-auto text-center"> <!-- This centers text horizontally -->
+                            <a href="{% url 'orphan_profile' orphan.orphanID %}">
+                                <div class="d-flex justify-content-center align-items-center" style="height: 100px;"> <!-- Adjust the height as needed -->
+                                    {% if orphan.orphan_picture %}
+                                        <img src="{{ orphan.orphan_picture.url }}" class="rounded-circle" style="max-height: 100%;" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
+                                    {% else %}
+                                        <img src="{% static 'images/default_orphan_picture.png' %}" class="rounded-circle" style="max-height: 100%;" alt="Default profile picture" />
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
+                                    <p class="card-text">
+                                        Status: <span class="badge bg-primary status-text">{{ orphan_statuses|get_item:orphan.orphanID }}</span>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    
+                    {% endfor %}
                 </div>
+                
+                
+
+                </div>
+            </div>
+            
+            
+            
 
                 <div class="tab-pane fade row" id="behavior">
                     <div class="col-md-6">
@@ -572,178 +608,29 @@ document.getElementById('individual-orphan-education').addEventListener('change'
 }
 
 </script>
-    
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const filterInput = document.getElementById('statusFilter');
 
-<!-- 
-    <script>
-    var ctx = document.getElementById('behaviorChart').getContext('2d');
-    var behaviorChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['January', 'February', 'March', 'April'], // Example labels, replace with actual dates
-            datasets: [{
-                label: 'Behavior Score',
-                data: [65, 70, 75, 80], // Example data, replace with actual scores
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+        filterInput.addEventListener('keyup', function() {
+            const filterValue = filterInput.value.toLowerCase();
+            const orphanCards = document.querySelectorAll('.orphan-card'); // Select only the card containers
+
+            orphanCards.forEach(function(orphanCard) {
+                const status = orphanCard.querySelector('.status-text').textContent.toLowerCase();
+                const name = orphanCard.querySelector('.card-title').textContent.toLowerCase(); // Get name 
+
+                // Check if filter matches status OR name
+                if (status.includes(filterValue) || name.includes(filterValue)) {
+                    orphanCard.style.display = '';
+                } else {
+                    orphanCard.style.display = 'none';
                 }
-            }
-        }
+            });
+        });
     });
+</script>
+
     
-
-</script> -->
-
-
-<!-- //     var ctx = document.getElementById('educationChart').getContext('2d');
-// var educationChart = new Chart(ctx, {
-//     type: 'bar',
-//     data: {
-//         labels: ['Q1', 'Q2', 'Q3', 'Q4'], // Quarters
-//         datasets: [{
-//             label: 'Math',
-//             data: [85, 88, 90, 93],
-//             backgroundColor: 'rgba(54, 162, 235, 0.2)',
-//             stack: 'Stack 0',
-//         }, {
-//             label: 'Science',
-//             data: [78, 81, 86, 90],
-//             backgroundColor: 'rgba(255, 206, 86, 0.2)',
-//             stack: 'Stack 0',
-//         }]
-//     },
-//     options: {
-//         scales: {
-//             x: {
-//                 stacked: true,
-//             },
-//             y: {
-//                 stacked: true,
-//                 beginAtZero: true,
-//             }
-//         }
-//     }
-// });
-
-//  <div class="container mt-0 mb-lg-5">
-//             <div class="row">
-//                 <div class="col-md-4">
-//                     <canvas id="bmiTrendChart"></canvas>
-
-//                     <canvas id="behaviorChart"></canvas>
-//                     <canvas id="educationChart"></canvas>
-//                     <canvas id="compositeChart"></canvas>
-//                     <canvas id="bmiGaugeChart"></canvas>
-//                     <canvas id="summaryChart" width="400" height="400"></canvas>
-
-//                 </div>
-
-//             </div>
-//         </div>  -->
-<!-- <script>
-var ctx = document.getElementById('compositeChart').getContext('2d');
-var compositeChart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-        labels: ['Behavior', 'Physical Well-Being', 'Education'],
-        datasets: [{
-            label: 'Orphan Score',
-            data: [75, 70, 85], // Example scores
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgba(255, 99, 132, 1)'
-        }]
-    },
-    options: {
-        elements: {
-            line: {
-                borderWidth: 3
-            }
-        }
-    }
-});
-
-var ctx = document.getElementById('bmiGaugeChart').getContext('2d');
-var bmiGaugeChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
-        datasets: [{
-            label: 'BMI Categories',
-            data: [25, 50, 20, 5], // Example data showing distribution, replace with your actual data
-            backgroundColor: [
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(255, 205, 86, 0.2)',
-                'rgba(255, 99, 132, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 159, 64, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(255, 205, 86, 1)',
-                'rgba(255, 99, 132, 1)'
-            ],
-            borderWidth: 1,
-            circumference: 180, // Makes the chart a semicircle
-            rotation: 270, // Rotates to start from the bottom
-        }]
-    },
-    options: {
-        circumference: Math.PI, // Limit the doughnut to a half circle
-        rotation: -Math.PI,
-        cutout: '90%', // Increase cutout percentage to narrow the doughnut's ring, enhancing the gauge effect
-        plugins: {
-            legend: {
-                position: 'top',
-            }
-        },
-        animation: {
-            animateRotate: true
-        }
-    }
-});
-
-var ctx = document.getElementById('summaryChart');
-var summaryChart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-        labels: ['Behavior', 'Physical Well-Being', 'Education', 'Composite'],
-        datasets: [{
-            label: 'Average Scores',
-            data: [
-                {{ average_behavior_score }},
-                {{ average_physical_wellbeing_score }},
-                {{ average_education_score }},
-                {{ average_composite_score }}
-            ],
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgba(255, 99, 132, 1)'
-        }]
-    },
-    options: {
-        scale: {
-            angleLines: {
-                display: false
-            },
-            suggestedMin: 50,
-            suggestedMax: 100
-        }
-    }
-});
-    </script> -->
     {% endblock %}
 

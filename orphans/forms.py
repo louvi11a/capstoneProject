@@ -5,6 +5,12 @@ from datetime import datetime  # Adjusted import
 from . import models
 
 
+class ProfilePictureForm(forms.ModelForm):
+    class Meta:
+        model = models.Info
+        fields = ['orphan_picture']
+
+
 class OrphanFileForm(forms.ModelForm):
     class Meta:
         model = models.OrphanFiles
