@@ -25,10 +25,10 @@
       <div class="row d-flex justify-content-center">
           <a href="{% url 'overall_analysis' %}"
               class=" btn btn-primary col-md-3  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
-              <h5>Orphan Analysis
+              <h5>Orphans Summary 
                   <i class="txtColor icon fa-solid fa-children fs-4   border-0"></i>
               </h5>
-              <h1 class="text-center mt-3">100</h1>
+              <!-- <h1 class="text-center mt-3">100</h1> -->
               <!-- {{ total_orphans }} -->
           </a>
 
@@ -60,17 +60,21 @@
 
           <div
               class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
-              <a href="{% url 'intervention_academics' %}" class="text-decoration-none txtColor">
+              <!-- <a href="{% url 'intervention_academics' %}" class="text-decoration-none txtColor"> -->
+                <a lass="text-decoration-none txtColor">
+
                   <h5 class="pt-2">Education <i
                           class="txtColor icon fa-solid fa-building-circle-exclamation fs-5"></i></h5>
-                  <h1 class="text-center mt-3">{{ orphan_count }}</h1>
+                  <h1 class="text-center mt-3">{{ count_academic_interventions }}</h1>
                   <p>Needs Intervention</p>
               </a>
           </div>
 
           <div
               class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
-              <a href="{% url 'intervention_health' %}" class="text-decoration-none txtColor">
+              <!-- <a href="{% url 'intervention_health' %}" class="text-decoration-none txtColor"> -->
+                <a class="text-decoration-none txtColor">
+
                   <h5 class="pt-2">Health <i class="txtColor icon fa-solid fa-heart-circle-exclamation fs-5"></i></h5>
                   <h1 class="text-center mt-3">{{ orphan_count }}</h1>
                   <p>Needs Intervention</p>
@@ -79,7 +83,9 @@
 
           <div
               class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
-              <a href="{% url 'intervention_behavior' %}" class="text-decoration-none txtColor">
+              <!-- <a href="{% url 'intervention_behavior' %}" class="text-decoration-none txtColor"> -->
+                <a  class="text-decoration-none txtColor">
+
                   <h5 class="pt-2">Behavior <i class="txtColor icon fa-solid fa-person-circle-exclamation fs-5"></i>
                   </h5>
                   <h1 class="text-center mt-3">{{ requires_intervention_behavior }}</h1>

@@ -117,9 +117,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     {% for orphan in orphans %}
 
                     <div class="col-12 col-md-6 col-lg-4 orphan-card">
-                        <div class="card mb-3 orphan-card">
-                            <a href="{% url 'orphan_profile' orphan.orphanID %}" class="text-decoration-none">
-                                <div class="card-img-top d-flex justify-content-center align-items-center" style="height: 200px; overflow: hidden;">
+                        <div class="card mb-3 bg-light-style w-auto text-center"> <!-- This centers text horizontally -->
+                            <a href="{% url 'orphan_profile' orphan.orphanID %}" class="text-decoration-none text-dark">
+                                <div class="d-flex justify-content-center align-items-center" style="height: 100px;"> <!-- Adjust the height as needed -->
                                     {% if orphan.orphan_picture %}
                                     <img src="{{ orphan.orphan_picture.url }}" class="rounded-circle img-thumbnail" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
                                     {% else %}
@@ -127,21 +127,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                     {% endif %}
                                 </div>
                                 <div class="card-body">
-                                    <h5 class="card-title text-center">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
-                                    <p class="card-text text-center">
-                                        
-                                        <span class="badge 
-                                            {% if orphan_statuses|get_item:orphan.orphanID == 'Critical Attention Needed' %}
-                                            bg-danger
-                                            {% elif orphan_statuses|get_item:orphan.orphanID == 'Monitoring Required' %}
-                                            bg-warning
-                                            {% else %}
-                                            bg-success
-                                            {% endif %}
-                                            status-text">
-                                            {{ orphan_statuses|get_item:orphan.orphanID }}
-                                        </span>
-                                    </p>  
+                                    <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
+                                    <p class="card-text">
+                                        Status: <span class="badge bg-primary status-text">{{ orphan_statuses|get_item:orphan.orphanID }}</span>
+                                    </p>
                                 </div>
                             </a>
                         </div>
@@ -220,6 +209,10 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
 
+
+
+
+<!-- behavior -->
 <script>
     console.log('{{ histogram_data | safe }}');
     
@@ -243,6 +236,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         y: { stacked: true }
                     },
                     plugins: {
+                        subtitle: {
+                        display: true,
+                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                        font: { style: 'italic', size: 12 },
+           
+        },
                         legend: {
                             display: true // Display the legend if you have multiple datasets
                         }
@@ -292,6 +291,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                     plugins: {
+                        subtitle: {
+                        display: true,
+                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                        font: { style: 'italic', size: 12 },
+                        },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
