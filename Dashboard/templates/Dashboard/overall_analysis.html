@@ -137,6 +137,10 @@
     </div>
 
 
+
+
+
+<!-- behavior -->
 <script>
     console.log('{{ histogram_data | safe }}');
     
@@ -160,6 +164,12 @@
                         y: { stacked: true }
                     },
                     plugins: {
+                        subtitle: {
+                        display: true,
+                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                        font: { style: 'italic', size: 12 },
+           
+        },
                         legend: {
                             display: true // Display the legend if you have multiple datasets
                         }
@@ -209,6 +219,11 @@
                     }
                 },
                     plugins: {
+                        subtitle: {
+                        display: true,
+                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                        font: { style: 'italic', size: 12 },
+                        },
                     tooltip: {
                         callbacks: {
                             label: function(context) {

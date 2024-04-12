@@ -331,8 +331,8 @@ class Info(models.Model):
         # Define base weights
         weights = {
             'education': Decimal('0.3'),
-            'health': Decimal('0.4'),
-            'behavior': Decimal('0.3')
+            'health': Decimal('0.3'),
+            'behavior': Decimal('0.4')
         }
 
         # Assuming the individual score methods return float, convert them to Decimal
