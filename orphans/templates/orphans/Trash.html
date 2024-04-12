@@ -260,36 +260,25 @@ Deleted Files
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         var entriesSelect = document.getElementById("entriesSelect");
-        if (entriesSelect) {
-            entriesSelect.addEventListener("change", function() {
-                var selectedValue = parseInt(entriesSelect.value);
-                updateTableEntries(selectedValue);
-            });
-        }
-
-        var sortOrderSelect = document.getElementById("sortOrder");
-        if (sortOrderSelect) {
-            sortOrderSelect.addEventListener("change", function() {
-                sortData();
-            });
-        }
+        entriesSelect.addEventListener("change", function() {
+            var selectedValue = entriesSelect.value;
+            updateTableEntries(selectedValue);
+        });
     });
 
     function updateTableEntries(entries) {
         var tableRows = document.querySelectorAll('#trashTable tbody tr');
 
         tableRows.forEach(function(row, index) {
-            if (entries === 'all' || index < entries) {
+            if (entries === 'all' || index < parseInt(entries)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
             }
         });  
-    
-    // Hide the dropdown after applying filter
-    document.getElementById(column + 'Dropdown').style.display = "none";
-}
- </script>
+    }
+</script>
+
 <script>
   function toggleDropdown(dropdownId) {
       var dropdown = document.getElementById(dropdownId + 'Dropdown');

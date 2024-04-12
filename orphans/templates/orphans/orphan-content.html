@@ -29,7 +29,7 @@
                   <button id="graduateBtn" class="btn btn-outline-danger mt-2" onclick="confirmGraduation({{ orphan.orphanID }});">Mark as Graduated?</button>
               </div>
           {% elif orphan.status == "G" %}
-              <span class="badge bg-info rounded-pill" id="graduatedBadge">Graduated</span>
+              <span class="badge bg-danger rounded-pill" id="graduatedBadge">Graduated</span>
           {% elif orphan.status == "P" %}
               <span class="badge bg-warning rounded-pill">Pending</span>
           {% endif %}

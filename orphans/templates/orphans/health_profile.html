@@ -224,9 +224,9 @@ if (rows[i]) {
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('vomiting')">Vomiting</a>
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('headache')">Headache</a>
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('stomachache')">Stomachache</a>
-                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('cough with phlegm')">Cough with Phlegm</a>
+                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('cough')">Cough with Phlegm</a>
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('dizziness')">Dizziness</a>
-                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('pain in the heart')">Pain in the Heart</a>
+                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('pain')">Pain in the Heart</a>
                     </div>
                 </th>
                 <th scope="col"> 
@@ -254,17 +254,17 @@ if (rows[i]) {
                                 <td>{{ detail.blood_pressure }}</td>
                                 <td>{{ detail.heart_rate }}</td>
                                 <td>
-                                    {% if detail.nausea %}Nausea{% endif %}
-                                    {% if detail.vomiting %}, Vomiting{% endif %}
-                                    {% if detail.headache %}, Headache{% endif %}
-                                    {% if detail.stomachache %}, Stomachache{% endif %}
-                                    {% if detail.cough %}, Cough{% endif %}
-                                    {% if detail.dizziness %}, Dizziness{% endif %}
-                                    {% if detail.pain %}, Pain{% endif %}
-                                    {% if detail.others_symptoms %}, {{ detail.others_symptoms }}{% endif %}
+                                    {% if detail.nausea %}Nausea,{% endif %}
+                                    {% if detail.vomiting %}Vomiting,{% endif %}
+                                    {% if detail.headache %}Headache,{% endif %}
+                                    {% if detail.stomachache %}Stomachache,{% endif %}
+                                    {% if detail.cough %}Cough,{% endif %}
+                                    {% if detail.dizziness %}Dizziness,{% endif %}
+                                    {% if detail.pain %}Pain,{% endif %}
+                                    {% if detail.others_symptoms %}{{ detail.others_symptoms }}{% endif %}
                                 </td>
                                 <td>{{ detail.other_details }}</td>
-                                <td>status</td>
+                                <td>{{ detail.status }}</td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -410,23 +410,24 @@ if (rows[i]) {
     }
 
 
-    function filterByStatus(filterValue) {
-        console.log('Filter by status:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('statusDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
-        rows.forEach(function(row) {
-            row.style.display = ''; // Reset to show all rows
-        });
-        if (filterValue !== 'all') {
-            rows.forEach(function(row) {
-                if (!row.cells[6].textContent.toLowerCase().includes(filterValue)) {
-                    row.style.display = 'none'; // Hide rows not matching the selected status
-                }
-            });
+    function filterByOtherSymptoms(filterValue) {
+    console.log('Filter by symptoms:', filterValue);
+    // Close dropdown after selection
+    document.getElementById('otherSymptomsDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
+    rows.forEach(function(row) {
+        // Reset to show all rows
+        row.style.display = '';
+
+        // Check if the row contains any of the selected symptoms
+        var symptomsCell = row.cells[4].textContent.toLowerCase();
+        if (filterValue !== 'all' && !symptomsCell.includes(filterValue)) {
+            row.style.display = 'none'; // Hide rows not matching the selected symptom
         }
-    }
+    });
+}
+
 </script>
 
                 <!-- modal for health -->

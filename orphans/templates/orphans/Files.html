@@ -64,35 +64,27 @@
         </div>
 
         
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var entriesSelect = document.getElementById("entriesSelect");
-        entriesSelect.addEventListener("change", function() {
-            var selectedValue = parseInt(entriesSelect.value);
-            updateTableEntries(selectedValue);
-        });
-
-        var sortOrderSelect = document.getElementById("sortOrder");
-        sortOrderSelect.addEventListener("change", function() {
-            sortData();
-        });
-    });
-
-    function updateTableEntries(entries) {
-        var tableRows = document.querySelectorAll('#filesTable tbody tr');
-
-        tableRows.forEach(function(row, index) {
-            if (entries === 'all' || index < entries) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var entriesSelect = document.getElementById("entriesSelect");
+                entriesSelect.addEventListener("change", function() {
+                    var selectedValue = entriesSelect.value;
+                    updateTableEntries(selectedValue);
+                });
+            });
+        
+            function updateTableEntries(entries) {
+                var tableRows = document.querySelectorAll('#filesTable tbody tr');
+        
+                tableRows.forEach(function(row, index) {
+                    if (entries === 'all' || index < parseInt(entries)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });  
             }
-        });  
-    
-    // Hide the dropdown after applying filter
-    document.getElementById(column + 'Dropdown').style.display = "none";
-}
- </script>
+        </script>
 
 <div class="d-flex align-items-center">
     <button class="btn btn-sm me-2"><i class="bi bi-filter"></i></button>
