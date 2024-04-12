@@ -456,6 +456,7 @@ def dashboard_view(request):
 
     # Prepare initial data structure for academic statuses
     FAILING_GRADE_THRESHOLD = 75
+    FAILING_GRADE_THRESHOLD_COLLEGE = 3
 
     academic_statuses = {
         'Urgent Academic Support': 0,
@@ -467,6 +468,12 @@ def dashboard_view(request):
     # Iterate over orphans instead of educations to aggregate failing grades count per orphan
     orphans = Info.objects.prefetch_related('educations__grades').all()
 
+    # count_academic_interventions = Info.objects.filter(
+    #     Q(education_level='College', educations__grades__grade__lt=3) |
+    #     Q(education_level='Elementary', educations__grades__grade__lt=75) |
+    #     Q(education_level='High School', educations__grades__grade__lt=75)
+    # ).distinct().count()
+
     for orphan in orphans:
         urgent_support_needed = False
         partial_support_needed = False
@@ -474,6 +481,14 @@ def dashboard_view(request):
         stable_standing = False
 
         for education in orphan.educations.all():
+            # counting of needs intervention
+            count_academic_interventions = Info.objects.filter(
+                Q(educations__education_level='College', educations__grades__grade__gt=FAILING_GRADE_THRESHOLD_COLLEGE) |
+                Q(educations__education_level__in=[
+                  'Elementary', 'High School'], educations__grades__grade__lt=FAILING_GRADE_THRESHOLD)
+            ).distinct().count()
+            print("academic intervention", count_academic_interventions)
+
             failing_grades_count = education.grades.filter(
                 grade__lte=FAILING_GRADE_THRESHOLD).count()
             highest_grade = education.grades.aggregate(Max('grade'))[
@@ -515,6 +530,7 @@ def dashboard_view(request):
         'age_labels': [f'{start}-{end}' for start, end in age_ranges],
         'male_age_data': male_age_data,
         'female_age_data': female_age_data,
+        'count_academic_interventions': count_academic_interventions,
 
     }
 
