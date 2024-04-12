@@ -128,9 +128,18 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
-                                    <p class="card-text">
-                                        Status: <span class="badge bg-primary status-text">{{ orphan_statuses|get_item:orphan.orphanID }}</span>
-                                    </p>
+                                    <p class="card-text text-center">
+                        
+                                        <span class="badge 
+                                            {% if orphan_statuses|get_item:orphan.orphanID == 'Critical Attention Needed' %}
+                                            bg-danger
+                                            {% elif orphan_statuses|get_item:orphan.orphanID == 'Monitoring Required' %}
+                                            bg-warning
+                                            {% else %}
+                                            bg-success
+                                            {% endif %}
+                                            status-text">
+                                            {{ orphan_statuses|get_item:orphan.orphanID }}
                                 </div>
                             </a>
                         </div>
