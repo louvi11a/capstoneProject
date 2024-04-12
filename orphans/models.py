@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views import View
 from datetime import date, datetime, timezone
 from django.utils import timezone
+from django.db.models import Avg
 
 
 class Family(models.Model):
@@ -62,10 +63,6 @@ class Files(models.Model):
     is_archived = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(
         null=True, blank=True)  # New field for time deletion
-    # # Add a ForeignKey to Info model
-    # related_orphan = models.ForeignKey(
-    #     'Info', on_delete=models.CASCADE, related_name='files', null=True)
-    # Field for the uploaded file
     file = models.FileField(upload_to='uploads/', blank=True, null=True)
 
     class Meta:
@@ -142,10 +139,7 @@ class Info(models.Model):
         return url
 
     @property
-    # def average_sentiment(self):
-    #     return self.notes.aggregate(Avg('sentiment_score'))['sentiment_score__avg']
     def average_sentiment(self):
-        from django.db.models import Avg
         current_month = timezone.now().date().replace(day=1)
         recent_notes = self.notes.filter(
             timestamp__year=current_month.year, timestamp__month=current_month.month)

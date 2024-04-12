@@ -535,7 +535,6 @@ def chart_academic(request):
 
 def intervention_academics(request):
     # You can calculate or fetch orphan_count here
-    orphan_count = 55
     return render(request, 'Dashboard/intervention_academics.html', {'orphan_count': orphan_count})
 
 

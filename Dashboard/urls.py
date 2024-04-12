@@ -27,18 +27,17 @@ urlpatterns = [
          name='intervention_behavior'),
 
     path('api/chart-sentiment/', views.sentiment_chart_view, name='chart_sentiment'),
-    #     path('age-chart/', age_distribution, name='age_distribution'),
 
     path('', views.dashboard_view, name='Dashboard'),
     path('sentiment_details/', views.sentiment_details, name='sentiment_details'),
     path('sentiment_details/profile/<int:orphan_id>/',
          views.orphanSentiment_detail, name='orphanSentiment_detail'),
+
     path('intervention_academics/', views.intervention_academics,
          name='intervention_academics'),
     path('intervention_health/', views.intervention_health,
          name='intervention_health'),
-    path('intervention_behavior/', views.intervention_behavior,
-         name='intervention_behavior'),
+
 
     path('chart_behavior/', views.chart_behavior, name='chart_behavior'),
     path('chart_bmi/', views.chart_bmi, name='chart_bmi'),
