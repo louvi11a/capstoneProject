@@ -6,7 +6,8 @@ from simple_history.models import HistoricalRecords
 from django.db.models import Q, Avg
 from django.http import JsonResponse
 from django.views import View
-from datetime import date, datetime
+from datetime import date, datetime, timezone
+from django.utils import timezone
 
 
 class Family(models.Model):
@@ -141,8 +142,16 @@ class Info(models.Model):
         return url
 
     @property
+    # def average_sentiment(self):
+    #     return self.notes.aggregate(Avg('sentiment_score'))['sentiment_score__avg']
     def average_sentiment(self):
-        return self.notes.aggregate(Avg('sentiment_score'))['sentiment_score__avg']
+        from django.db.models import Avg
+        current_month = timezone.now().date().replace(day=1)
+        recent_notes = self.notes.filter(
+            timestamp__year=current_month.year, timestamp__month=current_month.month)
+        avg_sentiment = recent_notes.aggregate(Avg('sentiment_score'))[
+            'sentiment_score__avg']
+        return avg_sentiment if avg_sentiment is not None else 0
 
     def calculate_age(self):
         if self.birthDate:
@@ -359,6 +368,25 @@ class Info(models.Model):
             return 'Stable'
 
 
+# def get_sentiment_data():
+#     orphans = Info.objects.all()
+#     positive = 0
+#     negative = 0
+#     neutral = 0
+
+#     for orphan in orphans:
+#         avg_sentiment = orphan.average_sentiment
+#         if avg_sentiment is None:
+#             continue  # skip orphans with no notes
+#         elif avg_sentiment > 0.05:  # adjust these values as needed
+#             positive += 1
+#         elif avg_sentiment < -0.05:
+#             negative += 1
+#         else:
+#             neutral += 1
+
+#     return positive, negative, neutral
+
 def get_sentiment_data():
     orphans = Info.objects.all()
     positive = 0
@@ -368,10 +396,10 @@ def get_sentiment_data():
     for orphan in orphans:
         avg_sentiment = orphan.average_sentiment
         if avg_sentiment is None:
-            continue  # skip orphans with no notes
-        elif avg_sentiment > 0.05:  # adjust these values as needed
+            continue  # skip orphans with no notes for the current month
+        elif avg_sentiment > 0.05:  # Threshold for positive
             positive += 1
-        elif avg_sentiment < -0.05:
+        elif avg_sentiment < -0.05:  # Threshold for negative
             negative += 1
         else:
             neutral += 1

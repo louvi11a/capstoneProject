@@ -66,76 +66,74 @@
                 
                 
 
-                </div>
             </div>
             
-            
-            
-
-                <div class="tab-pane fade row" id="behavior">
-                    <div class="col-md-6">
-                        <h3>Overall Behavior Summary</h3>
-
-                        <canvas id="sentimentHistogram" class="chart-container"></canvas>
-
-                        <div>
-                            <h3>Individual Behavior Trends</h3>
-                            <select class="form-select mb-3" id="individual-orphan-education">
-                            <option value="">Select Orphan</option>
-                            {% for orphan in orphans %}
-                            <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
-                            {% endfor %}
-                            </select>
     
-                            <canvas id="IndividualBehaviorChart"></canvas>  
-                        </div>                
-                    </div>
-                </div>
+            <div class="tab-pane fade row" id="behavior">
+                <div class="col-md-6">
+                    <h3>Overall Behavior Summary</h3>
 
+                    <canvas id="sentimentHistogram" class="chart-container"></canvas>
 
-                <div class="tab-pane fade row" id="education">
-                    <div class="col-md-6">
-                <div class="mb-5">
-                    <h3>Overall Education Summary</h3>
-                    <canvas id="overallPerformanceChart" class="chart-container"></canvas>
-                    
-                </div>
                     <div>
-                        <h3>Individual Education Trends</h3>
-
+                        <h3>Individual Behavior Trends</h3>
                         <select class="form-select mb-3" id="individual-orphan-education">
                         <option value="">Select Orphan</option>
                         {% for orphan in orphans %}
                         <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
                         {% endfor %}
                         </select>
-                        <canvas id="individualPerformanceChart"></canvas>  
-                    </div>
+
+                        <canvas id="IndividualBehaviorChart"></canvas>  
                     </div>                
                 </div>
+            </div>
 
-                <div class="tab-pane fade row" id="physical">
-                    <div class="col-md-6">
 
-                    <h3>Overall BMI Summary</h3>
-                        <canvas id="bmiTrendChart"></canvas>
-                        <canvas id="healthChart"></canvas>
+            <div class="tab-pane fade row" id="education">
+                <div class="col-md-6">
+            <div class="mb-5">
+                <h3>Overall Education Summary</h3>
+                <canvas id="overallPerformanceChart" class="chart-container"></canvas>
+                
+            </div>
+                <div>
+                    <h3>Individual Education Trends</h3>
 
-                    <div class="">
-                        <h3>Individual BMI/ Health Trends</h3>
-                        <select class="form-select mb-3" id="individual-orphan-bmi">
-                          <option value="">Select Orphan</option>
-                          {% for orphan in orphans %}
-                          <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
-                          {% endfor %}
-                          </select>
-                          <div id="bmiChartMessage"></div>
-                            <canvas id="individualBmiChart"></canvas>
-                            <canvas id="individualHealthChart"></canvas>
-                            
-                    </div>
-                    </div>                    
+                    <select class="form-select mb-3" id="individual-orphan-education">
+                    <option value="">Select Orphan</option>
+                    {% for orphan in orphans %}
+                    <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                    {% endfor %}
+                    </select>
+                    <canvas id="individualPerformanceChart"></canvas>  
                 </div>
+                </div>                
+            </div>
+
+            <div class="tab-pane fade row" id="physical">
+                <div class="col-md-6">
+
+                <h3>Overall BMI Summary</h3>
+                    <canvas id="bmiTrendChart"></canvas>
+                    <canvas id="healthChart"></canvas>
+
+                <div class="">
+                    <h3>Individual BMI/ Health Trends</h3>
+                    <select class="form-select mb-3" id="individual-orphan-bmi">
+                        <option value="">Select Orphan</option>
+                        {% for orphan in orphans %}
+                        <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                        {% endfor %}
+                        </select>
+                        <div id="bmiChartMessage"></div>
+                        <canvas id="individualBmiChart"></canvas>
+                        <canvas id="individualHealthChart"></canvas>
+                        
+                </div>
+                </div>                    
+            </div>
+        </div>
     </div>
 
 

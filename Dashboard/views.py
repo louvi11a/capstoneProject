@@ -166,9 +166,10 @@ def get_orphan_health_data(request, orphan_id):
 
 def overall_analysis(request):
     orphans = Info.objects.all()
- 
+
     # Calculate status for each orphan
-    orphan_statuses = {orphan.orphanID: orphan.calculate_status() for orphan in orphans}
+    orphan_statuses = {orphan.orphanID: orphan.calculate_status()
+                       for orphan in orphans}
 
     individual_sentiments = {}
     for orphan in orphans:
@@ -381,7 +382,8 @@ def sentiment_chart_view(request):
         }
         return JsonResponse(sentiment_data)
     except Exception as e:
-        return JsonResponse({'error': str(e)})
+        logger.error(f"Error generating sentiment data: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 # @login_required
