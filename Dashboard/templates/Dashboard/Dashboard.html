@@ -334,13 +334,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const behaviorChartCanvas = document.getElementById('sentimentChart');
   behaviorChartCanvas.style.cursor = 'pointer';
   behaviorChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "chart_behavior" %}';
+      window.location.href = '{% url "intervention_behavior" %}';
   });
 
   const academicChartCanvas = document.getElementById('academicChart');
   academicChartCanvas.style.cursor = 'pointer';
   academicChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "chart_academic" %}';
+      window.location.href = '{% url "intervention_academics" %}';
   });
 
   const ageChartCanvas = document.getElementById('ageChart');
@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const healthChartCanvas = document.getElementById('healthChart');
   healthChartCanvas.style.cursor = 'pointer';
   healthChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "chart_health" %}';
+      window.location.href = '{% url "intervention_health" %}';
   });
 
   const bmiChartCanvas = document.getElementById('bmiChart');

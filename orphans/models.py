@@ -244,7 +244,7 @@ class Info(models.Model):
         # Iterate through each Education instance
         for education in educations:
             # Get all Grade instances related to this Education instance
-            grades = education.grade_set.all()
+            grades = education.grades.all()
 
             # Skip if there are no grades for this Education instance
             if not grades.exists():
@@ -362,24 +362,30 @@ class Info(models.Model):
             return 'Stable'
 
 
-# def get_sentiment_data():
-#     orphans = Info.objects.all()
-#     positive = 0
-#     negative = 0
-#     neutral = 0
+class Intervention(models.Model):
+    TYPE_CHOICES = [
+        ('academic', 'Academic'),
+        ('behavior', 'Behavior'),
+        ('health', 'Health'),
+    ]
+    STATUS_CHOICES = [
+        ('resolved', 'Resolved'),
+        ('pending', 'Pending'),
+        ('unresolved', 'Unresolved'),
+    ]
 
-#     for orphan in orphans:
-#         avg_sentiment = orphan.average_sentiment
-#         if avg_sentiment is None:
-#             continue  # skip orphans with no notes
-#         elif avg_sentiment > 0.05:  # adjust these values as needed
-#             positive += 1
-#         elif avg_sentiment < -0.05:
-#             negative += 1
-#         else:
-#             neutral += 1
+    orphan = models.ForeignKey(
+        'Info', on_delete=models.CASCADE, related_name='interventions')
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='pending')
+    description = models.TextField()
+    date_created = models.DateField(auto_now_add=True)
+    last_modified = models.DateField(auto_now=True)
 
-#     return positive, negative, neutral
+    def __str__(self):
+        return f'{self.get_type_display()} intervention for {self.orphan} - {self.get_status_display()}'
+
 
 def get_sentiment_data():
     orphans = Info.objects.all()
@@ -620,7 +626,6 @@ class Grade(models.Model):
     ]
 
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    education = models.ForeignKey(Education, on_delete=models.CASCADE)
     grade = models.DecimalField(
         choices=GRADE_CHOICES, max_digits=5, decimal_places=2)
 
@@ -628,6 +633,8 @@ class Grade(models.Model):
         choices=QUARTER_CHOICES, null=True, blank=True)
     semester = models.IntegerField(
         choices=SEMESTER_CHOICES, null=True, blank=True)
+    education = models.ForeignKey(
+        Education, on_delete=models.CASCADE, related_name='grades')
 
     def standardize_grade(self):
         # Convert float literals to Decimal

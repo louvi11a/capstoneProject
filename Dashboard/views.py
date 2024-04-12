@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.forms import CharField
 import numpy as np
 # from behavior.models import Notes
-from orphans.models import BMI, Info, Files, Notes, get_sentiment_data, intervention_behavior_count, HealthDetail
+from orphans.models import BMI, Info, Files, Notes, get_sentiment_data, intervention_behavior_count, HealthDetail, Intervention
 from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.core import serializers
@@ -42,9 +42,41 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, get_object_or_404
 from .clustering_logic import perform_clustering
 import pandas as pd
-
+from django.db.models import Sum
+from . import forms
 # Set up logging
 logger = logging.getLogger(__name__)
+
+
+def save_intervention(request, orphan_id):
+    if request.method == 'POST':
+        form = forms.InterventionForm(request.POST)
+        if form.is_valid():
+            try:
+                orphan = Info.objects.get(pk=orphan_id)
+                intervention_type = 'academic'  # This should be dynamic based on context
+                intervention, created = Intervention.objects.get_or_create(
+                    orphan=orphan,
+                    type=intervention_type,
+                    defaults=form.cleaned_data
+                )
+                if not created:
+                    # Update the existing intervention if not newly created
+                    for key, value in form.cleaned_data.items():
+                        setattr(intervention, key, value)
+                    intervention.save()
+
+                return JsonResponse({'message': 'Intervention saved successfully.'}, status=200)
+            except Info.DoesNotExist:
+                return JsonResponse({'error': 'Orphan not found.'}, status=404)
+        else:
+            # Or return form errors
+            # or you can send this information back in the JsonResponse
+            print(form.errors.as_json())
+            logger.error(f"Form errors: {form.errors.as_json()}")
+
+            return JsonResponse({'error': 'Form is not valid.'}, status=400)
+    return JsonResponse({'error': 'Invalid request.'}, status=400)
 
 
 def categorize_grades_by_year(grades_with_year):
@@ -338,14 +370,6 @@ def overall_analysis(request):
 
     return render(request, 'Dashboard/overall_analysis.html', context)
 
-# def get_orphan_data():
-#     grades = Grade.objects.all()
-#     print(f"Fetched grades from database. Type of grades: {
-#           type(grades)}, Total grades: {grades.count()}")  # Debugging
-
-#     categorized_data = categorize_grades(grades)
-#     return categorized_data
-
 
 def get_orphan_bmi_data(request, orphan_id):
     logger = logging.getLogger(__name__)
@@ -441,7 +465,7 @@ def dashboard_view(request):
     }
 
     # Iterate over orphans instead of educations to aggregate failing grades count per orphan
-    orphans = Info.objects.prefetch_related('educations__grade_set').all()
+    orphans = Info.objects.prefetch_related('educations__grades').all()
 
     for orphan in orphans:
         urgent_support_needed = False
@@ -450,9 +474,9 @@ def dashboard_view(request):
         stable_standing = False
 
         for education in orphan.educations.all():
-            failing_grades_count = education.grade_set.filter(
+            failing_grades_count = education.grades.filter(
                 grade__lte=FAILING_GRADE_THRESHOLD).count()
-            highest_grade = education.grade_set.aggregate(Max('grade'))[
+            highest_grade = education.grades.aggregate(Max('grade'))[
                 'grade__max'] or 0
 
             if failing_grades_count >= 3:
@@ -521,7 +545,7 @@ def chart_age(request):
 
 def chart_academic(request):
     subjects = Subject.objects.all().order_by('name').distinct('name')
-    education_records = Education.objects.prefetch_related('grade_set')
+    education_records = Education.objects.prefetch_related('grades')
 
     # Combine both context variables into a single dictionary
     context = {
@@ -534,8 +558,70 @@ def chart_academic(request):
 
 
 def intervention_academics(request):
-    # You can calculate or fetch orphan_count here
-    return render(request, 'Dashboard/intervention_academics.html', {'orphan_count': orphan_count})
+    STATUS_COLORS = {
+        'resolved': 'success',
+        'pending': 'warning',
+        'unresolved': 'danger',
+    }
+
+    current_year = now().year
+
+    orphan_educations_status = []
+
+    for orphan in Info.objects.all():
+        # Aggregate the failing grades
+        total_failing_grades = orphan.educations.filter(
+            grades__grade__lt=75,
+            grades__education__date_recorded__year=current_year
+        ).aggregate(
+            failing_grades_count=Sum(
+                Case(
+                    When(grades__grade__lt=75, then=1),
+                    output_field=IntegerField(),
+                )
+            )
+        )['failing_grades_count'] or 0
+
+        # Find the latest education record
+        latest_education = orphan.educations.order_by('-date_recorded').first()
+
+        # Determine educational status
+        if total_failing_grades >= 2:
+            status = 'Critical Improvement Needed'
+            status_color = 'danger'
+        elif total_failing_grades == 1:
+            status = 'Needs Significant Improvement'
+            status_color = 'warning'
+        else:
+            status = 'Meets Expectations'
+            status_color = 'success'
+
+        # Get the latest academic intervention status and its color
+        latest_intervention = orphan.interventions.filter(type='academic').latest(
+            'date_created') if orphan.interventions.filter(type='academic').exists() else None
+        intervention_status = latest_intervention.status if latest_intervention else None
+        intervention_status_color = STATUS_COLORS.get(
+            intervention_status, 'secondary')
+
+        orphan_educations_status.append({
+            'orphan': orphan,
+            'education': latest_education,
+            'status': status,
+            'status_color': status_color,
+            'date_recorded': latest_education.date_recorded if latest_education else None,
+            'orphanID': orphan.orphanID,
+            'remarks': latest_intervention.description if latest_intervention else None,
+            'intervention_status': intervention_status,
+            'intervention_status_color': intervention_status_color,
+        })
+
+    context = {
+        'orphan_educations_status': orphan_educations_status,
+        'orphan_ids': [orphan.orphanID for orphan in Info.objects.all()],
+        'orphan_count': Info.objects.count(),
+    }
+
+    return render(request, 'Dashboard/intervention_academics.html', context)
 
 
 def intervention_health(request):

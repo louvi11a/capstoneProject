@@ -279,7 +279,7 @@ def academic_profile(request, orphan_id):
     # Fetch all education records related to this orphan
     # Use `prefetch_related` to optimize queries for related grades
     educations = Education.objects.filter(
-        orphan=orphan).prefetch_related('grade_set')
+        orphan=orphan).prefetch_related('grades')
 
     # Prepare the context for rendering in the template
     context = {

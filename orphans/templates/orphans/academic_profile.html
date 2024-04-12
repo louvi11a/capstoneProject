@@ -269,7 +269,7 @@
 <!-- Table Body -->
 <tbody>
     {% for education in educations %}
-        {% for grade in education.grade_set.all %}
+        {% for grade in education.grades.all %}
             <tr>
                 <td>{{ education.date_recorded }}</td>
                 <td>{{ education.year_level }}</td>

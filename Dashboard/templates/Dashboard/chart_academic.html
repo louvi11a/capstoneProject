@@ -53,52 +53,6 @@
     </div>
 </div>
 
-<script>
-    function downloadData() {
-    // Get reference to the table
-    var table = document.getElementById('academicDetailsTable');
-
-    // Check if table exists
-    if (!table) {
-        console.error("Table not found.");
-        return;
-    }
-
-    // Start CSV content with column headers
-    var csvContent = "Date, Name, Education Level, Grading, Subject, Grade, Status\n";
-
-    // Convert table content to CSV format
-    var rows = table.querySelectorAll('tbody tr');
-    if (rows.length === 0) {
-        console.warn("No data found in the table.");
-        return;
-    }
-
-    rows.forEach(function(row) {
-        var rowData = [];
-        var cells = row.querySelectorAll('td');
-
-        cells.forEach(function(cell) {
-            var cellContent = cell.textContent.trim().replace(/"/g, '""');
-            rowData.push('"' + cellContent + '"');
-        });
-
-        csvContent += rowData.join(',') + '\n';
-    });
-
-    // Create a link and trigger download
-    var encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
-    var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "summaryAcademic_data");
-    document.body.appendChild(link);
-    link.click();
-
-    // Clean up
-    document.body.removeChild(link);
-}
-
-</script>
 
     
 <!-- Acad Table-->
@@ -234,7 +188,7 @@
 
         <tbody>
             {% for education in education_records %}
-              {% for grade in education.grade_set.all %}
+              {% for grade in education.grades.all %}
                 <tr>
                   <td>{{ grade.education.date_recorded }}</td>
                   <td>{{ grade.education.orphan.firstName }} {{ grade.education.orphan.lastName }}</td>
@@ -266,6 +220,53 @@
      </table>
      <div id="noRecordsMessage" style="display: none;">No records found.</div>
     </div>
+
+    <script>
+        function downloadData() {
+        // Get reference to the table
+        var table = document.getElementById('academicDetailsTable');
+    
+        // Check if table exists
+        if (!table) {
+            console.error("Table not found.");
+            return;
+        }
+    
+        // Start CSV content with column headers
+        var csvContent = "Date, Name, Education Level, Grading, Subject, Grade, Status\n";
+    
+        // Convert table content to CSV format
+        var rows = table.querySelectorAll('tbody tr');
+        if (rows.length === 0) {
+            console.warn("No data found in the table.");
+            return;
+        }
+    
+        rows.forEach(function(row) {
+            var rowData = [];
+            var cells = row.querySelectorAll('td');
+    
+            cells.forEach(function(cell) {
+                var cellContent = cell.textContent.trim().replace(/"/g, '""');
+                rowData.push('"' + cellContent + '"');
+            });
+    
+            csvContent += rowData.join(',') + '\n';
+        });
+    
+        // Create a link and trigger download
+        var encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "summaryAcademic_data");
+        document.body.appendChild(link);
+        link.click();
+    
+        // Clean up
+        document.body.removeChild(link);
+    }
+    
+    </script>
 
 
 <script>
