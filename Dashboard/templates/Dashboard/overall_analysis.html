@@ -142,112 +142,113 @@
 
 <!-- behavior -->
 <script>
-    console.log('{{ histogram_data | safe }}');
-    
     function initializeSentimentHistogram() {
-        try {
-            // Before initializing your histogram chart
-            const ctxBehavior = document.getElementById('sentimentHistogram').getContext('2d');
-            
-            // Attempt to parse the histogram data
-            const histogramData = JSON.parse('{{ histogram_data | safe }}');
-
-            const sentimentHistogram = new Chart(ctxBehavior, {
-                type: 'bar', 
-                data: {
-                    labels: histogramData.labels, // These are your years
-                    datasets: histogramData.datasets // This should be an array of objects, each representing a sentiment score range
-                },
-                options: {
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
+        const ctxBehavior = document.getElementById('sentimentHistogram').getContext('2d');
+        fetch('/Dashboard/overall_behavior_summary/')
+        .then(response => {
+            console.log(response);  // Log the full response object
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+            .then(histogramData => {
+                const sentimentHistogram = new Chart(ctxBehavior, {
+                    type: 'bar', 
+                    data: {
+                        labels: histogramData.labels, // These are your years
+                        datasets: histogramData.datasets // Array of objects, each representing a sentiment score range
                     },
-                    plugins: {
-                        subtitle: {
-                        display: true,
-                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
-                        font: { style: 'italic', size: 12 },
-           
-        },
-                        legend: {
-                            display: true // Display the legend if you have multiple datasets
+                    options: {
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true }
+                        },
+                        plugins: {
+                            subtitle: {
+                                display: true,
+                                text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                                font: { style: 'italic', size: 12 }
+                            },
+                            legend: {
+                                display: true // Display the legend
+                            }
                         }
                     }
-                }
-            });
-        } catch (error) {
-            console.error("Error initializing sentiment histogram:", error);
-        }
+                });
+            })
+            .catch(error => console.error("Error initializing sentiment histogram:", error));
     }
-    
-    // Call the function when the window has loaded
     window.addEventListener('load', initializeSentimentHistogram);
 </script>
+
     
 <script>
-    // Parse the individual sentiments passed from the Django view
-    var individualSentiments = JSON.parse('{{ individual_sentiments | safe }}');
     var ctxIndividualBehavior = document.getElementById('IndividualBehaviorChart').getContext('2d');
     var IndividualBehaviorChart;
 
     document.getElementById('individual-orphan-behavior').addEventListener('change', function(e) {
         var orphanId = e.target.value;
-        
-        // Clear the previous chart data if exists
+
         if (IndividualBehaviorChart) {
             IndividualBehaviorChart.destroy();
         }
-        
-        // Create a new line chart for the selected orphan
-        IndividualBehaviorChart = new Chart(ctxIndividualBehavior, {
-            type: 'line',
-            data: {
-                labels: individualSentiments[orphanId].map(s => 'Week ' + s.week),
-                datasets: [{
-                    label: 'Sentiment Score',
-                    data: individualSentiments[orphanId].map(s => s.average_score),
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+
+        fetch(`/Dashboard/individual_behavior_summary/${orphanId}/`)  // Dynamically fetch individual sentiment data
+        .then(response => response.json())
+        .then(data => {
+            // Create a new line chart for the selected orphan
+            IndividualBehaviorChart = new Chart(ctxIndividualBehavior, {
+                type: 'line',
+                data: {
+                    labels: data.map(s => 'Week ' + s.week),
+                    datasets: [{
+                        label: 'Sentiment Score',
+                        data: data.map(s => s.average_score),
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
                 },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
                     plugins: {
                         subtitle: {
-                        display: true,
-                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
-                        font: { style: 'italic', size: 12 },
+                            display: true,
+                            text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                            font: { style: 'italic', size: 12 },
                         },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                var label = context.dataset.label || '';
-                                var score = context.parsed.y;
-                                var index = context.dataIndex;
-                                var improvement = '';
-                                if (index > 0) {
-                                    var previousScore = context.dataset.data[index - 1];
-                                    if (score > previousScore) {
-                                        improvement = ' (improved)';
-                                    } else if (score < previousScore) {
-                                        improvement = ' (declined)';
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.dataset.label || '';
+                                    var score = context.parsed.y;
+                                    var index = context.dataIndex;
+                                    var improvement = '';
+                                    if (index > 0) {
+                                        var previousScore = context.dataset.data[index - 1];
+                                        if (score > previousScore) {
+                                            improvement = ' (improved)';
+                                        } else if (score < previousScore) {
+                                            improvement = ' (declined)';
+                                        }
                                     }
+                                    return label + ': ' + score + improvement;
                                 }
-                                return label + ': ' + score + improvement;
-                            }
+                            },
                         },
-                    },
+                    }
                 }
-            }
-        });
+            });
+        })
+        .catch(error => console.error("Error fetching individual behavior data:", error));
     });
 </script>
+
 
 <!-- Education CHARTS -->
 

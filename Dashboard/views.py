@@ -100,7 +100,7 @@ def categorize_grades_by_year(grades_with_year):
     return categorized_data
 
 
-# used in overall intervention summary page
+# used in overall education intervention summary page charts
 def overall_gpa_summary(request):
     grades = Grade.objects.annotate(
         year=ExtractYear('education__date_recorded'),
@@ -111,24 +111,6 @@ def overall_gpa_summary(request):
     ).order_by('year', 'time_period')
 
     return JsonResponse(list(grades), safe=False)
-
-# def overall_gpa_summary(request):
-#     grades = Grade.objects.annotate(
-#         year=ExtractYear('education__date_recorded'),
-#         time_period=Case(
-#             When(semester__isnull=False,
-#                  then=Concat(Value('Semester '), Cast('semester', CharField()), output_field=CharField())),
-#             When(quarter__isnull=False,
-#                  then=Concat(Value('Quarter '), Cast('quarter', CharField()), output_field=CharField())),
-#             default=Value('N/A'),  # Handle records with neither as needed
-#             output_field=CharField(),
-#         )
-#     ).values('year', 'time_period').annotate(
-#         average_grade=Avg('grade')
-#     ).order_by('year', 'time_period')
-#     print("overall_gpa_summary:", grades)
-
-#     return JsonResponse(list(grades), safe=False)
 
 
 def individual_gpa_summary(request, orphan_id):
@@ -148,6 +130,69 @@ def individual_gpa_summary(request, orphan_id):
     ).order_by('year', 'time_period')
 
     return JsonResponse(list(grades), safe=False)
+
+
+def overall_behavior_summary(request):
+    try:
+        years = Notes.objects.annotate(year=ExtractYear('timestamp')).order_by(
+            'year').values_list('year', flat=True).distinct()
+        years = list(years)
+
+        negative_counts = [0 for _ in years]
+        neutral_counts = [0 for _ in years]
+        positive_counts = [0 for _ in years]
+
+        # Query to get year, sentiment_score and count distinct orphans
+        queryset = Notes.objects.annotate(year=ExtractYear('timestamp')).values(
+            'year', 'sentiment_score', 'related_orphan').distinct()
+
+        for note in queryset:
+            year = note['year']
+            score = note['sentiment_score']
+            year_index = years.index(year)
+
+            if score < -0.5:
+                negative_counts[year_index] += 1
+            elif score > 0.5:
+                positive_counts[year_index] += 1
+            else:
+                neutral_counts[year_index] += 1
+
+        datasets = [
+            {'label': 'Negative', 'data': negative_counts,
+                'backgroundColor': 'rgba(255, 88, 132)'},
+            {'label': 'Neutral', 'data': neutral_counts,
+                'backgroundColor': 'rgba(192, 192, 192)'},
+            {'label': 'Positive', 'data': positive_counts,
+                'backgroundColor': 'rgba(62, 181, 192)'}
+        ]
+
+        histogram_data = {
+            'labels': [str(year) for year in years],
+            'datasets': datasets,
+        }
+
+        return JsonResponse(histogram_data)
+    except Exception as e:
+        # Return a JSON error message
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def individual_behavior_summary(request, orphan_id):
+    weekly_scores = Notes.objects.filter(
+        related_orphan__orphanID=orphan_id
+    ).annotate(
+        week=ExtractWeek('timestamp')
+    ).values(
+        'week'
+    ).annotate(
+        average_score=Avg('sentiment_score')
+    ).order_by('week')
+
+    data = [{'week': score['week'], 'average_score': score['average_score']}
+            for score in weekly_scores]
+
+    return JsonResponse(data, safe=False)
 
 
 def get_color_for_bin(bin_label):
@@ -217,70 +262,7 @@ def overall_analysis(request):
     orphan_statuses = {orphan.orphanID: orphan.calculate_status()
                        for orphan in orphans}
 
-    individual_sentiments = {}
-    for orphan in orphans:
-        # Initialize an empty list for each orphan
-        individual_sentiments[orphan.orphanID] = []
-
-        # Get sentiment scores per week for the orphan
-        weekly_scores = Notes.objects.filter(
-            related_orphan=orphan
-        ).annotate(
-            week=ExtractWeek('timestamp')
-        ).values(
-            'week'
-        ).annotate(
-            average_score=Avg('sentiment_score')
-        ).order_by('week')
-
-        for week_score in weekly_scores:
-            # Append the weekly average sentiment score to the orphan's list
-            individual_sentiments[orphan.orphanID].append({
-                'week': week_score['week'],
-                'average_score': week_score['average_score']
-            })
-    # Determine the years present in your data
-    years = Notes.objects.annotate(year=ExtractYear('timestamp')).order_by(
-        'year').values_list('year', flat=True).distinct()
-    years = list(years)
-
-    negative_counts = [0 for _ in years]
-    neutral_counts = [0 for _ in years]
-    positive_counts = [0 for _ in years]
-
-    # Query to get year, sentiment_score and count distinct orphans
-    queryset = Notes.objects.annotate(year=ExtractYear('timestamp')).values(
-        'year', 'sentiment_score', 'related_orphan').distinct()
-
-    for note in queryset:
-        year = note['year']
-        score = note['sentiment_score']
-
-        # Find the index for the year to increment the count
-        year_index = years.index(year)
-
-        if score < -0.5:
-            negative_counts[year_index] += 1
-        elif score > 0.5:
-            positive_counts[year_index] += 1
-        else:
-            neutral_counts[year_index] += 1
-
-    datasets = [
-        {'label': 'Negative', 'data': negative_counts,
-            'backgroundColor': 'rgba(255, 88, 132)'},
-        {'label': 'Neutral', 'data': neutral_counts,
-            'backgroundColor': 'rgba(192, 192, 192)'},
-        {'label': 'Positive', 'data': positive_counts,
-            'backgroundColor': 'rgba(62, 181, 192)'}
-    ]
-
-    histogram_data_json = json.dumps({
-        # Convert year numbers to strings
-        'labels': [str(year) for year in years],
-        'datasets': datasets,
-    })
-
+    # Health Details Aggregation by Month
     health_details = HealthDetail.objects.annotate(
         month=TruncMonth('date')).order_by('month')
 
@@ -289,7 +271,6 @@ def overall_analysis(request):
         health_score = detail.calculate_health_score()
         month = detail.month.strftime("%Y-%m")
 
-        # Categorize the health score
         if health_score >= 80:
             category = 'Normal'
         elif 50 <= health_score < 80:
@@ -299,7 +280,6 @@ def overall_analysis(request):
 
         health_data_by_month[month][category] += 1
 
-    # Prepare data for Chart.js
     health_trend_data = []
     for month, categories in health_data_by_month.items():
         month_data = {'month': month}
@@ -328,36 +308,8 @@ def overall_analysis(request):
         ],
     }
 
-    bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
-        'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
-    trend_data = {}
-    for record in bmi_records:
-        month = record['month'].strftime("%Y-%m")
-        category = record['bmi_category']
-        count = record['count']
-        if month not in trend_data:
-            trend_data[month] = {}
-        trend_data[month][category] = count
-
-    all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obesity']
-    for month in trend_data:
-        for category in all_categories:
-            if category not in trend_data[month]:
-                trend_data[month][category] = 0
-
-    months = list(trend_data.keys())
-    categories_data = {category: [trend_data[month].get(
-        category, 0) for month in months] for category in all_categories}
-
-    grades_by_semester = Grade.objects.annotate(
-        year=ExtractYear('education__date_recorded'),
-    ).values('semester', 'year', 'education__orphan__firstName', 'education__orphan__lastName').annotate(
-        average_grade=Avg('grade')
-    ).order_by('year', 'semester')
-
+    # Calculate overall average scores for other dimensions
     orphan_count = max(orphans.count(), 1)  # Prevent division by zero
-    average_behavior_score = sum(
-        (orphan.calculate_behavior_score() or 0 for orphan in orphans), 0) / orphan_count
     average_physical_wellbeing_score = sum(
         (orphan.calculate_overall_physical_wellbeing() or 0 for orphan in orphans), 0) / orphan_count
     average_education_score = sum(
@@ -368,21 +320,186 @@ def overall_analysis(request):
     context = {
         'orphans': orphans,
         'orphan_statuses': orphan_statuses,  # Add the status data here
-
         'health_chart_data_json': json.dumps(health_chart_data),
-        'individual_sentiments': json.dumps(individual_sentiments),
-
-        'histogram_data': histogram_data_json,
-        'months': json.dumps(months),
-        'categories_data': json.dumps(categories_data),
-        'average_behavior_score': average_behavior_score,
         'average_physical_wellbeing_score': average_physical_wellbeing_score,
         'average_education_score': average_education_score,
         'average_composite_score': average_composite_score,
-        'gpa_data': json.dumps(list(grades_by_semester), default=str),
     }
 
     return render(request, 'Dashboard/overall_analysis.html', context)
+# def overall_analysis(request):
+#     orphans = Info.objects.all()
+
+#     # Calculate status for each orphan
+#     orphan_statuses = {orphan.orphanID: orphan.calculate_status()
+#                        for orphan in orphans}
+
+#     individual_sentiments = {}
+#     for orphan in orphans:
+#         # Initialize an empty list for each orphan
+#         individual_sentiments[orphan.orphanID] = []
+
+#         # Get sentiment scores per week for the orphan
+#         weekly_scores = Notes.objects.filter(
+#             related_orphan=orphan
+#         ).annotate(
+#             week=ExtractWeek('timestamp')
+#         ).values(
+#             'week'
+#         ).annotate(
+#             average_score=Avg('sentiment_score')
+#         ).order_by('week')
+
+#         for week_score in weekly_scores:
+#             # Append the weekly average sentiment score to the orphan's list
+#             individual_sentiments[orphan.orphanID].append({
+#                 'week': week_score['week'],
+#                 'average_score': week_score['average_score']
+#             })
+#     # Determine the years present in your data
+#     years = Notes.objects.annotate(year=ExtractYear('timestamp')).order_by(
+#         'year').values_list('year', flat=True).distinct()
+#     years = list(years)
+
+#     negative_counts = [0 for _ in years]
+#     neutral_counts = [0 for _ in years]
+#     positive_counts = [0 for _ in years]
+
+#     # Query to get year, sentiment_score and count distinct orphans
+#     queryset = Notes.objects.annotate(year=ExtractYear('timestamp')).values(
+#         'year', 'sentiment_score', 'related_orphan').distinct()
+
+#     for note in queryset:
+#         year = note['year']
+#         score = note['sentiment_score']
+
+#         # Find the index for the year to increment the count
+#         year_index = years.index(year)
+
+#         if score < -0.5:
+#             negative_counts[year_index] += 1
+#         elif score > 0.5:
+#             positive_counts[year_index] += 1
+#         else:
+#             neutral_counts[year_index] += 1
+
+#     datasets = [
+#         {'label': 'Negative', 'data': negative_counts,
+#             'backgroundColor': 'rgba(255, 88, 132)'},
+#         {'label': 'Neutral', 'data': neutral_counts,
+#             'backgroundColor': 'rgba(192, 192, 192)'},
+#         {'label': 'Positive', 'data': positive_counts,
+#             'backgroundColor': 'rgba(62, 181, 192)'}
+#     ]
+
+#     histogram_data_json = json.dumps({
+#         # Convert year numbers to strings
+#         'labels': [str(year) for year in years],
+#         'datasets': datasets,
+#     })
+
+#     health_details = HealthDetail.objects.annotate(
+#         month=TruncMonth('date')).order_by('month')
+
+#     health_data_by_month = defaultdict(lambda: defaultdict(int))
+#     for detail in health_details:
+#         health_score = detail.calculate_health_score()
+#         month = detail.month.strftime("%Y-%m")
+
+#         # Categorize the health score
+#         if health_score >= 80:
+#             category = 'Normal'
+#         elif 50 <= health_score < 80:
+#             category = 'At-Risk'
+#         else:
+#             category = 'Critical'
+
+#         health_data_by_month[month][category] += 1
+
+#     # Prepare data for Chart.js
+#     health_trend_data = []
+#     for month, categories in health_data_by_month.items():
+#         month_data = {'month': month}
+#         month_data.update(categories)
+#         health_trend_data.append(month_data)
+
+#     months = sorted(health_data_by_month.keys())
+#     health_chart_data = {
+#         'labels': months,
+#         'datasets': [
+#             {
+#                 'label': 'Normal',
+#                 'data': [health_data_by_month[month]['Normal'] for month in months],
+#                 'backgroundColor': 'rgba(75, 192, 192)',
+#             },
+#             {
+#                 'label': 'At-Risk',
+#                 'data': [health_data_by_month[month]['At-Risk'] for month in months],
+#                 'backgroundColor': 'rgba(255, 206, 86)',
+#             },
+#             {
+#                 'label': 'Critical',
+#                 'data': [health_data_by_month[month]['Critical'] for month in months],
+#                 'backgroundColor': 'rgba(255, 99, 132)',
+#             },
+#         ],
+#     }
+
+#     bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
+#         'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
+#     trend_data = {}
+#     for record in bmi_records:
+#         month = record['month'].strftime("%Y-%m")
+#         category = record['bmi_category']
+#         count = record['count']
+#         if month not in trend_data:
+#             trend_data[month] = {}
+#         trend_data[month][category] = count
+
+#     all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obesity']
+#     for month in trend_data:
+#         for category in all_categories:
+#             if category not in trend_data[month]:
+#                 trend_data[month][category] = 0
+
+#     months = list(trend_data.keys())
+#     categories_data = {category: [trend_data[month].get(
+#         category, 0) for month in months] for category in all_categories}
+
+#     grades_by_semester = Grade.objects.annotate(
+#         year=ExtractYear('education__date_recorded'),
+#     ).values('semester', 'year', 'education__orphan__firstName', 'education__orphan__lastName').annotate(
+#         average_grade=Avg('grade')
+#     ).order_by('year', 'semester')
+
+#     orphan_count = max(orphans.count(), 1)  # Prevent division by zero
+#     average_behavior_score = sum(
+#         (orphan.calculate_behavior_score() or 0 for orphan in orphans), 0) / orphan_count
+#     average_physical_wellbeing_score = sum(
+#         (orphan.calculate_overall_physical_wellbeing() or 0 for orphan in orphans), 0) / orphan_count
+#     average_education_score = sum(
+#         (orphan.calculate_education_score() or 0 for orphan in orphans), 0) / orphan_count
+#     average_composite_score = sum(
+#         (orphan.calculate_composite_score() or 0 for orphan in orphans), 0) / orphan_count
+
+#     context = {
+#         'orphans': orphans,
+#         'orphan_statuses': orphan_statuses,  # Add the status data here
+
+#         'health_chart_data_json': json.dumps(health_chart_data),
+#         'individual_sentiments': json.dumps(individual_sentiments),
+
+#         'histogram_data': histogram_data_json,
+#         'months': json.dumps(months),
+#         'categories_data': json.dumps(categories_data),
+#         'average_behavior_score': average_behavior_score,
+#         'average_physical_wellbeing_score': average_physical_wellbeing_score,
+#         'average_education_score': average_education_score,
+#         'average_composite_score': average_composite_score,
+#         'gpa_data': json.dumps(list(grades_by_semester), default=str),
+#     }
+
+#     return render(request, 'Dashboard/overall_analysis.html', context)
 
 
 def get_orphan_bmi_data(request, orphan_id):
@@ -487,7 +604,7 @@ def dashboard_view(request):
     #     Q(education_level='Elementary', educations__grades__grade__lt=75) |
     #     Q(education_level='High School', educations__grades__grade__lt=75)
     # ).distinct().count()
-
+    count_academic_interventions = 0
     for orphan in orphans:
         urgent_support_needed = False
         partial_support_needed = False

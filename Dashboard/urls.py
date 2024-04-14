@@ -14,10 +14,18 @@ urlpatterns = [
 
     path('overall_gpa_summary/',
          views.overall_gpa_summary, name='overall_gpa_summary'),
-
     path('individual_gpa_summary/<int:orphan_id>/',
          views.individual_gpa_summary, name='individual_gpa_summary'),
 
+
+
+
+
+    path('overall_behavior_summary/',
+         views.overall_behavior_summary, name='overall_behavior_summary'),
+
+    path('individual_behavior_summary/<int:orphan_id>/',
+         views.individual_behavior_summary, name='individual_behavior_summary'),
 
     path('get_orphan_bmi_data/<int:orphan_id>/',
          views.get_orphan_bmi_data, name='get_orphan_bmi_data'),
