@@ -252,71 +252,52 @@
 <!-- Education CHARTS -->
 
 <script>
-    var chart; // Declare the chart variable at a higher scope
-    console.log(document.getElementById('overallPerformanceChart'));
-    // Assuming 'gpa_data' is passed to the template and available as a JSON string
-    const gpaData = JSON.parse('{{ gpa_data|safe }}');
-    console.log("gpaData is:", gpaData);  // Check the structure of received data
-    
-    // Fetch and load the data
-    fetch('/Dashboard/overall_gpa_summary/')
-        .then(response => response.json())
-        .then(data => {
-            console.log("overallPerformanceChart data:", data);  
-            const ctxeducation = document.getElementById('overallPerformanceChart').getContext('2d');
-            // Data Processing (Important): 
-            const semesterData = data.filter(item => item.time_period.startsWith('Semester'));
-            const quarterData = data.filter(item => item.time_period.startsWith('Quarter'));
-            // Initialize the chart if it hasn't been initialized yet
-            if (!chart) { 
-                chart = new Chart(ctxeducation, { 
-                    type: 'line',
-                    data: {
-                        labels: gpaData.map(item => `${item.time_period} ${item.year}`),  // Initialize chart with 'time_period' for consistency 
-                        datasets: [{
-                            label: [],
-                            data: [],
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top' 
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                            }
-                                }
-                            
-                });  
-            }
-    
-            // ALWAYS Update chart data on fetch completion
-            // Update the chart data
-            chart.data.labels = data.map(item => `${item.time_period} ${item.year}`); // Keep your existing label logic
+var chart; // Declare the chart variable at a higher scope
+console.log(document.getElementById('overallPerformanceChart'));
 
-            chart.data.datasets = [
-                {
-                    label: 'Semester GPA',
-                    data: semesterData.map(item => parseFloat(item.average_grade)),
-                    // ... (set backgroundColor, borderColor, etc. for semesters)
+// Fetch and load the data
+fetch('/Dashboard/overall_gpa_summary/')
+    .then(response => response.json())
+    .then(data => {
+        console.log("overallPerformanceChart data:", data);
+        const ctxeducation = document.getElementById('overallPerformanceChart').getContext('2d');
+
+        // Since all data will now be based on calendar quarters, there is no need to filter by semester or quarter
+        if (!chart) {
+            chart = new Chart(ctxeducation, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => `${item.time_period} ${item.year}`),  // Labels will show Q1, Q2, etc. per year
+                    datasets: [{
+                        label: 'GPA by Quarter',
+                        data: data.map(item => parseFloat(item.average_grade)),
+                        backgroundColor: 'rgba(62, 181, 192, 0.2)',
+                        borderColor: 'rgba(62, 181, 192, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                {
-                    label: 'Quarter GPA',   
-                    data: quarterData.map(item => parseFloat(item.average_grade)),
-                    // ... (set backgroundColor, borderColor, etc. for quarters)
+                options: {
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
                 }
-            ];
-            chart.update(); 
+            });
+        } else {
+            // Update chart data on fetch completion
+            chart.data.labels = data.map(item => `Q${item.time_period} ${item.year}`);
+            chart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade));
+            chart.update();
+        }
+    });
 
-       });
 
     var ctxIndividual = document.getElementById('individualPerformanceChart').getContext('2d');
     var individualChart = new Chart(ctxIndividual, {
@@ -338,21 +319,21 @@
     }
 });
 
-document.getElementById('individual-orphan-education').addEventListener('change', function() {
-    var orphanId = this.value;
-    var url = `/Dashboard/individual_gpa_summary/${orphanId}`;
+    document.getElementById('individual-orphan-education').addEventListener('change', function() {
+        var orphanId = this.value;
+        var url = `/Dashboard/individual_gpa_summary/${orphanId}`;
 
-    if (orphanId) {
+        if (orphanId) {
 
-    fetch(`/Dashboard/individual_gpa_summary/${orphanId}/`)
-        .then(response => response.json())
-        .then(data => {
-            individualChart.data.labels = data.map(item => `${item.time_period} ${item.year}`);
-            individualChart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade));
-            individualChart.update();
-        });
-    }
-});
+        fetch(`/Dashboard/individual_gpa_summary/${orphanId}/`)
+            .then(response => response.json())
+            .then(data => {
+                individualChart.data.labels = data.map(item => `${item.time_period} ${item.year}`);
+                individualChart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade));
+                individualChart.update();
+            });
+        }
+    });
 
 
 

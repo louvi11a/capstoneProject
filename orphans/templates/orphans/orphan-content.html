@@ -324,7 +324,7 @@
         </div>
         <div class="modal-body">
           
-          <form id="profilePictureForm" action="{% url 'orphan_profile' orphanID=orphanID %}" method="post" enctype="multipart/form-data">
+          <form id="fileUploadForm" action="{% url 'orphan_profile' orphanID=orphanID %}" method="post" enctype="multipart/form-data">
 
             {% csrf_token %}
             
@@ -474,7 +474,7 @@ function applyFilter(filterType, filterValue) {
   document.getElementById("additionalFilesModalBtn").addEventListener("click", function(event) {
     event.preventDefault(); // Prevent the default form submission triggered by clicking the button
     
-    var form = document.getElementById("profilePictureForm");
+    var form = document.getElementById("fileUploadForm");
     var formData = new FormData(form);
 
     // Adding type of document to formData since it was missing a name attribute in the original HTML

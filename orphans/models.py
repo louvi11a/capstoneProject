@@ -117,15 +117,8 @@ class Info(models.Model):
         'Family', on_delete=models.SET_NULL, null=True, blank=True)
 
     is_deleted = models.BooleanField(default=False)
-
-    def has_birth_certificate(self):
-        return self.orphan_files.filter(type_of_document='Birth Certificate').exists()
-
     status = models.CharField(
         max_length=1, choices=STATUS_CHOICES, default='P')
-
-    def get_dynamic_status(self):
-        return "Admitted" if self.has_birth_certificate() else "Pending"
 
     class Meta:
         db_table = 'orphan_infos'
@@ -133,12 +126,20 @@ class Info(models.Model):
     def __str__(self):
         return self.firstName or 'No name'
 
+    # checks if an orphan has birth certificate and sets a status
+    def has_birth_certificate(self):
+        return self.orphan_files.filter(type_of_document='Birth Certificate').exists()
+
+    def get_dynamic_status(self):
+        return "Admitted" if self.has_birth_certificate() else "Pending"
+
     def get_absolute_url(self):
         url = reverse('orphan_profile', kwargs={'orphanID': self.orphanID})
         print(f"Generated URL: {url}")  # Debugging print
         return url
 
     @property
+    # Calculates the average sentiment score from the notes associated with the orphan for the current month.
     def average_sentiment(self):
         current_month = timezone.now().date().replace(day=1)
         recent_notes = self.notes.filter(
@@ -146,6 +147,7 @@ class Info(models.Model):
         avg_sentiment = recent_notes.aggregate(Avg('sentiment_score'))[
             'sentiment_score__avg']
         return avg_sentiment if avg_sentiment is not None else 0
+    # calculate_age(): Calculates the orphan's age based on their birthdate.
 
     def calculate_age(self):
         if self.birthDate:
@@ -168,6 +170,7 @@ class Info(models.Model):
         else:
             return "30+"
 
+# Computes a score for the physical wellbeing of the orphan based on latest records and weighted scores of BMI and health details, including a decay factor for older records.
     def calculate_overall_physical_wellbeing(self):
         # Updated weights for BMI and HealthDetail scores
         bmi_weight = Decimal('0.3')
@@ -204,6 +207,7 @@ class Info(models.Model):
             (health_detail_score * health_detail_weight)
         return overall_score
 
+# Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
     def calculate_behavior_score(self):
         # Ensure notes are in descending order by timestamp
         notes = self.notes.all().order_by('-timestamp')
@@ -231,6 +235,7 @@ class Info(models.Model):
 
         return behavior_score
 
+# Computes an average score from the educational records related to the orphan.
     def calculate_education_score(self):
         # Retrieve all Education instances related to this orphan
         educations = self.educations.all()
@@ -266,11 +271,8 @@ class Info(models.Model):
 
         return None  # Or some default score if appropriate
 
+#  Analyzes trends for specified parameters (education, physical wellbeing, behavior) over time, using a moving average to determine if the situation is improving, worsening, or stable.
     def calculate_trend(self, parameter_name):
-        """
-        Calculate the trend of a given parameter over time.
-        parameter_name could be 'education', 'physical_wellbeing', 'behavior'
-        """
         if parameter_name == 'education':
             # Assuming an Education model exists and has a foreign key to Info
             scores = self.education_set.all().order_by(
@@ -307,6 +309,7 @@ class Info(models.Model):
 
         return trend_analysis_result
 
+# Computes a composite score combining education, physical wellbeing, and behavior scores using specified weights.
     def calculate_composite_score(self):
         # Define weightings
         education_weight = Decimal('0.3')
@@ -327,6 +330,7 @@ class Info(models.Model):
 
         return composite_score
 
+# Determines a status based on a weighted score that considers education, health, and behavior. It adjusts weights based on the health score and provides a final status indicating the level of attention needed.
     def calculate_status(self):
         # Define base weights
         weights = {
@@ -604,7 +608,6 @@ class Education(models.Model):
     current_gpa = models.DecimalField(
         max_digits=5, decimal_places=3, null=True, blank=True)
     date_recorded = models.DateField(auto_now_add=True)
-    # school_year = models.CharField(max_length=9)
     subjects = models.ManyToManyField(Subject, through='Grade')
     history = HistoricalRecords()
 
@@ -636,6 +639,7 @@ class Grade(models.Model):
     education = models.ForeignKey(
         Education, on_delete=models.CASCADE, related_name='grades')
 
+# Converts different scoring formats (like letters) into a standard numeric format for easier analysis.
     def standardize_grade(self):
         # Convert float literals to Decimal
         high_school_max_score = Decimal('100')
@@ -655,7 +659,7 @@ class Grade(models.Model):
             standardized_grade = min(standardized_grade, high_school_max_score)
         else:  # Elementary or High School
             if self.grade < high_school_min_passing_score:
-                return self.grade - Decimal('1')  # Adjust for failing grades
+                return self.grade
             standardized_grade = self.grade  # No conversion needed
 
         return standardized_grade
