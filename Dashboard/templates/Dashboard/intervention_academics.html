@@ -134,7 +134,7 @@
                         <tbody>
                             {% for item in orphan_educations_status %}
                             <tr>
-                                <td>{{ item.date_recorded |date:"Y-m-d"  }}</td>
+                                <td>{{ item.date_recorded |date:"Y-m-d" }}</td>
                                 <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
                                 <td>
                                     <span class="badge bg-{{ item.status_color }}">{{ item.status }}</span>

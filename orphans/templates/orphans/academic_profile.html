@@ -434,67 +434,67 @@ function filterBySubject(subjectName) {
 
 
 
-                <!-- modal for upload academic -->
-                <div class="modal fade" id="addAcademicDetailsModal" tabindex="-1" aria-labelledby="addAcademicDetailsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="addAcademicDetailsModalLabel">Add Academic Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                    <form id="EducationForm" method="post" action="{% url 'save_academic_details' orphan.orphanID %}">
+ <!-- modal for upload academic -->
+ <div class="modal fade" id="addAcademicDetailsModal" tabindex="-1" aria-labelledby="addAcademicDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAcademicDetailsModalLabel">Add Academic Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                    <form id="EducationForm" method="post" action="{% url 'save_academic_details' orphan.orphanID %}">
 
-                                    {% csrf_token %}
-                                    <div class="mb-3">
-                                        <label for="school_name">School Name</label>
-                                        <input id="school_name" name="school_name" class="form-control" required></input>
-                                    </div>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="school_name">School Name</label>
+                        <input id="school_name" name="school_name" class="form-control" required></input>
+                    </div>
 
-                                    <div class="mb-3">
-                                        <label for="educationLevelInput" class="form-label">Education Level</label>
-                                        <select id="educationLevelInput" name="education_level" class="form-control">
-                                            {% for value, display in education_level_choices %}
-                                                <option value="{{ value }}">{{ display }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="yearLevelInput" class="form-label">Year Level</label>
-                                        <select id="yearLevelInput" name="year_level" class="form-control" required></select>
-                                        <small id="yearLevelHelp" class="form-text text-muted">Select your year level.</small>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="quarterInput" class="form-label">Quarter/Semester</label>
-                                        <select id="quarterInput" name="quarter" class="form-control">
-                                            {% for value, display in quarter_choices %}
-                                                <option value="{{ value }}">{{ display }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div id="subjectFields" class="row">
-                                        <div class="mb-3 col-6">
-                                            <label class="form-label">Subject</label>
-                                            <input name="subject" type="text" class="form-control mb-3 subject-input" placeholder="Subject" required>
-                                        </div>
-                                        <div class="mb-3 col-6">
-                                            <label class="form-label">Grade</label>
-                                            <input name="grade" type="number" step="0.25" class="form-control mb-3 grade-input" placeholder="Grade" required>
-                                        </div>
-                                    </div>
-                                    
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" form="EducationForm" class="btn btn-primary">Add Details</button>
-                            </div>
+                    <div class="mb-3">
+                        <label for="educationLevelInput" class="form-label">Education Level</label>
+                        <select id="educationLevelInput" name="education_level" class="form-control">
+                            {% for value, display in education_level_choices %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="yearLevelInput" class="form-label">Year Level</label>
+                        <select id="yearLevelInput" name="year_level" class="form-control" required></select>
+                        <small id="yearLevelHelp" class="form-text text-muted">Select your year level.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quarterInput" class="form-label">Quarter/Semester</label>
+                        <select id="quarterInput" name="quarter" class="form-control">
+                            {% for value, display in quarter_choices %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="subjectFields" class="row">
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Subject</label>
+                            <input name="subject" type="text" class="form-control mb-3 subject-input" placeholder="Subject" required>
+                        </div>
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Grade</label>
+                            <input name="grade" type="number" step="0.25" class="form-control mb-3 grade-input" placeholder="Grade" required>
                         </div>
                     </div>
-                </div>
+                    <button type="button" class="btn btn-primary mt-3" onclick="addSubjectField()">Add Subject</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="EducationForm" class="btn btn-primary">Add Details</button>
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
+</div>
 {% endblock %}  
 
 {% block js %}

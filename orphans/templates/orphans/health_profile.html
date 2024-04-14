@@ -390,25 +390,7 @@ if (rows[i]) {
         });
     }
 
-    function filterByOtherSymptoms(filterValue) {
-        console.log('Filter by symptoms:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('otherSymptomsDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
-        rows.forEach(function(row) {
-            console.log(row.cells[4].textContent.toLowerCase()); // Log the content of the symptoms cell
-            row.style.display = ''; // Reset to show all rows
-        });
-        if (filterValue !== 'all') {
-            rows.forEach(function(row) {
-                if (!row.cells[5].textContent.toLowerCase().includes(filterValue)) {
-                    row.style.display = 'none'; // Hide rows not matching the selected status
-                }
-            });
-        }
-    }
-
+    
 
     function filterByOtherSymptoms(filterValue) {
     console.log('Filter by symptoms:', filterValue);
@@ -426,6 +408,27 @@ if (rows[i]) {
             row.style.display = 'none'; // Hide rows not matching the selected symptom
         }
     });
+}
+
+// Function to filter by status
+function filterByStatus(filterValue) {
+    console.log('Filter by status:', filterValue); // Debugging log
+    // Close dropdown after selection
+    document.getElementById('statusDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue !== 'all') {
+        // Filter rows based on selected status
+        rows.forEach(function(row) {
+            var statusText = row.cells[6].textContent.trim().toLowerCase(); // Assuming status is in the 6th column
+            if (statusText !== filterValue) {
+                row.style.display = 'none'; // Hide the row if it doesn't match the filter value
+            }
+        });
+    }
 }
 
 </script>

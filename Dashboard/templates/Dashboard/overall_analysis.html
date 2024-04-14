@@ -17,210 +17,244 @@
 
 <!-- <div class="main-content"> -->
     <div class="m-2">
-    <h1 class="text-center">Orphan Overall Analysis</h1>
+        <div>
+            <h1 class="text-center">Orphan Overall Analysis</h1>
+        </div>
+
         <hr class="mt-3">
-        <ul class="nav nav-pills nav-fill mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#summary">Summary of Trends</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#behavior">Orphan Behavior Analysis</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#education">Orphan Education Analysis</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#physical">Orphan Well-being Analysis</a>
-            </li>
-        </ul>
+        <div>
+            <ul class="nav nav-pills mb-3 d-flex justify-content-center fs-5" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="summary-tab" data-bs-toggle="pill"
+                        data-bs-target="#summary" type="button" role="tab" aria-controls="summary"
+                        aria-selected="true">Summary of Trends</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="behavior-tab" data-bs-toggle="pill"
+                        data-bs-target="#behavior" type="button" role="tab" aria-controls="behavior"
+                        aria-selected="false">Orphan Behavior Analysis</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="education-tab" data-bs-toggle="pill"
+                        data-bs-target="#education" type="button" role="tab" aria-controls="education"
+                        aria-selected="false">Orphan Education Analysis</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="education-tab" data-bs-toggle="pill"
+                        data-bs-target="#physical" type="button" role="tab" aria-controls="physical"
+                        aria-selected="false">Orphan Well-being Analysis</button>
+                </li>
+            </ul>
+
+            <hr class="mt-3">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="summary">
+                    <input type="text" id="statusFilter" class="form-control mb-3" placeholder="Search...">
+                    </div>
+            <hr class="mt-3">
+            <div class="tab-content" id="pills-tabContent">
+
+                <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+                    
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <!-- Show number of entries -->
+                                <div class="d-flex align-items-center me-2">
+                                    <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+                                    <select class="form-select form-select-sm" id="entriesSelect" style="width: 100px;">
+                                        <option value="all">All</option>
+                                        <option value="5">5</option>
+                                        <option value="10" selected>10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                        <option value="30">30</option>
+                                        <option value="35">35</option>
+                                        <option value="40">40</option>
+                                        <option value="45">45</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                    <span class="me-2">entries</span>
+                                </div>
+                            </div>
+                        
         
-        <hr class="mt-3">
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="summary">
-                <div class="d-flex justify-content-between mb-3">
-                    <div class="d-flex align-items-center">
-                        <!-- Show number of entries -->
-                        <div class="d-flex align-items-center me-2">
-                            <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
-                            <select class="form-select form-select-sm" id="entriesSelect" style="width: 100px;">
-                                <option value="all">All</option>
-                                <option value="5">5</option>
-                                <option value="10" selected>10</option>
-                                <option value="15">15</option>
-                                <option value="20">20</option>
-                                <option value="25">25</option>
-                                <option value="30">30</option>
-                                <option value="35">35</option>
-                                <option value="40">40</option>
-                                <option value="45">45</option>
-                                <option value="50">50</option>
-                            </select>
-                            <span class="me-2">entries</span>
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm me-2"><i class="bi bi-filter"></i></button>
+                            <label for="statusFilter" class="form-label me-2 mb-0">Status</label>
+                            <select class="form-select form-select-sm me-2" id="statusFilter" style="width: 100px;">
+                              <option value="">All</option>
+                              <option value="Stable">Stable</option>
+                              <option value="Monitoring Required">Monitoring Required</option>
+                              <option value="Critical Attention Needed">Critical Attention Needed</option>
+                          </select>
                         </div>
                     </div>
-                
-
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-sm me-2"><i class="bi bi-filter"></i></button>
-                    <label for="statusFilter" class="form-label me-2 mb-0">Status</label>
-                    <select class="form-select form-select-sm me-2" id="statusFilter" style="width: 100px;">
-                      <option value="">All</option>
-                      <option value="Stable">Stable</option>
-                      <option value="Monitoring Required">Monitoring Required</option>
-                      <option value="Critical Attention Needed">Critical Attention Needed</option>
-                  </select>
-                </div>
-            </div>
-           
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('entriesSelect').addEventListener('change', function() {
-        var selectedEntries = this.value === 'all' ? -1 : parseInt(this.value, 10);
-        var orphanCards = document.querySelectorAll('.orphan-card');
-
-        orphanCards.forEach(function(card, index) {
-            if (selectedEntries === -1 || index < selectedEntries) {
-                card.style.display = 'block'; // Show the card
-            } else {
-                card.style.display = 'none'; // Hide the card
-            }
-        });
-    });
-});
-</script>         
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // JavaScript for handling the status filter
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            var selectedStatus = this.value; // Get the selected status
-
-            // Get all orphan cards
-            var orphanCards = document.querySelectorAll('.orphan-card');
-
-            // Loop through each card and adjust display based on the selected status
-            orphanCards.forEach(function(card) {
-                var cardStatus = card.querySelector('.status-text').textContent.trim(); // Get the status text of the card
-                if (selectedStatus === '' || cardStatus === selectedStatus) {
-                    card.style.display = 'block'; // Show the card if it matches the selected status or if 'All' is selected
-                } else {
-                    card.style.display = 'none'; // Otherwise, hide the card
-                }
+                   
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('entriesSelect').addEventListener('change', function() {
+                var selectedEntries = this.value === 'all' ? -1 : parseInt(this.value, 10);
+                var orphanCards = document.querySelectorAll('.orphan-card');
+        
+                orphanCards.forEach(function(card, index) {
+                    if (selectedEntries === -1 || index < selectedEntries) {
+                        card.style.display = 'block'; // Show the card
+                    } else {
+                        card.style.display = 'none'; // Hide the card
+                    }
+                });
             });
         });
-    });
-</script>
-
-
-
-                <div class="row" id="orphanList">
-                    {% for orphan in orphans %}
-
-                    <div class="col-12 col-md-6 col-lg-4 orphan-card">
-                        <div class="card mb-3 bg-light-style w-auto text-center"> <!-- This centers text horizontally -->
-                            <a href="{% url 'orphan_profile' orphan.orphanID %}" class="text-decoration-none text-dark">
-                                <div class="d-flex justify-content-center align-items-center" style="height: 100px;"> <!-- Adjust the height as needed -->
-                                    {% if orphan.orphan_picture %}
-                                    <img src="{{ orphan.orphan_picture.url }}" class="rounded-circle img-thumbnail" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
-                                    {% else %}
-                                    <img src="{% static 'images/default_orphan_picture.png' %}" class="rounded-circle img-thumbnail" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Default profile picture" />
-                                    {% endif %}
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
-                                    <p class="card-text text-center">
-                        
-                                        <span class="badge 
-                                            {% if orphan_statuses|get_item:orphan.orphanID == 'Critical Attention Needed' %}
-                                            bg-danger
-                                            {% elif orphan_statuses|get_item:orphan.orphanID == 'Monitoring Required' %}
-                                            bg-warning
+        </script>         
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // JavaScript for handling the status filter
+                document.getElementById('statusFilter').addEventListener('change', function() {
+                    var selectedStatus = this.value; // Get the selected status
+        
+                    // Get all orphan cards
+                    var orphanCards = document.querySelectorAll('.orphan-card');
+        
+                    // Loop through each card and adjust display based on the selected status
+                    orphanCards.forEach(function(card) {
+                        var cardStatus = card.querySelector('.status-text').textContent.trim(); // Get the status text of the card
+                        if (selectedStatus === '' || cardStatus === selectedStatus) {
+                            card.style.display = 'block'; // Show the card if it matches the selected status or if 'All' is selected
+                        } else {
+                            card.style.display = 'none'; // Otherwise, hide the card
+                        }
+                    });
+                });
+            });
+        </script>
+        
+        
+        
+                        <div class="row" id="orphanList">
+                            {% for orphan in orphans %}
+        
+                            <div class="col-12 col-md-6 col-lg-4 orphan-card">
+                                <div class="card mb-3 bg-light-style w-auto text-center"> <!-- This centers text horizontally -->
+                                    <a href="{% url 'orphan_profile' orphan.orphanID %}" class="text-decoration-none text-dark">
+                                        <div class="d-flex justify-content-center align-items-center" style="height: 100px;"> <!-- Adjust the height as needed -->
+                                            {% if orphan.orphan_picture %}
+                                            <img src="{{ orphan.orphan_picture.url }}" class="rounded-circle img-thumbnail" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
                                             {% else %}
-                                            bg-success
+                                            <img src="{% static 'images/default_orphan_picture.png' %}" class="rounded-circle img-thumbnail" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Default profile picture" />
                                             {% endif %}
-                                            status-text">
-                                            {{ orphan_statuses|get_item:orphan.orphanID }}
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
+                                            <p class="card-text text-center">
+                                
+                                                <span class="badge 
+                                                    {% if orphan_statuses|get_item:orphan.orphanID == 'Critical Attention Needed' %}
+                                                    bg-danger
+                                                    {% elif orphan_statuses|get_item:orphan.orphanID == 'Monitoring Required' %}
+                                                    bg-warning
+                                                    {% else %}
+                                                    bg-success
+                                                    {% endif %}
+                                                    status-text">
+                                                    {{ orphan_statuses|get_item:orphan.orphanID }}
+                                        </div>
+                                    </a>
                                 </div>
-                            </a>
+                            </div>
+                            {% endfor %}
+                        
+                    </div>
+                
+                </div>
+
+                
+                <div class="tab-pane fade row" id="behavior">
+                    <div class="row d-flex justify-content-center">
+                        <div class="col border rounded m-1">
+                            <h3 style="text-align: center; font-weight: bold;">Overall Behavior Summary</h3>
+                            <canvas id="sentimentHistogram" class="chart-container"></canvas>
+                        </div>
+                            <div class="col border rounded m-1">
+                                <h3 style="text-align: center; font-weight: bold;">Individual Behavior Trends</h3>
+                                <select class="form-select mb-3" id="individual-orphan-education">
+                                <option value="">Select Orphan</option>
+                                {% for orphan in orphans %}
+                                <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                                {% endfor %}
+                                </select>
+        
+                                <canvas id="IndividualBehaviorChart"></canvas>  
+                            </div>                
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
+                    <div class="container">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-6">
+                                <div class="border rounded-2 m-1">
+                                    <h3 style="text-align: center; font-weight: bold;">Overall Education Summary
+                                    </h3>
+                                    <canvas id="overallPerformanceChart" class="chart-container"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="border rounded-2 m-1">
+                                    <h3 style="text-align: center; font-weight: bold;">Individual Education
+                                        Trends</h3>
+
+                                    <select class="form-select mb-3" id="individual-orphan-education">
+                                        <option value="">Select Orphan</option>
+                                        {% for orphan in orphans %}
+                                        <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{orphan.lastName }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <canvas id="individualPerformanceChart"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
-            
-    
-            <div class="tab-pane fade row" id="behavior">
-                <div class="col-md-6">
-                    <h3 style="text-align: center; font-weight: bold;">Overall Behavior Summary</h3>
+                <div class="tab-pane fade" id="physical" role="tabpanel" aria-labelledby="physical-tab">
+                    <div class="container ">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-6 ">
+                                <div class="border m-1 rounded-2">
+                                    <h3 style="text-align: center; font-weight: bold;">Overall Body Mass Index
+                                        Summary</h3>
+                                    <canvas id="bmiTrendChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ">
+                                <div class="border m-1 rounded-2">
+                                    <h3 style="text-align: center; font-weight: bold;">Overall Health Summary</h3>
+                                    <canvas id="healthChart"></canvas>
+                                </div>
+                            </div>
+                            
 
-                    <canvas id="sentimentHistogram" class="chart-container"></canvas>
+                            <div class="">
+                                <h3 style="text-align: center; font-weight: bold;">Individual Well-being
+                                    Trends</h3>
+                                <select class="form-select mb-3" id="individual-orphan-bmi">
+                                    <option value="">Select Orphan</option>
+                                    {% for orphan in orphans %}
+                                    <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{orphan.lastName }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div id="bmiChartMessage"></div>
+                                <canvas id="individualBmiChart"></canvas>
+                                <canvas id="individualHealthChart"></canvas>
 
-                    <div>
-                        <h3 style="text-align: center; font-weight: bold;">Individual Behavior Trends</h3>
-                        <select class="form-select mb-3" id="individual-orphan-education">
-                        <option value="">Select Orphan</option>
-                        {% for orphan in orphans %}
-                        <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
-                        {% endfor %}
-                        </select>
-
-                        <canvas id="IndividualBehaviorChart"></canvas>  
-                    </div>                
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-
-            <div class="tab-pane fade row" id="education">
-                <div class="col-md-6">
-            <div class="mb-5">
-                <h3 style="text-align: center; font-weight: bold;">Overall Education Summary</h3>
-                <canvas id="overallPerformanceChart" class="chart-container"></canvas>
-                
-            </div>
-                <div>
-                    <h3 style="text-align: center; font-weight: bold;">Individual Education Trends</h3>
-
-                    <select class="form-select mb-3" id="individual-orphan-education">
-                    <option value="">Select Orphan</option>
-                    {% for orphan in orphans %}
-                    <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
-                    {% endfor %}
-                    </select>
-                    <canvas id="individualPerformanceChart"></canvas>  
-                </div>
-                </div>                
-            </div>
-
-            <div class="tab-pane fade row" id="physical">
-                <div class="col-md-6">
-
-                    <h3 style="text-align: center; font-weight: bold;">Overall Body Mass Index Summary</h3>
-                    <canvas id="bmiTrendChart"></canvas>
-                    <h3 style="text-align: center; font-weight: bold;">Overall Health Summary</h3>
-                    <canvas id="healthChart"></canvas>
-
-                <div class="">
-                    <h3 style="text-align: center; font-weight: bold;">Individual Well-being Trends</h3>
-                    <select class="form-select mb-3" id="individual-orphan-bmi">
-                        <option value="">Select Orphan</option>
-                        {% for orphan in orphans %}
-                        <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
-                        {% endfor %}
-                        </select>
-                        <div id="bmiChartMessage"></div>
-                        <canvas id="individualBmiChart"></canvas>
-                        <canvas id="individualHealthChart"></canvas>
-                        
-                </div>
-                </div>                    
             </div>
         </div>
     </div>
-
-
-
-
-
 <!-- behavior -->
 <script>
     console.log('{{ histogram_data | safe }}');
@@ -265,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call the function when the window has loaded
     window.addEventListener('load', initializeSentimentHistogram);
 </script>
+         
     
 <script>
     // Parse the individual sentiments passed from the Django view
