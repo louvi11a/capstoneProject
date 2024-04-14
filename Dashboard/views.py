@@ -44,6 +44,8 @@ from .clustering_logic import perform_clustering
 import pandas as pd
 from django.db.models import Sum
 from . import forms
+from django.db.models.functions import ExtractQuarter
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -98,21 +100,15 @@ def categorize_grades_by_year(grades_with_year):
     return categorized_data
 
 
+# used in overall education intervention summary page charts
 def overall_gpa_summary(request):
     grades = Grade.objects.annotate(
         year=ExtractYear('education__date_recorded'),
-        time_period=Case(
-            When(semester__isnull=False,
-                 then=Concat(Value('Semester '), Cast('semester', CharField()), output_field=CharField())),
-            When(quarter__isnull=False,
-                 then=Concat(Value('Quarter '), Cast('quarter', CharField()), output_field=CharField())),
-            default=Value('N/A'),  # Handle records with neither as needed
-            output_field=CharField(),
-        )
+        time_period=Concat(Value('Q'), ExtractQuarter(
+            'education__date_recorded'), output_field=CharField())
     ).values('year', 'time_period').annotate(
         average_grade=Avg('grade')
     ).order_by('year', 'time_period')
-    print("overall_gpa_summary:", grades)
 
     return JsonResponse(list(grades), safe=False)
 
@@ -473,7 +469,7 @@ def dashboard_view(request):
     #     Q(education_level='Elementary', educations__grades__grade__lt=75) |
     #     Q(education_level='High School', educations__grades__grade__lt=75)
     # ).distinct().count()
-
+    count_academic_interventions = 0
     for orphan in orphans:
         urgent_support_needed = False
         partial_support_needed = False

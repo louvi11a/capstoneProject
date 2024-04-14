@@ -47,7 +47,7 @@ def login_page_view(request):
     return render(request, "users/loginPage.html", {'form': form})
 
 
-@login_required
+# @login_required
 def settings_view(request):
     user = request.user
     return render(request, 'users/Setting.html', {'user': user})
