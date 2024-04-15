@@ -1,3 +1,5 @@
+import logging
+from calendar import monthrange
 from decimal import Decimal
 from django.db import models
 from django.conf import settings
@@ -6,9 +8,13 @@ from simple_history.models import HistoricalRecords
 from django.db.models import Q, Avg
 from django.http import JsonResponse
 from django.views import View
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from django.utils import timezone
 from django.db.models import Avg
+from django.db.models import Prefetch
+logger = logging.getLogger(__name__)
+
+# Fetch health details with related orphan info preloaded
 
 
 class Family(models.Model):
@@ -170,47 +176,17 @@ class Info(models.Model):
         else:
             return "30+"
 
-# Computes a score for the physical wellbeing of the orphan based on latest records and weighted scores of BMI and health details, including a decay factor for older records.
-    def calculate_overall_physical_wellbeing(self):
-        # Updated weights for BMI and HealthDetail scores
-        bmi_weight = Decimal('0.3')
-        health_detail_weight = Decimal('0.7')
-
-        # Get the latest BMI record and its standardized score
-        latest_bmi_record = self.physical_health.last()
-        bmi_score = latest_bmi_record.calculate_standardized_bmi_score() if latest_bmi_record else 0
-
-        # Calculate HealthDetail scores with time-decay factor
-        health_detail_records = self.health_details.all().order_by('-date')
-        current_date = datetime.now().date()
-        health_detail_score = 0
-        total_weight = 0
-        # Defines how quickly the weight of older records decays
-        decay_rate = Decimal('0.1')
-
-        for index, detail in enumerate(health_detail_records):
-            # Calculate days since the record was created
-            days_since_record = (current_date - detail.date).days
-            # Apply a decay factor for recency
-            time_weight = pow((1 - decay_rate), days_since_record)
-            # Accumulate the weighted score
-            health_detail_score += detail.calculate_health_score() * time_weight
-            # Track the total weight for normalization
-            total_weight += time_weight
-
-        # Normalize the health detail score if there are records
-        if total_weight > 0:
-            health_detail_score /= total_weight
-
-        # Calculate the overall physical well-being score
-        overall_score = (bmi_score * bmi_weight) + \
-            (health_detail_score * health_detail_weight)
-        return overall_score
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
-    def calculate_behavior_score(self):
-        # Ensure notes are in descending order by timestamp
-        notes = self.notes.all().order_by('-timestamp')
+
+    def calculate_behavior_score(self, last_months=4):
+        current_date = datetime.now().date()
+        past_date = current_date - timedelta(days=last_months * 30)
+
+        # Filter notes that are newer than 'past_date'
+        notes = self.notes.filter(
+            timestamp__date__gte=past_date).order_by('-timestamp')
+
         current_date = datetime.now().date()
         behavior_score = 0
         total_weight = 0
@@ -236,12 +212,17 @@ class Info(models.Model):
         return behavior_score
 
 # Computes an average score from the educational records related to the orphan.
-    def calculate_education_score(self):
+    def calculate_education_score(self, last_months=4):
+
+        current_date = datetime.now()
+        # Approximate the date 4 months ago
+        past_date = current_date - timedelta(days=last_months * 30)
+
         # Retrieve all Education instances related to this orphan
-        educations = self.educations.all()
+        educations = self.educations.filter(date_recorded__gte=past_date)
 
         if not educations:
-            return None  # Or some default score if appropriate
+            return Decimal(0)  # Or some default score if appropriate
 
         total_score = 0
         count = 0
@@ -310,23 +291,26 @@ class Info(models.Model):
         return trend_analysis_result
 
 # Computes a composite score combining education, physical wellbeing, and behavior scores using specified weights.
-    def calculate_composite_score(self):
-        # Define weightings
-        education_weight = Decimal('0.3')
-        physical_wellbeing_weight = Decimal('0.4')
-        behavior_weight = Decimal('0.3')
+    # def calculate_composite_score(self, last_months=4):
+    #     # Define weightings
+    #     education_weight = Decimal('0.3')
+    #     physical_wellbeing_weight = Decimal('0.4')
+    #     behavior_weight = Decimal('0.3')
 
-        # Calculate or retrieve individual scores
-        # Assuming you have a method or logic to calculate the education score
-        # Retrieve individual scores, ensuring they're not None
-        education_score = self.calculate_education_score() or Decimal('0')
-        physical_wellbeing_score = self.calculate_overall_physical_wellbeing() or Decimal('0')
-        behavior_score = self.calculate_behavior_score() or Decimal('0')
+    #     # Calculate or retrieve individual scores
+    #     # Assuming you have a method or logic to calculate the education score
+    #     # Retrieve individual scores, ensuring they're not None
+    #     education_score = Decimal(
+    #         self.calculate_education_score(last_months=last_months) or 0)
+    #     health_score = Decimal(HealthDetail.calculate_average_health_score(
+    #         self, months=last_months) or 0)
+    #     behavior_score = Decimal(
+    #         self.calculate_behavior_score(last_months=last_months) or 0)
 
-        # Calculate the weighted sum of the scores, ensuring all calculations are done with Decimal
-        composite_score = (education_score * education_weight +
-                           physical_wellbeing_score * physical_wellbeing_weight +
-                           Decimal(behavior_score) * Decimal(behavior_weight))
+    #     # Calculate the weighted sum of the scores, ensuring all calculations are done with Decimal
+    #     composite_score = (education_score * education_weight +
+    #                        health_score * physical_wellbeing_weight +
+    #                        Decimal(behavior_score) * Decimal(behavior_weight))
 
         return composite_score
 
@@ -340,16 +324,24 @@ class Info(models.Model):
         }
 
         # Assuming the individual score methods return float, convert them to Decimal
-        education_score = Decimal(self.calculate_education_score() or 0)
+        # Fetch scores
+        education_score = Decimal(
+            self.calculate_education_score(last_months=4) or 0)
+        behavior_score = Decimal(
+            self.calculate_behavior_score(last_months=4) or 0)
+
+        # Decide based on your needs which method to use:
+        # For more responsive health assessments:
+        # health_score = Decimal(HealthDetail.calculate_monthly_health_score(self, current_month, current_year) or 0)
+        # For averaging over the last three months:
         health_score = Decimal(
-            self.calculate_overall_physical_wellbeing() or 0)
-        behavior_score = Decimal(self.calculate_behavior_score() or 0)
+            HealthDetail.calculate_average_health_score(self, months=4) or 0)
 
         # Apply conditional weightings based on specific criteria
-        if health_score < Decimal('50'):
-            weights['health'] += Decimal('0.2')
-            weights['education'] -= Decimal('0.1')
-            weights['behavior'] -= Decimal('0.1')
+        # if health_score < Decimal('50'):
+        #     weights['health'] += Decimal('0.2')
+        #     weights['education'] -= Decimal('0.1')
+        #     weights['behavior'] -= Decimal('0.1')
         # Add more conditions as necessary
 
         # Calculate the composite score using Decimal for all arithmetic
@@ -424,19 +416,24 @@ def intervention_behavior_count():
 
 
 class HealthDetail(models.Model):
+    resolved = models.DateField(null=True, blank=True)
+
     date = models.DateField()
     temperature = models.DecimalField(max_digits=4, decimal_places=1)
     blood_pressure = models.CharField(max_length=7)
-    heart_rate = models.IntegerField()
-    nausea = models.BooleanField(default=False)
+    fever = models.BooleanField(default=False)
     vomiting = models.BooleanField(default=False)
     headache = models.BooleanField(default=False)
     stomachache = models.BooleanField(default=False)
     cough = models.BooleanField(default=False)
     dizziness = models.BooleanField(default=False)
-    pain = models.BooleanField(default=False)
+    body_pain = models.BooleanField(default=False)
     # others_symptoms = models.CharField(max_length=255, blank=True, null=True)
     other_details = models.TextField(blank=True, null=True)
+
+    def is_symptom_active(self, symptom_name, check_date):
+        # Check if a symptom was active on a given day
+        return getattr(self, symptom_name) and (self.resolved is None or self.resolved >= check_date)
 
     orphan = models.ForeignKey(
         'Info', on_delete=models.CASCADE, related_name='health_details')
@@ -444,47 +441,89 @@ class HealthDetail(models.Model):
     def __str__(self):
         return f"Health Details for {self.orphan.firstName} on {self.date}"
 
-    def calculate_health_score(self):
-        health_score = 100  # Start with a perfect health score
+    @staticmethod
+    def calculate_average_health_score(orphan, months=4):
+        current_date = date.today()
+        scores = []
 
-        # Define normal ranges
-        # Normal body temperature range in Celsius
-        normal_temperature_range = (36.5, 37.5)
-        # Normal resting heart rate range in BPM
-        normal_heart_rate_range = (60, 100)
-        # Normal blood pressure range would be more complex because it has two numbers (systolic and diastolic)
+        for i in range(months):
+            # Calculate the month and year for each month going backwards
+            month_year = (current_date.month - i - 1) % 12 + 1
+            year = current_date.year if (
+                current_date.month - i - 1) >= 0 else current_date.year - 1
 
-        # Check if the temperature is within the normal range
-        if not (normal_temperature_range[0] <= self.temperature <= normal_temperature_range[1]):
-            health_score -= 10  # Subtract 10 points if outside normal temperature range
+            # Adjust for the month/year roll-over
+            if current_date.month - i - 1 < 0:
+                year -= 1
 
-        # Check if the heart rate is within the normal range
-        if not (normal_heart_rate_range[0] <= self.heart_rate <= normal_heart_rate_range[1]):
-            health_score -= 10  # Subtract 10 points if outside normal heart rate range
+            score = HealthDetail.calculate_monthly_health_score(
+                orphan, month_year, year)
+            scores.append(score)
 
-        # Add logic to handle blood pressure similar to above, using appropriate thresholds
+        if scores:
+            return sum(scores) / len(scores)
+        return 0
 
-        # Check for symptoms
-        symptoms = [
-            self.nausea,
-            self.vomiting,
-            self.headache,
-            self.stomachache,
-            self.cough,
-            self.dizziness,
-            self.pain,
-            # Add more if you have other symptoms
-        ]
-        symptom_penalty = 10  # Penalty points for each symptom
-        health_score -= sum(symptom is True for symptom in symptoms) * \
-            symptom_penalty
+    def calculate_monthly_health_score(orphan, month, year):
+        try:
+            logger.info(f"Calculating health score for orphan {
+                        orphan.orphanID}, Month: {month}, Year: {year}")
 
-        # If other details are provided, it might indicate additional issues
-        if self.other_details:
-            health_score -= 10  # Subtract points if there are other details reported
+            from calendar import monthrange
+            from datetime import date, timedelta
 
-        # Ensure score does not go below 0
-        return max(health_score, 0)
+            # Ensure month is within the valid range
+            if not 1 <= month <= 12:
+                logger.error(
+                    f"Invalid month passed to calculate_monthly_health_score: {month}")
+                raise ValueError("Month must be in 1..12")
+
+            start_of_month = date(year, month, 1)
+            days_in_month = monthrange(year, month)[1]
+            end_of_month = start_of_month + \
+                timedelta(days=days_in_month - 1)
+
+            daily_scores = []
+            symptom_weights = {
+                'fever': 20,  # 20% of 50 points = 10 points
+                'vomiting': 20,  # 20% = 10 points
+                'headache': 20,  # 15% = 7.5 points
+                'cough': 20,  # 15% = 7.5 points
+                'dizziness': 10,  # 10% = 5 points
+                'body_pain': 10   # 10% = 5 points
+            }
+            for single_date in (start_of_month + timedelta(n) for n in range(days_in_month)):
+                daily_score = 100  # Start each day with a full score
+                symptoms_today = HealthDetail.objects.filter(
+                    orphan=orphan, date=single_date)
+
+                for detail in symptoms_today:
+                    for symptom, percentage in symptom_weights.items():
+                        if getattr(detail, symptom):
+                            # Calculate the points to be deducted for this symptom
+                            points_deducted = (percentage / 100) * 50
+                            daily_score -= points_deducted
+
+                # Ensure the score for each day doesn't drop below 0
+                daily_scores.append(max(daily_score, 0))
+
+            # Average the daily scores to get the monthly health score
+            monthly_health_score = sum(daily_scores) / days_in_month
+            return monthly_health_score
+
+        except ValueError as e:
+            logger.error(
+                f"Date error in calculate_monthly_health_score: {str(e)}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in calculate_monthly_health_score for orphan {
+                orphan.orphanID}: {str(e)}")
+            raise
+
+
+health_details = HealthDetail.objects.prefetch_related(
+    Prefetch('orphan', queryset=Info.objects.all())
+)
 
 
 class IncidentType(models.Model):

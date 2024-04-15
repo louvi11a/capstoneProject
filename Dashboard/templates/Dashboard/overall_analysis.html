@@ -120,7 +120,7 @@
 
                 <div class="">
                     <h3>Individual BMI/ Health Trends</h3>
-                    <select class="form-select mb-3" id="individual-orphan-bmi">
+                    <select class="form-select mb-3" id="select-orphan">
                         <option value="">Select Orphan</option>
                         {% for orphan in orphans %}
                         <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
@@ -337,159 +337,204 @@ fetch('/Dashboard/overall_gpa_summary/')
 
         }
     });
-
-
-
-
-
-
 </script>
 
 
     
 <!-- health chart -->
 <script>
-    var healthChartData = JSON.parse('{{ health_chart_data_json | safe }}');
-    var ctxHealth = document.getElementById('healthChart').getContext('2d');
-    var healthChart = new Chart(ctxHealth, {
-        type: 'line',
-        data: healthChartData,
-        options: {
-            scales: {
-                y: {
-                    stacked: true
-                }
-            },
-            elements: {
-                line: {
-                    fill: true
-                }
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const ctxHealth = document.getElementById('healthChart').getContext('2d');
+    let healthChart;
+
+    fetch('/Dashboard/overall_health_summary/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch: ' + response.statusText);
         }
-    });
-</script>
-
-<script>
-    // Initialize an empty chart instance outside the function to be updated later
-    var individualHealthChart;
-
-    document.getElementById('individual-orphan-bmi').addEventListener('change', function() {
-        var orphanId = this.value;
-        var url = `/Dashboard/get_orphan_health_data/${orphanId}`;
-        
-        if (orphanId) {
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    updateHealthChart(data);
-                })
-                .catch(error => console.error('Error fetching health data:', error));
+        return response.json();
+    })
+    .then(data => {
+        if (healthChart) {
+            healthChart.destroy();
         }
-    });
-
-    function updateHealthChart(data) {
-        var ctx = document.getElementById('individualHealthChart').getContext('2d');
-
-        // If there's an existing chart instance, destroy it to avoid creating multiple instances
-        if (individualHealthChart) {
-            individualHealthChart.destroy();
-        }
-
-        individualHealthChart = new Chart(ctx, {
+        healthChart = new Chart(ctxHealth, {
             type: 'line',
             data: {
-                labels: data.labels,
+                labels: data.labels,  // Expecting month-year strings like "2024-01"
                 datasets: [{
-                    label: 'Health Score',
-                    data: data.data,
-                    fill: false,
+                    label: 'Average Health Score',
+                    data: data.data,  // Expecting an array of average scores
+                    fill: true,
                     borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
                     tension: 0.1
                 }]
             },
             options: {
-                plugins: {
-                    tooltips: {
-                        callbacks: {
-                            label: function(context) {
-                    let label = `Health Score: ${context.parsed.y}`;
-                            if (context.parsed.y >= 80) {
-                                label += ' (Healthy)';
-                            } else if (context.parsed.y >= 50) {
-                                label += ' (Attention Needed)';
-                            } else {
-                                label += ' (Unhealthy)';
-                            }
-                            return label;
-                        }
-                    }
-                
-                
-            },
-                    title: {
-                        display: true,
-                        text: 'Health Score Overview',
-                        font: { size: 16 },
-                    },
-                    subtitle: {
-                        display: true,
-                        text: 'Scores range from 0 to 100, with higher scores indicating better health.',
-                        font: { style: 'italic', size: 12 },
-                    },
                 scales: {
                     y: {
-                        beginAtZero: false, // Since health score will likely not start at zero
-                        suggestedMax: 100   // Assuming health score is out of 100
+                        stacked: true,
+                        beginAtZero: false,
+                        suggestedMax: 100
+                    }
+                },
+                elements: {
+                    line: {
+                        fill: true
                     }
                 }
             }
-        }
         });
-    }
+    })
+    .catch(error => {
+        console.error('Error fetching overall health data:', error);
+        alert('Failed to fetch health data: ' + error.message);
+    });
+});
+
+
 </script>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var individualHealthChart;
+    
+        document.getElementById('select-orphan').addEventListener('change', function() {
+            var orphanId = this.value;
+            var url = `/Dashboard/individual_health_summary/${orphanId}`;
+    
+            if (orphanId) {
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                .then(data => {
+                    var ctx = document.getElementById('individualHealthChart').getContext('2d');
+                    if (individualHealthChart) {
+                        individualHealthChart.destroy();
+                    }
+                    individualHealthChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,  // Expecting 'labels' to be an array of dates
+                            datasets: [{
+                                label: 'Health Score',
+                                data: data.data,  // Expecting 'data' to be an array of health scores
+                                fill: false,
+                                borderColor: 'rgb(75, 192, 192)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                tooltips: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let label = `Health Score: ${context.parsed.y}`;
+                                            if (context.parsed.y >= 80) {
+                                                label += ' (Healthy)';
+                                            } else if (context.parsed.y >= 50) {
+                                                label += ' (Attention Needed)';
+                                            } else {
+                                                label += ' (Unhealthy)';
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Health Score Overview',
+                                    font: { size: 16 },
+                                },
+                                subtitle: {
+                                    display: true,
+                                    text: 'Scores range from 0 to 100, with higher scores indicating better health.',
+                                    font: { style: 'italic', size: 12 },
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false, // Since health score will likely not start at zero
+                                    suggestedMax: 100   // Assuming health score is out of 100
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                console.error('Error fetching individual health data:', error);
+                alert('Failed to fetch health data: ' + error.message);
+            });
+                }
+        });
+    });
+</script>
+        
 
 
 
 <!-- BMI CHARTS -->
 <script>
-    const months = JSON.parse('{{ months|safe }}');
-    const categoriesData = JSON.parse('{{ categories_data|safe }}');
-
+document.addEventListener('DOMContentLoaded', function() {
     var ctx = document.getElementById('bmiTrendChart').getContext('2d');
-    var bmiTrendChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: months,
-            datasets: [{
-                label: 'Underweight',
-                data: categoriesData['Underweight'],
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            }, {
-                label: 'Normal Weight',
-                data: categoriesData['Normal Weight'],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            }, {
-                label: 'Overweight',
-                data: categoriesData['Overweight'],
-                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-            }, {
-                label: 'Obesity',
-                data: categoriesData['Obesity'],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            }]
-        },
-        options: {
-            scales: {
-                x: { stacked: true },
-                y: { stacked: true }
-            }
+    console.log('Initializing chart...', window.bmiTrendChart);
+
+    // Check if bmiTrendChart exists and has the destroy method
+    if (window.bmiTrendChart && typeof window.bmiTrendChart.destroy === 'function') {
+        window.bmiTrendChart.destroy();
+    }
+    console.log('Chart initialized.', window.bmiTrendChart);
+
+    fetch('/Dashboard/overall_bmi_summary/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch: ' + response.statusText);
         }
+        return response.json();
+    })
+    .then(data => {
+        var datasets = Object.keys(data.datasets).map(function(key) {
+            return {
+                label: key,
+                data: data.datasets[key].data,
+                backgroundColor: data.datasets[key].backgroundColor
+            };
+        });
+        window.bmiTrendChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching overall health data:', error);
+        alert('Failed to fetch health data: ' + error.message);
     });
+});
 </script>
+    
 
 
 <script>
-    document.getElementById('individual-orphan-bmi').addEventListener('change', function() {
+    document.getElementById('select-orphan').addEventListener('change', function() {
         var orphanId = this.value;
         var url = `/Dashboard/get_orphan_bmi_data/${orphanId}`;
         console.log("Fetch URL:", url); // Add this to log the fetch URL
@@ -506,105 +551,105 @@ fetch('/Dashboard/overall_gpa_summary/')
     });
 
 
-
     function updateBmiChart(response) {
     console.log("Updating BMI chart with data:", response);
 
     var ctx = document.getElementById('individualBmiChart').getContext('2d');
+    var bmiChartMessage = document.getElementById('bmiChartMessage');
     var noDataMessage = "No BMI data available for the selected orphan.";
 
-    if (window.bmiChart) { // If an existing chart is there, destroy it
+    // Destroy the previous chart if it exists
+    if (window.bmiChart && typeof window.bmiChart.destroy === 'function') {
         window.bmiChart.destroy();
     }
 
-    // Handle cases where the response contains an error message
+    // Handle fetch error
     if (response.error) {
         console.error("Fetch error:", response.error);
-        document.getElementById('bmiChartMessage').textContent = noDataMessage;
-
-        // Optionally, display an error message to the user here
-        // For example, update the content of a div with an error message
+        bmiChartMessage.textContent = noDataMessage;
         return; // Exit the function early
     }
 
-    // Check if the 'data' key exists and if it contains an array
-    if (response.hasOwnProperty('data') && Array.isArray(response.data)) {
-        // Proceed to create the chart only if 'data' has items
-        if (response.data && response.data.length > 0) {
-            window.bmiChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: response.data.map(entry => new Date(entry.recorded_at).toLocaleDateString()),  // Convert dates to readable format
-                    datasets: [{
-                        label: 'BMI',
-                        data: response.data.map(entry => entry.bmi),
-                        fill: false,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { stacked: true },
-                        y: { 
-                            stacked: true,
-                            // Include the normal BMI range here if desired
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false // Hide the legend if only one dataset
-                        },
-                        title: {
-                            display: true,
-                            text: 'BMI Overview',
-                            font: { size: 16 },
+    // Handle no data case
+    if (!response.hasOwnProperty('data') || !Array.isArray(response.data) || response.data.length === 0) {
+        console.error("No BMI data available or invalid data structure received.");
+        bmiChartMessage.textContent = noDataMessage;
+        return; // Exit the function early
+    }
 
-                        },
-                        subtitle: {
-                            display: true,
-                            text: 'Data within the green range represents a healthy BMI',
-                            font: {
-                                style: 'italic', // Optional: set the style of the font
-                                size: 14 // Optional: set the size of the font
-                            },
-                            padding: { top: 10, bottom: 30 } // Optional: adjust the padding as needed
-                        },
-                        annotation: {
-                            annotations: {
-                                box1: {
-                                    type: 'box',
-                                    yMin: 18.5,
-                                    yMax: 24.9,
-                                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                                    borderColor: 'rgb(0, 255, 0)',
-                                    borderWidth: 1,
-                                    label: {
-                                        content: 'Normal BMI Range',
-                                        enabled: true,
-                                        position: 'center',
-                                    }
-                                }
+    // Proceed to create the chart as data is valid
+    bmiChartMessage.textContent = ''; // Clear any no data message
+
+    window.bmiChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: response.data.map(entry => new Date(entry.recorded_at).toLocaleDateString()), // Convert dates to readable format
+            datasets: [{
+                label: 'BMI',
+                data: response.data.map(entry => entry.bmi),
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true
+                    // Include the normal BMI range here if desired
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Hide the legend if only one dataset
+                },
+                title: {
+                    display: true,
+                    text: 'BMI Overview',
+                    font: {
+                        size: 16
+                    },
+                },
+                subtitle: {
+                    display: true,
+                    text: 'Data within the green range represents a healthy BMI',
+                    font: {
+                        style: 'italic', // Optional: set the style of the font
+                        size: 14 // Optional: set the size of the font
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30 // Optional: adjust the padding as needed
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        box1: {
+                            type: 'box',
+                            yMin: 18.5,
+                            yMax: 24.9,
+                            backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                            borderColor: 'rgb(0, 255, 0)',
+                            borderWidth: 1,
+                            label: {
+                                content: 'Normal BMI Range',
+                                enabled: true,
+                                position: 'center',
                             }
                         }
                     }
                 }
-            });
-        } else {
-            // If the 'data' array is empty, handle accordingly
-            console.error('No BMI data available for the selected orphan.');
-            document.getElementById('bmiChartMessage').textContent = noDataMessage;
-
-            // Here, you can clear the canvas or display a message "No data available"
+            }
         }
-    } else {
-        // The 'data' key is not an array or doesn't exist, handle accordingly
-        console.error('Invalid response format received:', response);
-        // Here, you can clear the canvas or display a message "Invalid data format"
-    }
+    });
 }
 
+
 </script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const filterInput = document.getElementById('statusFilter');

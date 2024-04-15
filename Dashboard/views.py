@@ -1,4 +1,7 @@
 from decimal import Decimal
+from django.core.cache import cache
+from django.db.models import Prefetch
+
 import json
 from django.db.models.functions import Concat
 from django.db.models import Avg
@@ -18,7 +21,6 @@ from django.db.models import Case, When, IntegerField, Count
 from django.db.models.functions import ExtractYear
 from django.utils.timezone import now
 import logging
-import datetime
 from django.db.models import Count, Case, When, Value
 from django.shortcuts import render
 # Assuming these are your models
@@ -45,7 +47,9 @@ import pandas as pd
 from django.db.models import Sum
 from . import forms
 from django.db.models.functions import ExtractQuarter
-
+from datetime import datetime
+from django.db.models.functions import ExtractYear, ExtractMonth
+# Now you can use
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -151,11 +155,11 @@ def overall_behavior_summary(request):
             score = note['sentiment_score']
             year_index = years.index(year)
 
-            if score < -0.5:
+            if score < -0.2:  # Negative threshold
                 negative_counts[year_index] += 1
-            elif score > 0.5:
+            elif score > 0.2:  # Positive threshold
                 positive_counts[year_index] += 1
-            else:
+            else:  # Neutral
                 neutral_counts[year_index] += 1
 
         datasets = [
@@ -195,6 +199,83 @@ def individual_behavior_summary(request, orphan_id):
     return JsonResponse(data, safe=False)
 
 
+def overall_health_summary(request):
+    cache_key = 'overall_health_data'
+    data = cache.get(cache_key)
+    if not data:
+        try:
+            current_year = datetime.now().year
+            current_month = datetime.now().month
+
+            # Use an optimized query with prefetching and aggregation
+            orphans = Info.objects.all().prefetch_related(
+                Prefetch('health_details')
+            )
+            data = {
+                'labels': [],
+                'data': []
+            }
+            for i in range(4):  # Last four months including the current month
+                month = (current_month - i - 1) % 12 + 1
+                year = current_year if (
+                    current_month - i - 1) >= 0 else current_year - 1
+                monthly_scores = []
+
+                for orphan in orphans:
+                    score = HealthDetail.calculate_monthly_health_score(
+                        orphan, month, year)
+                    monthly_scores.append(score)
+
+                average_score = sum(monthly_scores) / \
+                    len(monthly_scores) if monthly_scores else 0
+                # Prepend to reverse order
+                data['labels'].insert(0, f"{year}-{month:02d}")
+                data['data'].insert(0, average_score)
+
+            # Cache data for 10 minutes
+            cache.set(cache_key, data, 600)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse(data)
+
+
+def individual_health_summary(request, orphan_id):
+    try:
+        current_year = datetime.now().year
+        current_month = datetime.now().month
+
+        # Fetch the orphan record with prefetching to optimize related data retrieval
+        orphan = Info.objects.prefetch_related(
+            'health_details').get(orphanID=orphan_id)
+
+        data = {
+            'labels': [],
+            'data': []
+        }
+
+        # Collect data for the past four months including the current month
+        for i in range(4):  # Adjust range as needed for more or fewer months
+            month = (current_month - i - 1) % 12 + 1
+            year = current_year if (
+                current_month - i - 1) >= 0 else current_year - 1
+            if month > current_month:  # Handle year transition
+                year -= 1
+
+            health_score = HealthDetail.calculate_monthly_health_score(
+                orphan, month, year)
+            # Prepend to maintain chronological order
+            data['labels'].insert(0, f"{year}-{month:02d}")
+            data['data'].insert(0, health_score)
+
+        return JsonResponse(data)
+
+    except Info.DoesNotExist:
+        return JsonResponse({'error': 'Orphan not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 def get_color_for_bin(bin_label):
     """
     Determines the color for a given sentiment score range.
@@ -214,292 +295,60 @@ def get_color_for_bin(bin_label):
         return 'rgba(192, 192, 192)'  # Grey for neutral sentiment
 
 
-def get_orphan_health_data(request, orphan_id):
-    try:
-        logger.debug("Fetching health data for orphan_id: %s", orphan_id)
-
-        # Assume 'orphan' is the ForeignKey to the Orphan model
-        health_data = HealthDetail.objects.filter(orphan_id=orphan_id).annotate(
-            month=TruncMonth('date')
-        ).values('month').distinct().order_by('month')
-
-        # Preparing the response data
-        data = {'labels': [], 'data': []}
-
-        for record in health_data:
-            month = record['month'].strftime('%Y-%m')
-            # Get all HealthDetail objects for this orphan and month
-            details = HealthDetail.objects.filter(
-                orphan_id=orphan_id,
-                date__month=record['month'].month,
-                date__year=record['month'].year,
-            )
-            # Calculate average health score
-            average_score = sum([detail.calculate_health_score()
-                                for detail in details]) / len(details) if details else 0
-
-            data['labels'].append(month)
-            data['data'].append(average_score)
-
-        # Check if data is empty
-        if not data['labels']:
-            return JsonResponse({'error': 'No health data found for the given orphan.'}, status=404)
-
-    except Exception as e:
-        # This could be improved with more specific exception types and messages
-        logger.error(
-            "An error occurred while fetching health data: %s", str(e))
-
-        return JsonResponse({'error': 'Server error or invalid request.'}, status=500)
-
-    return JsonResponse(data)
-
-
 def overall_analysis(request):
-    orphans = Info.objects.all()
+    cache_key = 'overall_analysis_data'
+    context = cache.get(cache_key)
 
-    # Calculate status for each orphan
-    orphan_statuses = {orphan.orphanID: orphan.calculate_status()
-                       for orphan in orphans}
+    if not context:
+        current_year = datetime.now().year
+        current_month = datetime.now().month
 
-    # Health Details Aggregation by Month
-    health_details = HealthDetail.objects.annotate(
-        month=TruncMonth('date')).order_by('month')
+        orphans = Info.objects.prefetch_related(
+            'notes',  # Assuming 'notes' is related to behavior scoring
+            'educations__grades',  # Fetch grades along with educations
+        )
 
-    health_data_by_month = defaultdict(lambda: defaultdict(int))
-    for detail in health_details:
-        health_score = detail.calculate_health_score()
-        month = detail.month.strftime("%Y-%m")
+        # Initialize your context dictionary
+        context = {
+            'orphans': orphans,
+            'orphan_statuses': {},
+            'monthly_health_scores': {},
+            'average_physical_wellbeing_score': 0,
+            'average_education_score': 0,
+            'average_composite_score': 0,
+        }
 
-        if health_score >= 80:
-            category = 'Normal'
-        elif 50 <= health_score < 80:
-            category = 'At-Risk'
-        else:
-            category = 'Critical'
+        # Calculate aggregated data
+        total_health_score, total_education_score, total_composite_score = Decimal(
+            0), Decimal(0), Decimal(0)
+        for orphan in orphans:
+            health_score = Decimal(HealthDetail.calculate_monthly_health_score(
+                orphan, current_month, current_year) or 0)
+            education_score = Decimal(
+                orphan.calculate_education_score(last_months=4) or 0)
+            behavior_score = Decimal(
+                orphan.calculate_behavior_score(last_months=4) or 0)
 
-        health_data_by_month[month][category] += 1
+            context['orphan_statuses'][orphan.orphanID] = orphan.calculate_status()
+            context['monthly_health_scores'][orphan.orphanID] = health_score
 
-    health_trend_data = []
-    for month, categories in health_data_by_month.items():
-        month_data = {'month': month}
-        month_data.update(categories)
-        health_trend_data.append(month_data)
+            total_health_score += health_score
+            total_education_score += education_score
+            total_composite_score += (education_score * Decimal('0.3') +
+                                      health_score * Decimal('0.4') +
+                                      behavior_score * Decimal('0.3'))
 
-    months = sorted(health_data_by_month.keys())
-    health_chart_data = {
-        'labels': months,
-        'datasets': [
-            {
-                'label': 'Normal',
-                'data': [health_data_by_month[month]['Normal'] for month in months],
-                'backgroundColor': 'rgba(75, 192, 192)',
-            },
-            {
-                'label': 'At-Risk',
-                'data': [health_data_by_month[month]['At-Risk'] for month in months],
-                'backgroundColor': 'rgba(255, 206, 86)',
-            },
-            {
-                'label': 'Critical',
-                'data': [health_data_by_month[month]['Critical'] for month in months],
-                'backgroundColor': 'rgba(255, 99, 132)',
-            },
-        ],
-    }
+        orphan_count = max(len(orphans), 1)  # Prevent division by zero
+        context.update({
+            'average_physical_wellbeing_score': (total_health_score / orphan_count),
+            'average_education_score': (total_education_score / orphan_count),
+            'average_composite_score': (total_composite_score / orphan_count),
+        })
 
-    # Calculate overall average scores for other dimensions
-    orphan_count = max(orphans.count(), 1)  # Prevent division by zero
-    average_physical_wellbeing_score = sum(
-        (orphan.calculate_overall_physical_wellbeing() or 0 for orphan in orphans), 0) / orphan_count
-    average_education_score = sum(
-        (orphan.calculate_education_score() or 0 for orphan in orphans), 0) / orphan_count
-    average_composite_score = sum(
-        (orphan.calculate_composite_score() or 0 for orphan in orphans), 0) / orphan_count
-
-    context = {
-        'orphans': orphans,
-        'orphan_statuses': orphan_statuses,  # Add the status data here
-        'health_chart_data_json': json.dumps(health_chart_data),
-        'average_physical_wellbeing_score': average_physical_wellbeing_score,
-        'average_education_score': average_education_score,
-        'average_composite_score': average_composite_score,
-    }
+        # Cache the computed context
+        cache.set(cache_key, context, 3600)  # Cache for 1 hour
 
     return render(request, 'Dashboard/overall_analysis.html', context)
-# def overall_analysis(request):
-#     orphans = Info.objects.all()
-
-#     # Calculate status for each orphan
-#     orphan_statuses = {orphan.orphanID: orphan.calculate_status()
-#                        for orphan in orphans}
-
-#     individual_sentiments = {}
-#     for orphan in orphans:
-#         # Initialize an empty list for each orphan
-#         individual_sentiments[orphan.orphanID] = []
-
-#         # Get sentiment scores per week for the orphan
-#         weekly_scores = Notes.objects.filter(
-#             related_orphan=orphan
-#         ).annotate(
-#             week=ExtractWeek('timestamp')
-#         ).values(
-#             'week'
-#         ).annotate(
-#             average_score=Avg('sentiment_score')
-#         ).order_by('week')
-
-#         for week_score in weekly_scores:
-#             # Append the weekly average sentiment score to the orphan's list
-#             individual_sentiments[orphan.orphanID].append({
-#                 'week': week_score['week'],
-#                 'average_score': week_score['average_score']
-#             })
-#     # Determine the years present in your data
-#     years = Notes.objects.annotate(year=ExtractYear('timestamp')).order_by(
-#         'year').values_list('year', flat=True).distinct()
-#     years = list(years)
-
-#     negative_counts = [0 for _ in years]
-#     neutral_counts = [0 for _ in years]
-#     positive_counts = [0 for _ in years]
-
-#     # Query to get year, sentiment_score and count distinct orphans
-#     queryset = Notes.objects.annotate(year=ExtractYear('timestamp')).values(
-#         'year', 'sentiment_score', 'related_orphan').distinct()
-
-#     for note in queryset:
-#         year = note['year']
-#         score = note['sentiment_score']
-
-#         # Find the index for the year to increment the count
-#         year_index = years.index(year)
-
-#         if score < -0.5:
-#             negative_counts[year_index] += 1
-#         elif score > 0.5:
-#             positive_counts[year_index] += 1
-#         else:
-#             neutral_counts[year_index] += 1
-
-#     datasets = [
-#         {'label': 'Negative', 'data': negative_counts,
-#             'backgroundColor': 'rgba(255, 88, 132)'},
-#         {'label': 'Neutral', 'data': neutral_counts,
-#             'backgroundColor': 'rgba(192, 192, 192)'},
-#         {'label': 'Positive', 'data': positive_counts,
-#             'backgroundColor': 'rgba(62, 181, 192)'}
-#     ]
-
-#     histogram_data_json = json.dumps({
-#         # Convert year numbers to strings
-#         'labels': [str(year) for year in years],
-#         'datasets': datasets,
-#     })
-
-#     health_details = HealthDetail.objects.annotate(
-#         month=TruncMonth('date')).order_by('month')
-
-#     health_data_by_month = defaultdict(lambda: defaultdict(int))
-#     for detail in health_details:
-#         health_score = detail.calculate_health_score()
-#         month = detail.month.strftime("%Y-%m")
-
-#         # Categorize the health score
-#         if health_score >= 80:
-#             category = 'Normal'
-#         elif 50 <= health_score < 80:
-#             category = 'At-Risk'
-#         else:
-#             category = 'Critical'
-
-#         health_data_by_month[month][category] += 1
-
-#     # Prepare data for Chart.js
-#     health_trend_data = []
-#     for month, categories in health_data_by_month.items():
-#         month_data = {'month': month}
-#         month_data.update(categories)
-#         health_trend_data.append(month_data)
-
-#     months = sorted(health_data_by_month.keys())
-#     health_chart_data = {
-#         'labels': months,
-#         'datasets': [
-#             {
-#                 'label': 'Normal',
-#                 'data': [health_data_by_month[month]['Normal'] for month in months],
-#                 'backgroundColor': 'rgba(75, 192, 192)',
-#             },
-#             {
-#                 'label': 'At-Risk',
-#                 'data': [health_data_by_month[month]['At-Risk'] for month in months],
-#                 'backgroundColor': 'rgba(255, 206, 86)',
-#             },
-#             {
-#                 'label': 'Critical',
-#                 'data': [health_data_by_month[month]['Critical'] for month in months],
-#                 'backgroundColor': 'rgba(255, 99, 132)',
-#             },
-#         ],
-#     }
-
-#     bmi_records = BMI.objects.annotate(month=TruncMonth('recorded_at')).values(
-#         'month', 'bmi_category').order_by('month').annotate(count=Count('bmi_category'))
-#     trend_data = {}
-#     for record in bmi_records:
-#         month = record['month'].strftime("%Y-%m")
-#         category = record['bmi_category']
-#         count = record['count']
-#         if month not in trend_data:
-#             trend_data[month] = {}
-#         trend_data[month][category] = count
-
-#     all_categories = ['Underweight', 'Normal Weight', 'Overweight', 'Obesity']
-#     for month in trend_data:
-#         for category in all_categories:
-#             if category not in trend_data[month]:
-#                 trend_data[month][category] = 0
-
-#     months = list(trend_data.keys())
-#     categories_data = {category: [trend_data[month].get(
-#         category, 0) for month in months] for category in all_categories}
-
-#     grades_by_semester = Grade.objects.annotate(
-#         year=ExtractYear('education__date_recorded'),
-#     ).values('semester', 'year', 'education__orphan__firstName', 'education__orphan__lastName').annotate(
-#         average_grade=Avg('grade')
-#     ).order_by('year', 'semester')
-
-#     orphan_count = max(orphans.count(), 1)  # Prevent division by zero
-#     average_behavior_score = sum(
-#         (orphan.calculate_behavior_score() or 0 for orphan in orphans), 0) / orphan_count
-#     average_physical_wellbeing_score = sum(
-#         (orphan.calculate_overall_physical_wellbeing() or 0 for orphan in orphans), 0) / orphan_count
-#     average_education_score = sum(
-#         (orphan.calculate_education_score() or 0 for orphan in orphans), 0) / orphan_count
-#     average_composite_score = sum(
-#         (orphan.calculate_composite_score() or 0 for orphan in orphans), 0) / orphan_count
-
-#     context = {
-#         'orphans': orphans,
-#         'orphan_statuses': orphan_statuses,  # Add the status data here
-
-#         'health_chart_data_json': json.dumps(health_chart_data),
-#         'individual_sentiments': json.dumps(individual_sentiments),
-
-#         'histogram_data': histogram_data_json,
-#         'months': json.dumps(months),
-#         'categories_data': json.dumps(categories_data),
-#         'average_behavior_score': average_behavior_score,
-#         'average_physical_wellbeing_score': average_physical_wellbeing_score,
-#         'average_education_score': average_education_score,
-#         'average_composite_score': average_composite_score,
-#         'gpa_data': json.dumps(list(grades_by_semester), default=str),
-#     }
-
-#     return render(request, 'Dashboard/overall_analysis.html', context)
 
 
 def get_orphan_bmi_data(request, orphan_id):
@@ -521,6 +370,62 @@ def get_orphan_bmi_data(request, orphan_id):
     except ObjectDoesNotExist:
         logger.error(f"No orphan found with ID {orphan_id}")
         return JsonResponse({'error': 'Orphan not found'}, status=404)
+
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        return JsonResponse({'error': 'Internal Server Error'}, status=500)
+
+
+def overall_bmi_summary(request):
+    logger = logging.getLogger(__name__)
+
+    try:
+        logger.debug("overall_bmi_summary")
+
+        # Annotate the BMI objects with year and month fields
+        annotated_bmi = BMI.objects.annotate(
+            year=ExtractYear('recorded_at'),
+            month=ExtractMonth('recorded_at')
+        )
+
+        # Now, we find the latest entry for each orphan within each year and month
+        latest_bmi_entries = annotated_bmi.values(
+            'orphan_id', 'year', 'month'
+        ).annotate(
+            latest_recorded_at=Max('recorded_at')
+        ).values_list('latest_recorded_at', flat=True)
+
+        # Filter the BMI entries to only include the latest for each orphan per month
+        bmi_data = annotated_bmi.filter(
+            recorded_at__in=latest_bmi_entries
+        ).values(
+            'year', 'month', 'bmi_category'
+        ).annotate(
+            count=Count('orphan_id', distinct=True)
+        ).order_by('year', 'month')
+
+        # Prepare data for the chart
+        data = {
+            'labels': [],
+            'datasets': {
+                'Underweight': {'data': [], 'backgroundColor': 'rgba(255, 99, 132, 0.2)'},
+                'Normal Weight': {'data': [], 'backgroundColor': 'rgba(54, 162, 235, 0.2)'},
+                'Overweight': {'data': [], 'backgroundColor': 'rgba(255, 206, 86, 0.2)'},
+                'Obesity': {'data': [], 'backgroundColor': 'rgba(75, 192, 192, 0.2)'},
+            }
+        }
+
+        # Unique list of year-month combinations
+        year_months = sorted(set([(d['year'], d['month']) for d in bmi_data]))
+        for year, month in year_months:
+            label = f"{year}-{str(month).zfill(2)}"
+            data['labels'].append(label)
+            for category in data['datasets']:
+                count = next((item['count'] for item in bmi_data if item['year'] == year
+                              and item['month'] == month and item['bmi_category'] == category), 0)
+                data['datasets'][category]['data'].append(count)
+
+        return JsonResponse(data)
 
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
@@ -551,7 +456,7 @@ def dashboard_view(request):
     bmi_data = [bmi_data_dict.get(category, 0) for category in [
         'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
 
-    current_year = datetime.datetime.now().year
+    current_year = datetime.now().year
     orphans = Info.objects.annotate(
         age=Case(
             When(birthDate__isnull=False, then=current_year -

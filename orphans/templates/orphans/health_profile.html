@@ -252,7 +252,6 @@ if (rows[i]) {
                                 <td>{{ detail.date|date:"Y-m-d" }}</td>
                                 <td>{{ detail.temperature }}</td>
                                 <td>{{ detail.blood_pressure }}</td>
-                                <td>{{ detail.heart_rate }}</td>
                                 <td>
                                     {% if detail.nausea %}Nausea{% endif %}
                                     {% if detail.vomiting %}, Vomiting{% endif %}
@@ -275,6 +274,115 @@ if (rows[i]) {
                     </table>
                 </div>
 
+
+
+                <!-- modal for health -->
+                <div class="modal fade" id="addHealthDetailsModal" tabindex="-1" aria-labelledby="addHealthDetailsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addHealthDetailsModalLabel">Add Health Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addHealthDetailsForm" method="post" action="{% url 'add_health_details' %}">
+
+                                    {% csrf_token %}
+                                    <input type="hidden" name="orphan_id" value="{{ orphan.orphanID }}">
+                                    <div class="mb-3">
+                                        <label orphanId for="dateInput" class="form-label">Date</label>
+                                        <input type="date" class="form-control" id="dateInput" name="dateInput" aria-describedby="dateHelp" required>
+                                        <small id="dateHelp" class="form-text text-muted">Enter the date of measurement.</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="temperatureInput" class="form-label">Temperature (°C)</label>
+                                        <input type="number" step="0.1" class="form-control" id="temperatureInput" name="temperatureInput"
+                                            aria-describedby="temperatureHelp" required>
+                                        <small id="temperatureHelp" class="form-text text-muted">Enter your body temperature.</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="bloodPressureInput" class="form-label">Blood Pressure (mmHg)</label>
+                                        <input type="text" class="form-control" id="bloodPressureInput" name="bloodPressureInput"
+                                            aria-describedby="bloodPressureHelp" placeholder="e.g., 120/80" required>
+                                        <small id="bloodPressureHelp" class="form-text text-muted">Enter your systolic and diastolic
+                                            blood pressure separated by a slash.</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="heartRateInput" class="form-label">Heart Rate (bpm)</label>
+                                        <input type="number" class="form-control" id="heartRateInput" name="heartRateInput" aria-describedby="heartRateHelp"
+                                            required>
+                                        <small id="heartRateHelp" class="form-text text-muted">Enter your resting heart rate.</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="row">
+                                        <label class="form-label">Symptoms</label>
+                                        <div class="col-5">
+                                            <input type="checkbox" id="nauseaCheckbox" name="symptoms" value="nausea">
+                                            <label for="nauseaCheckbox">Nausea</label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="checkbox" id="vomitingCheckbox" name="symptoms" value="vomiting">
+                                            <label for="vomitingCheckbox">Vomiting</label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="checkbox" id="headacheCheckbox" name="symptoms" value="headache">
+                                            <label for="headacheCheckbox">Headache</label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="checkbox" id="stomachacheCheckbox" name="symptom" value="stomachache">
+                                            <label for="stomachacheCheckbox">Stomachache</label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="checkbox" id="coughCheckbox" name="symptoms" value="cough">
+                                            <label for="coughCheckbox">Cough with phlegm</label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="checkbox" id="dizzinessCheckbox" name="symptoms" value="dizziness">
+                                            <label for="dizzinessCheckbox">Dizziness</label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="checkbox" id="painCheckbox" name="symptoms" value="pain">
+                                            <label for="painCheckbox">Pain in the heart</label>
+                                        </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="otherDetailsInput" class="form-label">Other Details</label>
+                                        <textarea class="form-control" id="otherDetailsInput" name="otherDetailsInput" rows="3"
+                                            aria-describedby="otherDetailsHelp"></textarea>
+                                        <small id="otherDetailsHelp" class="form-text text-muted">Add any additional notes or
+                                            symptoms.</small>
+                                    </div>
+                                </form>
+
+                                <div class="mb-3">
+                                    <label for="statusInput" class="form-label">Status</label>
+                                    <select class="form-select" id="statusInput" name="statusInput" aria-describedby="heartRateHelp"
+                                        required>
+                                        <option value="normal">Normal</option>
+                                        <option value="sick">Sick</option>
+                                        <option value="hospitalized">Hospitalized</option>
+                                    </select>
+                                </div>
+                            
+
+                            
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" form="addHealthDetailsForm" class="btn btn-primary">Save Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
 <!-- Dropdown Functions -->
 <script>
     function toggleDropdown(dropdownId) {
@@ -428,114 +536,6 @@ if (rows[i]) {
         }
     }
 </script>
-
-                <!-- modal for health -->
-                <div class="modal fade" id="addHealthDetailsModal" tabindex="-1" aria-labelledby="addHealthDetailsModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="addHealthDetailsModalLabel">Add Health Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="addHealthDetailsForm" method="post" action="{% url 'add_health_details' %}">
-
-                                    {% csrf_token %}
-                                    <input type="hidden" name="orphan_id" value="{{ orphan.orphanID }}">
-                                    <div class="mb-3">
-                                        <label orphanId for="dateInput" class="form-label">Date</label>
-                                        <input type="date" class="form-control" id="dateInput" name="dateInput" aria-describedby="dateHelp" required>
-                                        <small id="dateHelp" class="form-text text-muted">Enter the date of measurement.</small>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="temperatureInput" class="form-label">Temperature (°C)</label>
-                                        <input type="number" step="0.1" class="form-control" id="temperatureInput" name="temperatureInput"
-                                            aria-describedby="temperatureHelp" required>
-                                        <small id="temperatureHelp" class="form-text text-muted">Enter your body temperature.</small>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="bloodPressureInput" class="form-label">Blood Pressure (mmHg)</label>
-                                        <input type="text" class="form-control" id="bloodPressureInput" name="bloodPressureInput"
-                                            aria-describedby="bloodPressureHelp" placeholder="e.g., 120/80" required>
-                                        <small id="bloodPressureHelp" class="form-text text-muted">Enter your systolic and diastolic
-                                            blood pressure separated by a slash.</small>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="heartRateInput" class="form-label">Heart Rate (bpm)</label>
-                                        <input type="number" class="form-control" id="heartRateInput" name="heartRateInput" aria-describedby="heartRateHelp"
-                                            required>
-                                        <small id="heartRateHelp" class="form-text text-muted">Enter your resting heart rate.</small>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="row">
-                                        <label class="form-label">Symptoms</label>
-                                        <div class="col-5">
-                                            <input type="checkbox" id="nauseaCheckbox" name="symptoms" value="nausea">
-                                            <label for="nauseaCheckbox">Nausea</label>
-                                        </div>
-                                        <div class="col-5">
-                                            <input type="checkbox" id="vomitingCheckbox" name="symptoms" value="vomiting">
-                                            <label for="vomitingCheckbox">Vomiting</label>
-                                        </div>
-                                        <div class="col-5">
-                                            <input type="checkbox" id="headacheCheckbox" name="symptoms" value="headache">
-                                            <label for="headacheCheckbox">Headache</label>
-                                        </div>
-                                        <div class="col-5">
-                                            <input type="checkbox" id="stomachacheCheckbox" name="symptom" value="stomachache">
-                                            <label for="stomachacheCheckbox">Stomachache</label>
-                                        </div>
-                                        <div class="col-5">
-                                            <input type="checkbox" id="coughCheckbox" name="symptoms" value="cough">
-                                            <label for="coughCheckbox">Cough with phlegm</label>
-                                        </div>
-                                        <div class="col-5">
-                                            <input type="checkbox" id="dizzinessCheckbox" name="symptoms" value="dizziness">
-                                            <label for="dizzinessCheckbox">Dizziness</label>
-                                        </div>
-                                        <div class="col-5">
-                                            <input type="checkbox" id="painCheckbox" name="symptoms" value="pain">
-                                            <label for="painCheckbox">Pain in the heart</label>
-                                        </div>
-
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="otherDetailsInput" class="form-label">Other Details</label>
-                                        <textarea class="form-control" id="otherDetailsInput" name="otherDetailsInput" rows="3"
-                                            aria-describedby="otherDetailsHelp"></textarea>
-                                        <small id="otherDetailsHelp" class="form-text text-muted">Add any additional notes or
-                                            symptoms.</small>
-                                    </div>
-                                </form>
-
-                                <div class="mb-3">
-                                    <label for="statusInput" class="form-label">Status</label>
-                                    <select class="form-select" id="statusInput" name="statusInput" aria-describedby="heartRateHelp"
-                                        required>
-                                        <option value="normal">Normal</option>
-                                        <option value="sick">Sick</option>
-                                        <option value="hospitalized">Hospitalized</option>
-                                    </select>
-                                </div>
-                            
-
-                            
-                            
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" form="addHealthDetailsForm" class="btn btn-primary">Save Details</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-    </div>
 {% endblock %}  
 {% block js %}
 {% endblock %}

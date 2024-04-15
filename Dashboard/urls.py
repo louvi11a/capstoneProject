@@ -8,8 +8,8 @@ urlpatterns = [
          views.save_intervention, name='save_intervention'),
     path('intervention_academics/', views.intervention_academics,
          name='intervention_academics'),
-    path('get_orphan_health_data/<int:orphan_id>/',
-         views.get_orphan_health_data, name='get_orphan_health_data'),
+    #     path('get_orphan_health_data/<int:orphan_id>/',
+    #          views.get_orphan_health_data, name='get_orphan_health_data'),
 
 
     path('overall_gpa_summary/',
@@ -17,16 +17,19 @@ urlpatterns = [
     path('individual_gpa_summary/<int:orphan_id>/',
          views.individual_gpa_summary, name='individual_gpa_summary'),
 
-
-
-
-
     path('overall_behavior_summary/',
          views.overall_behavior_summary, name='overall_behavior_summary'),
-
     path('individual_behavior_summary/<int:orphan_id>/',
          views.individual_behavior_summary, name='individual_behavior_summary'),
 
+
+    path('overall_health_summary/', views.overall_health_summary,
+         name='overall_health_summary'),
+    path('individual_health_summary/<int:orphan_id>/',
+         views.individual_health_summary, name='individual_health_summary'),
+
+    path('overall_bmi_summary/',
+         views.overall_bmi_summary, name='overall_bmi_summary'),
     path('get_orphan_bmi_data/<int:orphan_id>/',
          views.get_orphan_bmi_data, name='get_orphan_bmi_data'),
 
