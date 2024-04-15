@@ -17,9 +17,9 @@
 <body>
     <main>
         {% block content %}
-        <div class="container-orphan">
-            <div class="form-group container ">
-                <div class="form-container bg-light p-4 rounded">
+        <div class="container row bg-light">
+            <div class="container border border-2 rounded mt-3 bg-none w-100" style="background-color: #e8f4f8;">
+                <div class="form-container p-4 rounded "style="background-color: #e8f4f8;">
                   <form id="myForm" method="post" action="{% url 'update_user_info' %}">
                     {% csrf_token %}
                         <div class="mb-3">
