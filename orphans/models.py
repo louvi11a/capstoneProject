@@ -466,8 +466,7 @@ class HealthDetail(models.Model):
 
     def calculate_monthly_health_score(orphan, month, year):
         try:
-            logger.info(f"Calculating health score for orphan {
-                        orphan.orphanID}, Month: {month}, Year: {year}")
+            logger.info(f"Calculating health score for orphan {orphan.orphanID}, Month: {month}, Year: {year}")
 
             from calendar import monthrange
             from datetime import date, timedelta
@@ -516,8 +515,7 @@ class HealthDetail(models.Model):
                 f"Date error in calculate_monthly_health_score: {str(e)}")
             raise
         except Exception as e:
-            logger.error(f"Unexpected error in calculate_monthly_health_score for orphan {
-                orphan.orphanID}: {str(e)}")
+            logger.error(f"Unexpected error in calculate_monthly_health_score for orphan {orphan.orphanID}: {str(e)}")
             raise
 
 

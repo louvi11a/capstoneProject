@@ -47,13 +47,9 @@ import pandas as pd
 from django.db.models import Sum
 from . import forms
 from django.db.models.functions import ExtractQuarter
-<<<<<<< HEAD
-
-=======
 from datetime import datetime
 from django.db.models.functions import ExtractYear, ExtractMonth
 # Now you can use
->>>>>>> 97da6deed99cecbd5148abf7a85720128df44be7
 # Set up logging
 logger = logging.getLogger(__name__)
 
