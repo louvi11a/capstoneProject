@@ -271,7 +271,7 @@
     {% for education in educations %}
         {% for grade in education.grades.all %}
             <tr>
-                <td>{{ education.date_recorded }}</td>
+                <td>{{ education.date_recorded |date:"Y-m-d"  }}</td>
                 <td>{{ education.year_level }}</td>
                 <td>{{ grade.get_quarter_display }}</td>
                 <td>{{ grade.subject.name }}</td>
@@ -305,6 +305,7 @@
         }
     }
 
+    // Function to filter by date
     function filterByDate(filterValue) {
         console.log('Filter by date:', filterValue);
         // Close dropdown after selection
@@ -363,63 +364,26 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-    // Function to populate the subject dropdown based on the table data
-    function populateSubjectDropdown() {
-        var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
-        var subjects = new Set();
-        rows.forEach(function(row) {
-            var subject = row.cells[3].textContent.trim(); // Assuming the subject is in the 4th column
-            if (subject !== '') { // Exclude empty subjects
-                subjects.add(subject);
-            }
-        });
+    // Function to filter by subject
+function filterBySubject(subjectName) {
+    // Get all table rows
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
 
-        var subjectDropdown = document.querySelector('#subjectDropdownButton').nextElementSibling;
-        subjectDropdown.innerHTML = ''; // Clear existing options
+    // Filter rows based on selected subject
+    rows.forEach(function(row) {
+        var subjectCell = row.cells[3]; // Assuming the subject is in the 4th column
+        var cellText = subjectCell.textContent.trim();
 
-        // Add an "All" option
-        var allOption = document.createElement('li');
-        allOption.innerHTML = `<a class="dropdown-item" href="#" onclick="filterBySubject('all')">All Subjects</a>`;
-        subjectDropdown.appendChild(allOption);
-
-        // Add each unique subject as an option
-        subjects.forEach(function(subject) {
-            var option = document.createElement('li');
-            option.innerHTML = `<a class="dropdown-item" href="#" onclick="filterBySubject('${subject}')">${subject}</a>`;
-            subjectDropdown.appendChild(option);
-        });
-    }
-
-    // Function to filter the table by subject
-    function filterBySubject(filterValue) {
-        console.log('Filter by subject:', filterValue);
-        var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
-        rows.forEach(function(row) {
-            var subjectCell = row.cells[3]; // Assuming the subject is in the 4th column
-            var subject = subjectCell.textContent.trim();
-            if (filterValue === 'all' || subject === filterValue) {
-                row.style.display = ''; // Show row if it matches the filter or if "All" is selected
-            } else {
-                row.style.display = 'none'; // Hide row otherwise
-            }
-        });
-    }
-
-    // Populate the subject dropdown when the page loads
-    populateSubjectDropdown();
-
-    // Event delegation for dropdown menu
-    document.addEventListener('click', function(event) {
-        if (event.target.closest('.dropdown-item')) {
-            var filterValue = event.target.textContent.trim();
-            filterBySubject(filterValue);
+        if (subjectName === 'all' || cellText === subjectName) {
+            row.style.display = ''; // Show the row
+        } else {
+            row.style.display = 'none'; // Hide the row
         }
     });
-});
+}
 
 
-    
+
     // Function to filter by grade
     function filterByGrade(filterValue) {
         console.log('Filter by grade:', filterValue);
@@ -447,89 +411,90 @@
 
     // Function to filter by status
     function filterByStatus(filterValue) {
-        console.log('Filter by status:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('statusDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    console.log('Filter by status:', filterValue); // Debugging log
+    // Close dropdown after selection
+    document.getElementById('statusDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue !== 'all') {
+        // Filter rows based on selected status
         rows.forEach(function(row) {
-            row.style.display = ''; // Reset to show all rows
+            var statusText = row.cells[5].textContent.trim().toLowerCase(); // Assuming status is in the 6th column
+            if (statusText !== filterValue) {
+                row.style.display = 'none'; // Hide the row if it doesn't match the filter value
+            }
         });
-        if (filterValue !== 'all') {
-            // Filter rows based on selected status
-            rows.forEach(function(row) {
-                if (row.cells[5].textContent.toLowerCase() !== filterValue) {
-                    row.style.display = 'none';
-                }
-            });
-        }
     }
+}
 
-    </script>
+</script>
 
 
 
-                <!-- modal for upload academic -->
-                <div class="modal fade" id="addAcademicDetailsModal" tabindex="-1" aria-labelledby="addAcademicDetailsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="addAcademicDetailsModalLabel">Add Academic Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                    <form id="EducationForm" method="post" action="{% url 'save_academic_details' orphan.orphanID %}">
+ <!-- modal for upload academic -->
+ <div class="modal fade" id="addAcademicDetailsModal" tabindex="-1" aria-labelledby="addAcademicDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAcademicDetailsModalLabel">Add Academic Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                    <form id="EducationForm" method="post" action="{% url 'save_academic_details' orphan.orphanID %}">
 
-                                    {% csrf_token %}
-                                    <div class="mb-3">
-                                        <label for="school_name">School Name</label>
-                                        <input id="school_name" name="school_name" class="form-control" required></input>
-                                    </div>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="school_name">School Name</label>
+                        <input id="school_name" name="school_name" class="form-control" required></input>
+                    </div>
 
-                                    <div class="mb-3">
-                                        <label for="educationLevelInput" class="form-label">Education Level</label>
-                                        <select id="educationLevelInput" name="education_level" class="form-control">
-                                            {% for value, display in education_level_choices %}
-                                                <option value="{{ value }}">{{ display }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="yearLevelInput" class="form-label">Year Level</label>
-                                        <select id="yearLevelInput" name="year_level" class="form-control" required></select>
-                                        <small id="yearLevelHelp" class="form-text text-muted">Select your year level.</small>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="quarterInput" class="form-label">Quarter/Semester</label>
-                                        <select id="quarterInput" name="quarter" class="form-control">
-                                            {% for value, display in quarter_choices %}
-                                                <option value="{{ value }}">{{ display }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div id="subjectFields" class="row">
-                                        <div class="mb-3 col-6">
-                                            <label class="form-label">Subject</label>
-                                            <input name="subject" type="text" class="form-control mb-3 subject-input" placeholder="Subject" required>
-                                        </div>
-                                        <div class="mb-3 col-6">
-                                            <label class="form-label">Grade</label>
-                                            <input name="grade" type="number" step="0.25" class="form-control mb-3 grade-input" placeholder="Grade" required>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn btn-primary mt-3" onclick="addSubjectField()">Add Subject</button>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" form="EducationForm" class="btn btn-primary">Add Details</button>
-                            </div>
+                    <div class="mb-3">
+                        <label for="educationLevelInput" class="form-label">Education Level</label>
+                        <select id="educationLevelInput" name="education_level" class="form-control">
+                            {% for value, display in education_level_choices %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="yearLevelInput" class="form-label">Year Level</label>
+                        <select id="yearLevelInput" name="year_level" class="form-control" required></select>
+                        <small id="yearLevelHelp" class="form-text text-muted">Select your year level.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quarterInput" class="form-label">Quarter/Semester</label>
+                        <select id="quarterInput" name="quarter" class="form-control">
+                            {% for value, display in quarter_choices %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="subjectFields" class="row">
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Subject</label>
+                            <input name="subject" type="text" class="form-control mb-3 subject-input" placeholder="Subject" required>
+                        </div>
+                        <div class="mb-3 col-6">
+                            <label class="form-label">Grade</label>
+                            <input name="grade" type="number" step="0.25" class="form-control mb-3 grade-input" placeholder="Grade" required>
                         </div>
                     </div>
-                </div>
+                    <button type="button" class="btn btn-primary mt-3" onclick="addSubjectField()">Add Subject</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="EducationForm" class="btn btn-primary">Add Details</button>
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
+</div>
 {% endblock %}  
 
 {% block js %}

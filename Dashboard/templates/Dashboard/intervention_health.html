@@ -55,14 +55,7 @@
                     <div class="d-flex align-items-center">
                     </div>
                     <div class="d-flex align-items-center">
-                        <label for="downloadSelect" class="form-label me-2 mb-0">Download</label>
-                        <select class="form-select form-select-sm me-2" id="downloadSelect" style="width: 150px;">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="quarterly">Quarterly</option>
-                            <option value="yearly">Yearly</option>
-                        </select>
+                        <label for="downloadSelect" class="form-label me-2 mb-0">Download Data</label>
                         <button class="btn btn-primary btn-sm" onclick="downloadData()"><i class="bi bi-download"></i></button>
                     </div>
                 </div>
@@ -109,6 +102,55 @@
                     }
                 </script>
 
+ <!-- Download Function -->
+
+ <script>
+    function downloadData() {
+    // Get reference to the table
+    var table = document.getElementById('healthDetailsTable');
+
+    // Check if table exists
+    if (!table) {
+        console.error("Table not found.");
+        return;
+    }
+
+    // Start CSV content with column headers
+    var csvContent = "Date,Name,Health Status,Remarks,Intervention Status\n";
+
+    // Convert table content to CSV format
+    var rows = table.querySelectorAll('tbody tr');
+    if (rows.length === 0) {
+        console.warn("No data found in the table.");
+        return;
+    }
+
+    rows.forEach(function(row) {
+        var rowData = [];
+        var cells = row.querySelectorAll('td');
+
+        cells.forEach(function(cell) {
+            var cellContent = cell.textContent.trim().replace(/"/g, '""');
+            rowData.push('"' + cellContent + '"');
+        });
+
+        csvContent += rowData.join(',') + '\n';
+    });
+
+    // Create a link and trigger download
+    var encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Health_data");
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+}
+
+</script>
+
 <div class="mb-3">
     <table id="healthDetailsTable" class="table table-striped">
         <thead>
@@ -138,7 +180,7 @@
                     </div>
                 </th>
                 <th scope="col">
-                    Urgency
+                    Health Status
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('urgency')">
                         <i class="bi bi-filter"></i>
                     </button>
@@ -149,15 +191,16 @@
                         <a class="dropdown-item" href="#" onclick="filterByUrgency('not urgent')">Not Urgent</a>
                     </div>
                 </th>
-                <th scope="col">Intervention</th>
+                <th scope="col">Remarks</th>
                 <th scope="col">
-                    Status
+                    Intervention Status
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
                         <i class="bi bi-filter"></i>
                     </button>
                     <!-- Status filter dropdown -->
                     <div id="statusDropdown" class="dropdown-menu" style="display: none;">
                         <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('none')">None</a>
                         <a class="dropdown-item" href="#" onclick="filterByStatus('resolved')">Resolved</a>
                         <a class="dropdown-item" href="#" onclick="filterByStatus('pending')">Pending</a>
                         <a class="dropdown-item" href="#" onclick="filterByStatus('unresolved')">Unresolved</a>
@@ -176,7 +219,7 @@
                 <td>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            Actions
+                            
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
                             <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
@@ -194,7 +237,7 @@
                 <td>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            Actions
+                            
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
                             <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
@@ -212,7 +255,7 @@
                 <td>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            Actions
+                            
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
                             <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
@@ -221,6 +264,7 @@
                     </div>
                 </td>
             </tr>
+            
 
 
         </tbody>

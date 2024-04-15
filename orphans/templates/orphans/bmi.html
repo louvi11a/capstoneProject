@@ -275,7 +275,7 @@
                         <tbody>
                           {% for record in physical_health_records %}
                             <tr>
-                              <td>{{ record.recorded_at }}</td>
+                              <td>{{ record.recorded_at|date:"Y-m-d" }}</td>
                               <td>{{ record.height }}</td>
                               <td>{{ record.weight }}</td>
                               <td>{{ record.bmi }}</td>

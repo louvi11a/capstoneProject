@@ -272,23 +272,32 @@ function toggleDropdown(dropdownId) {
     }
 }
 
-
 function filterByDate(filterValue) {
     console.log('Filter by date:', filterValue);
     // Close dropdown after selection
     document.getElementById('dateDropdown').style.display = 'none';
     // Get all table rows
-    var rows = document.querySelectorAll('#academicDetailsTable tbody tr');
+    var rows = Array.from(document.querySelectorAll('#academicDetailsTable tbody tr'));
     rows.forEach(function(row) {
         row.style.display = ''; // Reset to show all rows
     });
+
     if (filterValue === 'ascending') {
         // Code to sort by ascending date
-        rows = Array.from(rows).sort((a, b) => new Date(a.cells[0].textContent) - new Date(b.cells[0].textContent));
+        rows.sort((a, b) => {
+            var dateA = new Date(a.cells[0].textContent);
+            var dateB = new Date(b.cells[0].textContent);
+            return dateA - dateB; // This will sort in ascending order
+        });
     } else if (filterValue === 'descending') {
         // Code to sort by descending date
-        rows = Array.from(rows).sort((a, b) => new Date(b.cells[0].textContent) - new Date(a.cells[0].textContent));
+        rows.sort((a, b) => {
+            var dateA = new Date(a.cells[0].textContent);
+            var dateB = new Date(b.cells[0].textContent);
+            return dateB - dateA; // This will sort in descending order
+        });
     }
+
     // Re-append sorted rows to the table
     var tbody = document.querySelector('#academicDetailsTable tbody');
     tbody.innerHTML = ''; // Clear existing rows
@@ -482,7 +491,7 @@ function getCookie(name) {
         }
     
         // Start CSV content with column headers
-        var csvContent = "Date,Name,Academic Status,Remarks,Inntervention Status\n";
+        var csvContent = "Date,Name,Academic Status,Remarks,Intervention Status\n";
     
         // Convert table content to CSV format
         var rows = table.querySelectorAll('tbody tr');

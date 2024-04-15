@@ -224,9 +224,9 @@ if (rows[i]) {
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('vomiting')">Vomiting</a>
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('headache')">Headache</a>
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('stomachache')">Stomachache</a>
-                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('cough with phlegm')">Cough with Phlegm</a>
+                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('cough')">Cough with Phlegm</a>
                         <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('dizziness')">Dizziness</a>
-                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('pain in the heart')">Pain in the Heart</a>
+                        <a class="dropdown-item" href="#" onclick="filterByOtherSymptoms('pain')">Pain in the Heart</a>
                     </div>
                 </th>
                 <th scope="col"> 
@@ -253,17 +253,17 @@ if (rows[i]) {
                                 <td>{{ detail.temperature }}</td>
                                 <td>{{ detail.blood_pressure }}</td>
                                 <td>
-                                    {% if detail.nausea %}Nausea{% endif %}
-                                    {% if detail.vomiting %}, Vomiting{% endif %}
-                                    {% if detail.headache %}, Headache{% endif %}
-                                    {% if detail.stomachache %}, Stomachache{% endif %}
-                                    {% if detail.cough %}, Cough{% endif %}
-                                    {% if detail.dizziness %}, Dizziness{% endif %}
-                                    {% if detail.pain %}, Pain{% endif %}
-                                    {% if detail.others_symptoms %}, {{ detail.others_symptoms }}{% endif %}
+                                    {% if detail.nausea %}Nausea,{% endif %}
+                                    {% if detail.vomiting %}Vomiting,{% endif %}
+                                    {% if detail.headache %}Headache,{% endif %}
+                                    {% if detail.stomachache %}Stomachache,{% endif %}
+                                    {% if detail.cough %}Cough,{% endif %}
+                                    {% if detail.dizziness %}Dizziness,{% endif %}
+                                    {% if detail.pain %}Pain,{% endif %}
+                                    {% if detail.others_symptoms %}{{ detail.others_symptoms }}{% endif %}
                                 </td>
                                 <td>{{ detail.other_details }}</td>
-                                <td>status</td>
+                                <td>{{ detail.status }}</td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -498,43 +498,47 @@ if (rows[i]) {
         });
     }
 
+    
+
     function filterByOtherSymptoms(filterValue) {
-        console.log('Filter by symptoms:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('otherSymptomsDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
-        rows.forEach(function(row) {
-            console.log(row.cells[4].textContent.toLowerCase()); // Log the content of the symptoms cell
-            row.style.display = ''; // Reset to show all rows
-        });
-        if (filterValue !== 'all') {
-            rows.forEach(function(row) {
-                if (!row.cells[5].textContent.toLowerCase().includes(filterValue)) {
-                    row.style.display = 'none'; // Hide rows not matching the selected status
-                }
-            });
-        }
-    }
+    console.log('Filter by symptoms:', filterValue);
+    // Close dropdown after selection
+    document.getElementById('otherSymptomsDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
+    rows.forEach(function(row) {
+        // Reset to show all rows
+        row.style.display = '';
 
-
-    function filterByStatus(filterValue) {
-        console.log('Filter by status:', filterValue);
-        // Close dropdown after selection
-        document.getElementById('statusDropdown').style.display = 'none';
-        // Get all table rows
-        var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
-        rows.forEach(function(row) {
-            row.style.display = ''; // Reset to show all rows
-        });
-        if (filterValue !== 'all') {
-            rows.forEach(function(row) {
-                if (!row.cells[6].textContent.toLowerCase().includes(filterValue)) {
-                    row.style.display = 'none'; // Hide rows not matching the selected status
-                }
-            });
+        // Check if the row contains any of the selected symptoms
+        var symptomsCell = row.cells[4].textContent.toLowerCase();
+        if (filterValue !== 'all' && !symptomsCell.includes(filterValue)) {
+            row.style.display = 'none'; // Hide rows not matching the selected symptom
         }
+    });
+}
+
+// Function to filter by status
+function filterByStatus(filterValue) {
+    console.log('Filter by status:', filterValue); // Debugging log
+    // Close dropdown after selection
+    document.getElementById('statusDropdown').style.display = 'none';
+    // Get all table rows
+    var rows = document.querySelectorAll('#healthdetailsTable tbody tr');
+    rows.forEach(function(row) {
+        row.style.display = ''; // Reset to show all rows
+    });
+    if (filterValue !== 'all') {
+        // Filter rows based on selected status
+        rows.forEach(function(row) {
+            var statusText = row.cells[6].textContent.trim().toLowerCase(); // Assuming status is in the 6th column
+            if (statusText !== filterValue) {
+                row.style.display = 'none'; // Hide the row if it doesn't match the filter value
+            }
+        });
     }
+}
+
 </script>
 {% endblock %}  
 {% block js %}

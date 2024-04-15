@@ -69,7 +69,7 @@ Orphan List
                     <option value="">All</option>
                     <option value="P">Pending</option>
                     <option value="A">Admitted</option>
-                    <option value="G">Graduated</option>
+                    <option value="G">Discharged</option>
 
                 </select>
               </div>
@@ -107,7 +107,7 @@ Orphan List
                   
                   <p class="status text-center mb-2">
                     {% if orphan.has_birth_certificate_attr %}
-                        <span class="badge bg-warning rounded-pill">Admitted</span>
+                        <span class="badge bg-success rounded-pill">Admitted</span>
                     {% else %}
                         <span class="badge bg-warning rounded-pill">Pending</span>
                     {% endif %}
@@ -380,7 +380,7 @@ Orphan List
                       statusDescription = 'Admitted';
                       break;
                   case 'G':
-                      statusDescription = 'Graduated';
+                      statusDescription = 'Discharged';
                       break;
                   // Add more cases as needed
                   default:
