@@ -131,33 +131,29 @@
                             </tr>
                         </thead>
                         
+
+                        
                         <tbody>
                             {% for item in orphan_educations_status %}
                             <tr>
-                                <td>{{ item.date_recorded |date:"Y-m-d" }}</td>
+                                <td>{{ item.last_modified|date:"Y-m-d"|default_if_none:"N/A" }}</td>
                                 <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
                                 <td>
                                     <span class="badge bg-{{ item.status_color }}">{{ item.status }}</span>
                                 </td>
-                                <td>{{ item.remarks }}</td> <!-- Add this line to display remarks -->
-
-                                <!-- <td>{{ item.education.intervention_needed }}</td> -->
-
-                                <!-- <td>{{ item.education.current_gpa }}</td> -->
-
-                                <!-- <td>{{ item.intervention_status }}</td>  -->
+                                <td>{{ item.remarks }}</td>
                                 <td>
-                                <span class="badge bg-{{ item.intervention_status_color }}">{{ item.intervention_status }}</span>
-                            </td>
-
+                                    <span class="badge bg-{{ item.intervention_color }}">{{ item.intervention_status|default:"None" }}</span>
+                                </td>
                                 <td>
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                            
+                                            Actions
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton{{ forloop.counter }}">
-                                            <li><a class="dropdown-item edit-remarks-action" href="#" data-orphan-id="{{ item.orphanID }}" data-bs-toggle="modal" data-bs-target="#editRemarksModal">Edit</a></li>
-                                            <li><a class="dropdown-item" href="">View</a></li>
+                                            <li><a class="dropdown-item edit-remarks-action" href="#" data-orphan-id="{{ item.orphan.orphanID }}" data-bs-toggle="modal" data-bs-target="#editRemarksModal">Add remarks</a></li>
+
+                                            <li><a class="dropdown-item" href="#">View</a></li>
                                         </ul>
                                     </div>
                                 </td>
@@ -167,17 +163,18 @@
                         
                         
                         
+                        
+                        
                     </table>
                 </div>
-                <!-- Edit Remarks Modal -->
 
 
-<!-- Edit Remarks Modal -->
+<!-- Add Remarks Modal -->
 <div class="modal fade" id="editRemarksModal" tabindex="-1" aria-labelledby="editRemarksModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editRemarksModalLabel">Edit Remarks</h5>
+                <h5 class="modal-title" id="editRemarksModalLabel">Add Remarks</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -246,40 +243,7 @@
         }
     }
 </script>
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Event delegation to handle click on "Edit Remarks" dropdown item
-        document.querySelector('body').addEventListener('click', function(e) {
-            if (e.target && e.target.id === 'editRemarksAction') {
-                $('#editRemarksModal').modal('show');
-            }
-        });
 
-        // Function to save remarks
-        $('#saveRemarksBtn').click(function() {
-            var remarks = $('#remarksInput').val();
-            var remarksValidationMessage = $('#remarksValidationMessage');
-
-            if (remarks.trim() === "") {
-                remarksValidationMessage.show();
-            } else {
-                remarksValidationMessage.hide();
-                // Save remarks (for demonstration purposes, just simulate saving)
-                if (confirm("Changes saved.")) {
-                    $('#editRemarksModal').modal('hide');
-                    // Redirect to the appropriate page
-                    window.location.href = "../html/intervention_academics.html";
-                }
-            }
-        });
-
-        // Function to handle modal close event
-        $('#editRemarksModal').on('hidden.bs.modal', function () {
-            // Redirect to the appropriate page
-            window.location.href = "../html/intervention_academics.html";
-        });
-    });
-</script> -->
 
 <!-- Dropdown Functions -->
 <script>
@@ -418,14 +382,16 @@ function filterByStatus(filterValue) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Event listener for edit buttons to set the orphanId in the modal
+    // Ensure this is selecting elements correctly, particularly after rendering or dynamic updates
     document.querySelectorAll('.edit-remarks-action').forEach(function(button) {
         button.addEventListener('click', function() {
             var orphanId = this.getAttribute('data-orphan-id');
-            var modal = document.getElementById('editRemarksModal');
-            modal.setAttribute('data-orphan-id', orphanId);
+            console.log('Orphan ID set for modal:', orphanId); // Check if the ID is correct
+            var form = document.getElementById('editRemarksForm');
+            form.action = '/Dashboard/save_intervention/' + orphanId + '/'; // Set form action directly
         });
     });
+
 
     // Event listener for form submission within the modal
     document.getElementById('editRemarksForm').addEventListener('submit', function(e) {
@@ -433,6 +399,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var modal = document.getElementById('editRemarksModal');
         var orphanId = modal.getAttribute('data-orphan-id');
+        console.log('Sending AJAX request for Orphan ID:', orphanId); // This should not be undefined or empty
+
         var remarks = document.getElementById('remarksInput').value;
         var status = document.getElementById('statusSelect').value;
 
@@ -450,6 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('status', status);
 
         // Make the AJAX request
+        console.log('Orphan ID:', orphanId);  // Add this line
         fetch('/Dashboard/save_intervention/' + orphanId + '/', {
             method: 'POST',
             body: formData,
@@ -460,10 +429,19 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return response.text().then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        throw new Error(data.message || 'Server error');
+                    } catch {
+                        // This will handle non-JSON responses gracefully
+                        throw new Error(text.slice(0, 100) + '...');  // Display the first 100 characters of the response
+                    }
+                });
             }
             return response.json();
         })
+
         .then(data => {
             console.log('Success:', data);
             alert('Remarks saved successfully.');
@@ -472,13 +450,11 @@ document.addEventListener('DOMContentLoaded', function() {
             var modalElement = document.getElementById('editRemarksModal');
             var modalInstance = bootstrap.Modal.getInstance(modalElement);
             modalInstance.hide();          
-             
         })
         .catch((error) => {
             console.error('Error:', error);
-            alert('An error occurred while saving the remarks.');
+            alert('An error occurred while saving the remarks: ' + error.message);
             document.getElementById('editRemarksForm').reset();
-
         });
     });
 });
