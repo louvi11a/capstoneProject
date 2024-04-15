@@ -140,7 +140,6 @@ def add_health_details(request):
         date=request.POST.get('dateInput'),
         temperature=request.POST.get('temperatureInput'),
         blood_pressure=request.POST.get('bloodPressureInput'),
-        heart_rate=request.POST.get('heartRateInput'),
         nausea='nausea' in submitted_symptoms,
         vomiting='vomiting' in submitted_symptoms,
         headache='headache' in submitted_symptoms,

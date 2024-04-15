@@ -17,137 +17,132 @@
 
 <!-- <div class="main-content"> -->
     <div class="m-2">
-        <div>
-            <h1 class="text-center">Orphan Overall Analysis</h1>
-        </div>
 
+        <h1>Orphan Trends</h1>
         <hr class="mt-3">
-        <div>
-            <ul class="nav nav-pills mb-3 d-flex justify-content-center fs-5" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="summary-tab" data-bs-toggle="pill"
-                        data-bs-target="#summary" type="button" role="tab" aria-controls="summary"
-                        aria-selected="true">Summary of Trends</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="behavior-tab" data-bs-toggle="pill"
-                        data-bs-target="#behavior" type="button" role="tab" aria-controls="behavior"
-                        aria-selected="false">Orphan Behavior Analysis</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="education-tab" data-bs-toggle="pill"
-                        data-bs-target="#education" type="button" role="tab" aria-controls="education"
-                        aria-selected="false">Orphan Education Analysis</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="education-tab" data-bs-toggle="pill"
-                        data-bs-target="#physical" type="button" role="tab" aria-controls="physical"
-                        aria-selected="false">Orphan Well-being Analysis</button>
-                </li>
-            </ul>
-
-            <hr class="mt-3">
-            <input type="text" id="statusFilter" class="form-control mb-3" placeholder="Search ...">
+        <ul class="nav nav-pills nav-fill mb-3">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#summary">Summary of Trends</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#behavior">Behavior Chart Summary</a>
+            </li>
             
-            <hr class="mt-3">
-            <div class="tab-content" id="pills-tabContent">
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#education">Education Chart Summary</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#physical">Physical Chart Summary</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="summary">
+                <hr class="mt-3">
+                <input type="text" id="statusFilter" class="form-control mb-3" placeholder="Filter by status...">
+                <hr class="mt-3">
 
-                <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-                    
-                        <div class="d-flex justify-content-between mb-3">
-                            <div class="d-flex align-items-center">
-                                <!-- Show number of entries -->
-                                <div class="d-flex align-items-center me-2">
-                                    <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
-                                    <select class="form-select form-select-sm" id="entriesSelect" style="width: 100px;">
-                                        <option value="all">All</option>
-                                        <option value="5">5</option>
-                                        <option value="10" selected>10</option>
-                                        <option value="15">15</option>
-                                        <option value="20">20</option>
-                                        <option value="25">25</option>
-                                        <option value="30">30</option>
-                                        <option value="35">35</option>
-                                        <option value="40">40</option>
-                                        <option value="45">45</option>
-                                        <option value="50">50</option>
-                                    </select>
-                                    <span class="me-2">entries</span>
+                <!-- Show number of Entries -->
+<div class="d-flex justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <!-- Show number of entries -->
+                                    <div class="d-flex align-items-center me-2">
+                                        <label for="entriesSelect" class="form-label me-2 mb-0">Show</label>
+                                        <select class="form-select form-select-sm" id="entriesSelect" style="width: 100px;">
+                                            <option value="all">All</option>
+                                            <option value="5">5</option>
+                                            <option value="10" selected>10</option>
+                                            <option value="15">15</option>
+                                            <option value="20">20</option>
+                                            <option value="25">25</option>
+                                            <option value="30">30</option>
+                                            <option value="35">35</option>
+                                            <option value="40">40</option>
+                                            <option value="45">45</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                        <span class="me-2">entries</span>
+                                    </div>
                                 </div>
+                            
+                            
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-sm me-2" onclick="filterOrphanCards()"><i class="bi bi-filter"></i></button>
+                                    <label for="statusFilter" class="form-label me-2 mb-0">Status</label>
+                                    <select class="form-select form-select-sm me-2" id="statusFilter" style="width: 100px;">
+                                        <option value="">All</option>
+                                        <option value="Stable">Stable</option>
+                                        <option value="Monitoring Required">Monitoring Required</option>
+                                        <option value="Critical Attention Needed">Critical Attention Needed</option>
+                                    </select>
+                                </div>                                
                             </div>
-                        
-        
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-sm me-2"><i class="bi bi-filter"></i></button>
-                            <label for="statusFilter" class="form-label me-2 mb-0">Status</label>
-                            <select class="form-select form-select-sm me-2" id="statusFilter" style="width: 100px;">
-                              <option value="">All</option>
-                              <option value="Stable">Stable</option>
-                              <option value="Monitoring Required">Monitoring Required</option>
-                              <option value="Critical Attention Needed">Critical Attention Needed</option>
-                          </select>
-                        </div>
-                    </div>
-                   
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('entriesSelect').addEventListener('change', function() {
-                var selectedEntries = this.value === 'all' ? -1 : parseInt(this.value, 10);
-                var orphanCards = document.querySelectorAll('.orphan-card');
-        
-                orphanCards.forEach(function(card, index) {
-                    if (selectedEntries === -1 || index < selectedEntries) {
-                        card.style.display = 'block'; // Show the card
-                    } else {
-                        card.style.display = 'none'; // Hide the card
-                    }
-                });
-            });
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        document.getElementById('entriesSelect').addEventListener('change', function () {
+                                            var selectedEntries = this.value === 'all' ? -1 : parseInt(this.value, 10);
+                                            var orphanCards = document.querySelectorAll('.orphan-card');
+
+                                            orphanCards.forEach(function (card, index) {
+                                                if (selectedEntries === -1 || index < selectedEntries) {
+                                                    card.style.display = 'block'; // Show the card
+                                                } else {
+                                                    card.style.display = 'none'; // Hide the card
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+
+<script>
+    function filterOrphanCards() {
+        var selectedStatus = document.getElementById("statusFilter").value;
+        var orphanCards = document.querySelectorAll('.orphan-card');
+
+        orphanCards.forEach(function(card) {
+            var cardStatus = card.querySelector('.status-text').textContent.trim();
+            if (selectedStatus === '' || cardStatus === selectedStatus) {
+                card.classList.remove('hidden'); // Show the card
+            } else {
+                card.classList.add('hidden'); // Hide the card
+            }
         });
-        </script>         
-        
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                // JavaScript for handling the status filter
-                document.getElementById('statusFilter').addEventListener('change', function() {
-                    var selectedStatus = this.value; // Get the selected status
-        
-                    // Get all orphan cards
-                    var orphanCards = document.querySelectorAll('.orphan-card');
-        
-                    // Loop through each card and adjust display based on the selected status
-                    orphanCards.forEach(function(card) {
-                        var cardStatus = card.querySelector('.status-text').textContent.trim(); // Get the status text of the card
-                        if (selectedStatus === '' || cardStatus === selectedStatus) {
-                            card.style.display = 'block'; // Show the card if it matches the selected status or if 'All' is selected
-                        } else {
-                            card.style.display = 'none'; // Otherwise, hide the card
-                        }
-                    });
-                });
-            });
-        </script>
-        
-        
-        
-                        <div class="row" id="orphanList">
-                            {% for orphan in orphans %}
-        
-                            <div class="col-12 col-md-6 col-lg-4 orphan-card">
-                                <div class="card mb-3 bg-light-style w-auto text-center"> <!-- This centers text horizontally -->
-                                    <a href="{% url 'orphan_profile' orphan.orphanID %}" class="text-decoration-none text-dark">
-                                        <div class="d-flex justify-content-center align-items-center" style="height: 100px;"> <!-- Adjust the height as needed -->
-                                            {% if orphan.orphan_picture %}
-                                            <img src="{{ orphan.orphan_picture.url }}" class="rounded-circle img-thumbnail" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
-                                            {% else %}
-                                            <img src="{% static 'images/default_orphan_picture.png' %}" class="rounded-circle img-thumbnail" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="Default profile picture" />
-                                            {% endif %}
-                                        </div>
-                                        <div class="card-body">
-                                            <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
-                                            <p class="card-text text-center">
-                                
-                                                <span class="badge 
+    }
+
+    // Ensure that filtering occurs when the status filter dropdown changes
+    document.getElementById('statusFilter').addEventListener('change', filterOrphanCards);
+
+    // Initial filtering when the page loads
+    window.addEventListener('DOMContentLoaded', filterOrphanCards);
+</script>
+
+
+
+
+
+
+<!-- Orphan COntent -->
+<div class="row" id="orphanList">
+    {% for orphan in orphans %}
+    <div class="col-12 col-md-6 col-lg-4 orphan-card">
+        <div class="card mb-3 bg-light-style w-auto text-center"> <!-- This centers text horizontally -->
+            <a href="{% url 'orphan_profile' orphan.orphanID %}" class="text-decoration-none text-dark">
+                <div class="d-flex justify-content-center align-items-center" style="height: 100px;">
+                    <!-- Adjust the height as needed -->
+                    {% if orphan.orphan_picture %}
+                    <img src="{{ orphan.orphan_picture.url }}" class="rounded-circle img-thumbnail"
+                        style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                        alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture" />
+                    {% else %}
+                    <img src="{% static 'images/default_orphan_picture.png' %}" class="rounded-circle img-thumbnail"
+                        style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                        alt="Default profile picture" />
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ orphan.firstName }} {{ orphan.lastName }}</h5>
+                    <p class="card-text text-center">
+                        <span class="badge 
                                                     {% if orphan_statuses|get_item:orphan.orphanID == 'Critical Attention Needed' %}
                                                     bg-danger
                                                     {% elif orphan_statuses|get_item:orphan.orphanID == 'Monitoring Required' %}
@@ -156,281 +151,235 @@
                                                     bg-success
                                                     {% endif %}
                                                     status-text">
-                                                    {{ orphan_statuses|get_item:orphan.orphanID }}
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        
-                    </div>
-                
-                </div>
-
-                
-                <div class="tab-pane fade row" id="behavior">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col border rounded m-1">
-                            <h3 style="text-align: center; font-weight: bold;">Overall Behavior Summary</h3>
-                            <canvas id="sentimentHistogram" class="chart-container"></canvas>
+                            {{ orphan_statuses|get_item:orphan.orphanID }}
                         </div>
-                            <div class="col border rounded m-1">
-                                <h3 style="text-align: center; font-weight: bold;">Individual Behavior Trends</h3>
-                                <select class="form-select mb-3" id="individual-orphan-education">
-                                <option value="">Select Orphan</option>
-                                {% for orphan in orphans %}
-                                <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
-                                {% endfor %}
-                                </select>
-        
-                                <canvas id="IndividualBehaviorChart"></canvas>  
-                            </div>                
-                    </div>
+                    </a>
                 </div>
-
-                <div class="tab-pane fade" id="education" role="tabpanel" aria-labelledby="education-tab">
-                    <div class="container">
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-md-6">
-                                <div class="border rounded-2 m-1">
-                                    <h3 style="text-align: center; font-weight: bold;">Overall Education Summary
-                                    </h3>
-                                    <canvas id="overallPerformanceChart" class="chart-container"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="border rounded-2 m-1">
-                                    <h3 style="text-align: center; font-weight: bold;">Individual Education
-                                        Trends</h3>
-
-                                    <select class="form-select mb-3" id="individual-orphan-education">
-                                        <option value="">Select Orphan</option>
-                                        {% for orphan in orphans %}
-                                        <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{orphan.lastName }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <canvas id="individualPerformanceChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+            
+            <hr class="mt-3">
+            <div class="tab-pane fade row" id="behavior">
+                <div class="col-md-6">
+                    <h3>Overall Behavior Summary</h3>
+                    <canvas id="sentimentHistogram" class="chart-container"></canvas>
+                    <div>
+                        <h3>Individual Behavior Trends</h3>
+                        <select class="form-select mb-3" id="individual-orphan-behavior">
+                        <option value="">Select Orphan</option>
+                        {% for orphan in orphans %}
+                        <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                        {% endfor %}
+                        </select>
+                        <canvas id="IndividualBehaviorChart"></canvas>  
+                    </div>                
                 </div>
-                <div class="tab-pane fade" id="physical" role="tabpanel" aria-labelledby="physical-tab">
-                    <div class="container ">
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-md-6 ">
-                                <div class="border m-1 rounded-2">
-                                    <h3 style="text-align: center; font-weight: bold;">Overall Body Mass Index
-                                        Summary</h3>
-                                    <canvas id="bmiTrendChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ">
-                                <div class="border m-1 rounded-2">
-                                    <h3 style="text-align: center; font-weight: bold;">Overall Health Summary</h3>
-                                    <canvas id="healthChart"></canvas>
-                                </div>
-                            </div>
-                            
+            </div>
 
-                            <div class="">
-                                <h3 style="text-align: center; font-weight: bold;">Individual Well-being
-                                    Trends</h3>
-                                <select class="form-select mb-3" id="individual-orphan-bmi">
-                                    <option value="">Select Orphan</option>
-                                    {% for orphan in orphans %}
-                                    <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{orphan.lastName }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div id="bmiChartMessage"></div>
-                                <canvas id="individualBmiChart"></canvas>
-                                <canvas id="individualHealthChart"></canvas>
-
-                            </div>
-                        </div>
-                    </div>
+            
+            <div class="tab-pane fade row" id="education">
+                <div class="col-md-6">
+            <div class="mb-5">
+                <h3>Overall Education Summary</h3>
+                <canvas id="overallPerformanceChart" class="chart-container"></canvas>
+            </div>
+                <div>
+                    <h3>Individual Education Trends</h3>
+                    <select class="form-select mb-3" id="individual-orphan-education">
+                    <option value="">Select Orphan</option>
+                    {% for orphan in orphans %}
+                    <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                    {% endfor %}
+                    </select>
+                    <canvas id="individualPerformanceChart"></canvas>  
                 </div>
+                </div>                
+            </div>
+
+            <div class="tab-pane fade row" id="physical">
+                <div class="col-md-6">
+                <h3>Overall BMI Summary</h3>
+                    <canvas id="bmiTrendChart"></canvas>
+                    <canvas id="healthChart"></canvas>
+                <div class="">
+                    <h3>Individual BMI/ Health Trends</h3>
+                    <select class="form-select mb-3" id="select-orphan">
+                        <option value="">Select Orphan</option>
+                        {% for orphan in orphans %}
+                        <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                        {% endfor %}
+                        </select>
+                        <div id="bmiChartMessage"></div>
+                        <canvas id="individualBmiChart"></canvas>
+                        <canvas id="individualHealthChart"></canvas>  
+                    </div>
+                </div>                    
             </div>
         </div>
     </div>
+
+
 <!-- behavior -->
 <script>
-    console.log('{{ histogram_data | safe }}');
-    
     function initializeSentimentHistogram() {
-        try {
-            // Before initializing your histogram chart
-            const ctxBehavior = document.getElementById('sentimentHistogram').getContext('2d');
-            
-            // Attempt to parse the histogram data
-            const histogramData = JSON.parse('{{ histogram_data | safe }}');
-
-            const sentimentHistogram = new Chart(ctxBehavior, {
-                type: 'bar', 
-                data: {
-                    labels: histogramData.labels, // These are your years
-                    datasets: histogramData.datasets // This should be an array of objects, each representing a sentiment score range
-                },
-                options: {
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
+        const ctxBehavior = document.getElementById('sentimentHistogram').getContext('2d');
+        fetch('/Dashboard/overall_behavior_summary/')
+        .then(response => {
+            console.log(response);  // Log the full response object
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+            .then(histogramData => {
+                const sentimentHistogram = new Chart(ctxBehavior, {
+                    type: 'bar', 
+                    data: {
+                        labels: histogramData.labels, // These are your years
+                        datasets: histogramData.datasets // Array of objects, each representing a sentiment score range
                     },
-                    plugins: {
-                        subtitle: {
-                        display: true,
-                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
-                        font: { style: 'italic', size: 12 },
-           
-        },
-                        legend: {
-                            display: true // Display the legend if you have multiple datasets
+                    options: {
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true }
+                        },
+                        plugins: {
+                            subtitle: {
+                                display: true,
+                                text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                                font: { style: 'italic', size: 12 }
+                            },
+                            legend: {
+                                display: true // Display the legend
+                            }
                         }
                     }
-                }
-            });
-        } catch (error) {
-            console.error("Error initializing sentiment histogram:", error);
-        }
+                });
+            })
+            .catch(error => console.error("Error initializing sentiment histogram:", error));
     }
-    
-    // Call the function when the window has loaded
     window.addEventListener('load', initializeSentimentHistogram);
 </script>
-         
+
     
 <script>
-    // Parse the individual sentiments passed from the Django view
-    var individualSentiments = JSON.parse('{{ individual_sentiments | safe }}');
     var ctxIndividualBehavior = document.getElementById('IndividualBehaviorChart').getContext('2d');
     var IndividualBehaviorChart;
 
-    document.getElementById('individual-orphan-education').addEventListener('change', function(e) {
+    document.getElementById('individual-orphan-behavior').addEventListener('change', function(e) {
         var orphanId = e.target.value;
-        
-        // Clear the previous chart data if exists
+
         if (IndividualBehaviorChart) {
             IndividualBehaviorChart.destroy();
         }
-        
-        // Create a new line chart for the selected orphan
-        IndividualBehaviorChart = new Chart(ctxIndividualBehavior, {
-            type: 'line',
-            data: {
-                labels: individualSentiments[orphanId].map(s => 'Week ' + s.week),
-                datasets: [{
-                    label: 'Sentiment Score',
-                    data: individualSentiments[orphanId].map(s => s.average_score),
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+
+        fetch(`/Dashboard/individual_behavior_summary/${orphanId}/`)  // Dynamically fetch individual sentiment data
+        .then(response => response.json())
+        .then(data => {
+            // Create a new line chart for the selected orphan
+            IndividualBehaviorChart = new Chart(ctxIndividualBehavior, {
+                type: 'line',
+                data: {
+                    labels: data.map(s => 'Week ' + s.week),
+                    datasets: [{
+                        label: 'Sentiment Score',
+                        data: data.map(s => s.average_score),
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
                 },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
                     plugins: {
                         subtitle: {
-                        display: true,
-                        text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
-                        font: { style: 'italic', size: 12 },
+                            display: true,
+                            text: 'Scores range from -1 to +1, with higher scores indicating better behavior.',
+                            font: { style: 'italic', size: 12 },
                         },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                var label = context.dataset.label || '';
-                                var score = context.parsed.y;
-                                var index = context.dataIndex;
-                                var improvement = '';
-                                if (index > 0) {
-                                    var previousScore = context.dataset.data[index - 1];
-                                    if (score > previousScore) {
-                                        improvement = ' (improved)';
-                                    } else if (score < previousScore) {
-                                        improvement = ' (declined)';
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.dataset.label || '';
+                                    var score = context.parsed.y;
+                                    var index = context.dataIndex;
+                                    var improvement = '';
+                                    if (index > 0) {
+                                        var previousScore = context.dataset.data[index - 1];
+                                        if (score > previousScore) {
+                                            improvement = ' (improved)';
+                                        } else if (score < previousScore) {
+                                            improvement = ' (declined)';
+                                        }
                                     }
+                                    return label + ': ' + score + improvement;
                                 }
-                                return label + ': ' + score + improvement;
-                            }
+                            },
                         },
-                    },
+                    }
                 }
-            }
-        });
+            });
+        })
+        .catch(error => console.error("Error fetching individual behavior data:", error));
     });
 </script>
+
 
 <!-- Education CHARTS -->
 
 <script>
-    var chart; // Declare the chart variable at a higher scope
-    console.log(document.getElementById('overallPerformanceChart'));
-    // Assuming 'gpa_data' is passed to the template and available as a JSON string
-    const gpaData = JSON.parse('{{ gpa_data|safe }}');
-    console.log("gpaData is:", gpaData);  // Check the structure of received data
-    
-    // Fetch and load the data
-    fetch('/Dashboard/overall_gpa_summary/')
-        .then(response => response.json())
-        .then(data => {
-            console.log("overallPerformanceChart data:", data);  
-            const ctxeducation = document.getElementById('overallPerformanceChart').getContext('2d');
-            // Data Processing (Important): 
-            const semesterData = data.filter(item => item.time_period.startsWith('Semester'));
-            const quarterData = data.filter(item => item.time_period.startsWith('Quarter'));
-            // Initialize the chart if it hasn't been initialized yet
-            if (!chart) { 
-                chart = new Chart(ctxeducation, { 
-                    type: 'line',
-                    data: {
-                        labels: gpaData.map(item => `${item.time_period} ${item.year}`),  // Initialize chart with 'time_period' for consistency 
-                        datasets: [{
-                            label: [],
-                            data: [],
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top' 
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                            }
-                                }
-                            
-                });  
-            }
-    
-            // ALWAYS Update chart data on fetch completion
-            // Update the chart data
-            chart.data.labels = data.map(item => `${item.time_period} ${item.year}`); // Keep your existing label logic
+var chart; // Declare the chart variable at a higher scope
+console.log(document.getElementById('overallPerformanceChart'));
 
-            chart.data.datasets = [
-                {
-                    label: 'Semester GPA',
-                    data: semesterData.map(item => parseFloat(item.average_grade)),
-                    // ... (set backgroundColor, borderColor, etc. for semesters)
+// Fetch and load the data
+fetch('/Dashboard/overall_gpa_summary/')
+    .then(response => response.json())
+    .then(data => {
+        console.log("overallPerformanceChart data:", data);
+        const ctxeducation = document.getElementById('overallPerformanceChart').getContext('2d');
+
+        // Since all data will now be based on calendar quarters, there is no need to filter by semester or quarter
+        if (!chart) {
+            chart = new Chart(ctxeducation, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => `${item.time_period} ${item.year}`),  // Labels will show Q1, Q2, etc. per year
+                    datasets: [{
+                        label: 'GPA by Quarter',
+                        data: data.map(item => parseFloat(item.average_grade)),
+                        backgroundColor: 'rgba(62, 181, 192, 0.2)',
+                        borderColor: 'rgba(62, 181, 192, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                {
-                    label: 'Quarter GPA',   
-                    data: quarterData.map(item => parseFloat(item.average_grade)),
-                    // ... (set backgroundColor, borderColor, etc. for quarters)
+                options: {
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
                 }
-            ];
-            chart.update(); 
+            });
+        } else {
+            // Update chart data on fetch completion
+            chart.data.labels = data.map(item => `Q${item.time_period} ${item.year}`);
+            chart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade));
+            chart.update();
+        }
+    });
 
-       });
 
     var ctxIndividual = document.getElementById('individualPerformanceChart').getContext('2d');
     var individualChart = new Chart(ctxIndividual, {
@@ -452,174 +401,221 @@
     }
 });
 
-document.getElementById('individual-orphan-education').addEventListener('change', function() {
-    var orphanId = this.value;
-    var url = `/Dashboard/individual_gpa_summary/${orphanId}`;
+    document.getElementById('individual-orphan-education').addEventListener('change', function() {
+        var orphanId = this.value;
+        var url = `/Dashboard/individual_gpa_summary/${orphanId}`;
 
-    if (orphanId) {
+        if (orphanId) {
 
-    fetch(`/Dashboard/individual_gpa_summary/${orphanId}/`)
-        .then(response => response.json())
-        .then(data => {
-            individualChart.data.labels = data.map(item => `${item.time_period} ${item.year}`);
-            individualChart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade));
-            individualChart.update();
-        });
-    }
-});
+        fetch(`/Dashboard/individual_gpa_summary/${orphanId}/`)
+            .then(response => response.json())
+            .then(data => {
+                individualChart.data.labels = data.map(item => `${item.time_period} ${item.year}`);
+                individualChart.data.datasets[0].data = data.map(item => parseFloat(item.average_grade));
+                individualChart.update();
+            })
+            .catch(error => console.error('Error fetching data:', error));
 
-
-
-
-
-
+        }
+    });
 </script>
 
 
     
 <!-- health chart -->
 <script>
-    var healthChartData = JSON.parse('{{ health_chart_data_json | safe }}');
-    var ctxHealth = document.getElementById('healthChart').getContext('2d');
-    var healthChart = new Chart(ctxHealth, {
-        type: 'line',
-        data: healthChartData,
-        options: {
-            scales: {
-                y: {
-                    stacked: true
-                }
-            },
-            elements: {
-                line: {
-                    fill: true
-                }
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const ctxHealth = document.getElementById('healthChart').getContext('2d');
+    let healthChart;
+
+    fetch('/Dashboard/overall_health_summary/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch: ' + response.statusText);
         }
-    });
-</script>
-
-<script>
-    // Initialize an empty chart instance outside the function to be updated later
-    var individualHealthChart;
-
-    document.getElementById('individual-orphan-bmi').addEventListener('change', function() {
-        var orphanId = this.value;
-        var url = `/Dashboard/get_orphan_health_data/${orphanId}`;
-        
-        if (orphanId) {
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    updateHealthChart(data);
-                })
-                .catch(error => console.error('Error fetching health data:', error));
+        return response.json();
+    })
+    .then(data => {
+        if (healthChart) {
+            healthChart.destroy();
         }
-    });
-
-    function updateHealthChart(data) {
-        var ctx = document.getElementById('individualHealthChart').getContext('2d');
-
-        // If there's an existing chart instance, destroy it to avoid creating multiple instances
-        if (individualHealthChart) {
-            individualHealthChart.destroy();
-        }
-
-        individualHealthChart = new Chart(ctx, {
+        healthChart = new Chart(ctxHealth, {
             type: 'line',
             data: {
-                labels: data.labels,
+                labels: data.labels,  // Expecting month-year strings like "2024-01"
                 datasets: [{
-                    label: 'Health Score',
-                    data: data.data,
-                    fill: false,
+                    label: 'Average Health Score',
+                    data: data.data,  // Expecting an array of average scores
+                    fill: true,
                     borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
                     tension: 0.1
                 }]
             },
             options: {
-                plugins: {
-                    tooltips: {
-                        callbacks: {
-                            label: function(context) {
-                    let label = `Health Score: ${context.parsed.y}`;
-                            if (context.parsed.y >= 80) {
-                                label += ' (Healthy)';
-                            } else if (context.parsed.y >= 50) {
-                                label += ' (Attention Needed)';
-                            } else {
-                                label += ' (Unhealthy)';
-                            }
-                            return label;
-                        }
-                    }
-                
-                
-            },
-                    title: {
-                        display: true,
-                        text: 'Health Score Overview',
-                        font: { size: 16 },
-                    },
-                    subtitle: {
-                        display: true,
-                        text: 'Scores range from 0 to 100, with higher scores indicating better health.',
-                        font: { style: 'italic', size: 12 },
-                    },
                 scales: {
                     y: {
-                        beginAtZero: false, // Since health score will likely not start at zero
-                        suggestedMax: 100   // Assuming health score is out of 100
+                        stacked: true,
+                        beginAtZero: false,
+                        suggestedMax: 100
+                    }
+                },
+                elements: {
+                    line: {
+                        fill: true
                     }
                 }
             }
-        }
         });
-    }
+    })
+    .catch(error => {
+        console.error('Error fetching overall health data:', error);
+        alert('Failed to fetch health data: ' + error.message);
+    });
+});
+
+
 </script>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var individualHealthChart;
+    
+        document.getElementById('select-orphan').addEventListener('change', function() {
+            var orphanId = this.value;
+            var url = `/Dashboard/individual_health_summary/${orphanId}`;
+    
+            if (orphanId) {
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                .then(data => {
+                    var ctx = document.getElementById('individualHealthChart').getContext('2d');
+                    if (individualHealthChart) {
+                        individualHealthChart.destroy();
+                    }
+                    individualHealthChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,  // Expecting 'labels' to be an array of dates
+                            datasets: [{
+                                label: 'Health Score',
+                                data: data.data,  // Expecting 'data' to be an array of health scores
+                                fill: false,
+                                borderColor: 'rgb(75, 192, 192)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                tooltips: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let label = `Health Score: ${context.parsed.y}`;
+                                            if (context.parsed.y >= 80) {
+                                                label += ' (Healthy)';
+                                            } else if (context.parsed.y >= 50) {
+                                                label += ' (Attention Needed)';
+                                            } else {
+                                                label += ' (Unhealthy)';
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Health Score Overview',
+                                    font: { size: 16 },
+                                },
+                                subtitle: {
+                                    display: true,
+                                    text: 'Scores range from 0 to 100, with higher scores indicating better health.',
+                                    font: { style: 'italic', size: 12 },
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false, // Since health score will likely not start at zero
+                                    suggestedMax: 100   // Assuming health score is out of 100
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                console.error('Error fetching individual health data:', error);
+                alert('Failed to fetch health data: ' + error.message);
+            });
+                }
+        });
+    });
+</script>
+        
 
 
 
 <!-- BMI CHARTS -->
 <script>
-    const months = JSON.parse('{{ months|safe }}');
-    const categoriesData = JSON.parse('{{ categories_data|safe }}');
-
+document.addEventListener('DOMContentLoaded', function() {
     var ctx = document.getElementById('bmiTrendChart').getContext('2d');
-    var bmiTrendChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: months,
-            datasets: [{
-                label: 'Underweight',
-                data: categoriesData['Underweight'],
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            }, {
-                label: 'Normal Weight',
-                data: categoriesData['Normal Weight'],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            }, {
-                label: 'Overweight',
-                data: categoriesData['Overweight'],
-                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-            }, {
-                label: 'Obesity',
-                data: categoriesData['Obesity'],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            }]
-        },
-        options: {
-            scales: {
-                x: { stacked: true },
-                y: { stacked: true }
-            }
+    console.log('Initializing chart...', window.bmiTrendChart);
+
+    // Check if bmiTrendChart exists and has the destroy method
+    if (window.bmiTrendChart && typeof window.bmiTrendChart.destroy === 'function') {
+        window.bmiTrendChart.destroy();
+    }
+    console.log('Chart initialized.', window.bmiTrendChart);
+
+    fetch('/Dashboard/overall_bmi_summary/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch: ' + response.statusText);
         }
+        return response.json();
+    })
+    .then(data => {
+        var datasets = Object.keys(data.datasets).map(function(key) {
+            return {
+                label: key,
+                data: data.datasets[key].data,
+                backgroundColor: data.datasets[key].backgroundColor
+            };
+        });
+        window.bmiTrendChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching overall health data:', error);
+        alert('Failed to fetch health data: ' + error.message);
     });
+});
 </script>
+    
 
 
 <script>
-    document.getElementById('individual-orphan-bmi').addEventListener('change', function() {
+    document.getElementById('select-orphan').addEventListener('change', function() {
         var orphanId = this.value;
         var url = `/Dashboard/get_orphan_bmi_data/${orphanId}`;
         console.log("Fetch URL:", url); // Add this to log the fetch URL
@@ -636,105 +632,105 @@ document.getElementById('individual-orphan-education').addEventListener('change'
     });
 
 
-
     function updateBmiChart(response) {
     console.log("Updating BMI chart with data:", response);
 
     var ctx = document.getElementById('individualBmiChart').getContext('2d');
+    var bmiChartMessage = document.getElementById('bmiChartMessage');
     var noDataMessage = "No BMI data available for the selected orphan.";
 
-    if (window.bmiChart) { // If an existing chart is there, destroy it
+    // Destroy the previous chart if it exists
+    if (window.bmiChart && typeof window.bmiChart.destroy === 'function') {
         window.bmiChart.destroy();
     }
 
-    // Handle cases where the response contains an error message
+    // Handle fetch error
     if (response.error) {
         console.error("Fetch error:", response.error);
-        document.getElementById('bmiChartMessage').textContent = noDataMessage;
-
-        // Optionally, display an error message to the user here
-        // For example, update the content of a div with an error message
+        bmiChartMessage.textContent = noDataMessage;
         return; // Exit the function early
     }
 
-    // Check if the 'data' key exists and if it contains an array
-    if (response.hasOwnProperty('data') && Array.isArray(response.data)) {
-        // Proceed to create the chart only if 'data' has items
-        if (response.data && response.data.length > 0) {
-            window.bmiChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: response.data.map(entry => new Date(entry.recorded_at).toLocaleDateString()),  // Convert dates to readable format
-                    datasets: [{
-                        label: 'BMI',
-                        data: response.data.map(entry => entry.bmi),
-                        fill: false,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { stacked: true },
-                        y: { 
-                            stacked: true,
-                            // Include the normal BMI range here if desired
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false // Hide the legend if only one dataset
-                        },
-                        title: {
-                            display: true,
-                            text: 'BMI Overview',
-                            font: { size: 16 },
+    // Handle no data case
+    if (!response.hasOwnProperty('data') || !Array.isArray(response.data) || response.data.length === 0) {
+        console.error("No BMI data available or invalid data structure received.");
+        bmiChartMessage.textContent = noDataMessage;
+        return; // Exit the function early
+    }
 
-                        },
-                        subtitle: {
-                            display: true,
-                            text: 'Data within the green range represents a healthy BMI',
-                            font: {
-                                style: 'italic', // Optional: set the style of the font
-                                size: 14 // Optional: set the size of the font
-                            },
-                            padding: { top: 10, bottom: 30 } // Optional: adjust the padding as needed
-                        },
-                        annotation: {
-                            annotations: {
-                                box1: {
-                                    type: 'box',
-                                    yMin: 18.5,
-                                    yMax: 24.9,
-                                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                                    borderColor: 'rgb(0, 255, 0)',
-                                    borderWidth: 1,
-                                    label: {
-                                        content: 'Normal BMI Range',
-                                        enabled: true,
-                                        position: 'center',
-                                    }
-                                }
+    // Proceed to create the chart as data is valid
+    bmiChartMessage.textContent = ''; // Clear any no data message
+
+    window.bmiChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: response.data.map(entry => new Date(entry.recorded_at).toLocaleDateString()), // Convert dates to readable format
+            datasets: [{
+                label: 'BMI',
+                data: response.data.map(entry => entry.bmi),
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true
+                    // Include the normal BMI range here if desired
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Hide the legend if only one dataset
+                },
+                title: {
+                    display: true,
+                    text: 'BMI Overview',
+                    font: {
+                        size: 16
+                    },
+                },
+                subtitle: {
+                    display: true,
+                    text: 'Data within the green range represents a healthy BMI',
+                    font: {
+                        style: 'italic', // Optional: set the style of the font
+                        size: 14 // Optional: set the size of the font
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 30 // Optional: adjust the padding as needed
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        box1: {
+                            type: 'box',
+                            yMin: 18.5,
+                            yMax: 24.9,
+                            backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                            borderColor: 'rgb(0, 255, 0)',
+                            borderWidth: 1,
+                            label: {
+                                content: 'Normal BMI Range',
+                                enabled: true,
+                                position: 'center',
                             }
                         }
                     }
                 }
-            });
-        } else {
-            // If the 'data' array is empty, handle accordingly
-            console.error('No BMI data available for the selected orphan.');
-            document.getElementById('bmiChartMessage').textContent = noDataMessage;
-
-            // Here, you can clear the canvas or display a message "No data available"
+            }
         }
-    } else {
-        // The 'data' key is not an array or doesn't exist, handle accordingly
-        console.error('Invalid response format received:', response);
-        // Here, you can clear the canvas or display a message "Invalid data format"
-    }
+    });
 }
 
+
 </script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const filterInput = document.getElementById('statusFilter');
