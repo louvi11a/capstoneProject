@@ -1,7 +1,7 @@
 
 {% extends "Dashboard/base.html" %}
 {% load static %}
-current
+
 {% block title %}
     Settings
 {% endblock %}
@@ -20,7 +20,7 @@ current
         <div class="container row bg-light">
             <div class="container border border-2 rounded mt-3 bg-none w-100" style="background-color: #e8f4f8;">
                 <div class="form-container p-4 rounded "style="background-color: #e8f4f8;">
-                    <form id="myForm" method="post" action="{% url 'update_user_info' %}">
+                  <form id="myForm" method="post" action="{% url 'update_user_info' %}">
                     {% csrf_token %}
                         <div class="mb-3">
                             <label for="username" class="form-label">Username:</label>
