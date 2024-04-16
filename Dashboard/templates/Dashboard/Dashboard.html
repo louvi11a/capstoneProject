@@ -114,15 +114,15 @@ current
   <div class="container mt-0 ">
   <div class="row">
     <div class="container row justify-content-center">
-    <div class="col-md-4">
+    <div class="col-md-6 ">
       <div id="sentimentsChartContainer" class="container mt-2 mb-0 justify-content-center align-items-center d-flex p-0" style="height: 460px; flex-wrap: nowrap; flex-direction: column;">
           <h5 class="text-center mt-lg-4">Behavior Chart</h5>
-          <canvas id="behaviorStatusChart"></canvas>
+          <canvas id="behaviorStatusChart" ></canvas>
       </div>
   </div>
   
     
-    <div class="col-md-4">
+    <div class="col-md-6 ">
       <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column p-0" style="height: 26.1h;">
         <a href="{% url 'dashboard_academic_chart' %}" ></a>
         <h5 class="text-center">Academic Chart</h4>
@@ -136,11 +136,11 @@ current
       </div>
     </div>
     </div>
-      <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
+      {% comment %} <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
         <a href="{% url 'chart_age' %}"></a>
         <h5 class="text-center">Age Chart</h5>
         <canvas id="ageChart"></canvas>
-      </div>
+      </div> {% endcomment %}
     </div>
     
     <!-- <div class="col-md-4">
