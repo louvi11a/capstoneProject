@@ -105,8 +105,8 @@
 
     <div class="col-md-4">
       <div id="sentimentsChartContainer" class="container mt-2 mb-0 justify-content-center align-items-center border border-2 rounded-2 d-flex p-0" style="height: 460px; flex-wrap: nowrap; flex-direction: column;">
-          <h5 class="text-center mt-lg-4">Behavior Chart</h5>
-          <canvas id="sentimentChart"></canvas>
+          <!-- <h5 class="text-center mt-lg-4">Behavior Chart</h5> -->
+          <canvas id="behaviorStatusChart"></canvas>
       </div>
   </div>
   
@@ -146,36 +146,96 @@
 {% block js%}
 <!-- for sentiment/behavior chart -->
 <script>
-  fetch('/Dashboard/api/chart-sentiment/')
-  .then(response => response.json())
-  .then(sentimentData => {
-      var ctx = document.getElementById('sentimentChart').getContext('2d');
-      var myChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-              labels: ['Positive', 'Negative', 'Neutral'],
-              datasets: [{
-                  label: '# of Sentiments',
-                  data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
-                  backgroundColor: [
-                      'rgba(91, 216, 86, 0.8)', 
-                      'rgba(255, 99, 132, 0.8)', 
-                      'rgba(255, 206, 86, 0.8)'
-                  ],
-                  borderColor: [
-                      'rgba(255, 99, 132, 1)', 
-                      'rgba(54, 162, 235, 1)', 
-                      'rgba(255, 206, 86, 1)'
-                  ],
-                  borderWidth: 1
-              }]
-          },
-          options: {
-              responsive: true,
-              maintainAspectRatio: false,
-          }
-      });
-  });
+//   fetch('/Dashboard/api/chart-sentiment/')
+//   .then(response => response.json())
+//   .then(sentimentData => {
+//       var ctx = document.getElementById('sentimentChart').getContext('2d');
+//       var myChart = new Chart(ctx, {
+//           type: 'pie',
+//           data: {
+//               labels: ['Positive', 'Negative', 'Neutral'],
+//               datasets: [{
+//                   label: '# of Sentiments',
+//                   data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
+//                   backgroundColor: [
+//                       'rgba(91, 216, 86, 0.8)', 
+//                       'rgba(255, 99, 132, 0.8)', 
+//                       'rgba(255, 206, 86, 0.8)'
+//                   ],
+//                   borderColor: [
+//                       'rgba(255, 99, 132, 1)', 
+//                       'rgba(54, 162, 235, 1)', 
+//                       'rgba(255, 206, 86, 1)'
+//                   ],
+//                   borderWidth: 1
+//               }]
+//           },
+//           options: {
+//               responsive: true,
+//               maintainAspectRatio: false,
+//           }
+//       });
+//   });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch data from the Django view
+    fetch('/Dashboard/dashboard_behavior_chart/')
+        .then(response => response.json())
+        .then(data => {
+            // Prepare data for the pie chart
+            const labels = data.labels;
+            const counts = data.datasets[0].data;
+
+            // Get the canvas element
+            const ctx = document.getElementById('behaviorStatusChart').getContext('2d');
+
+            // Create the pie chart
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sentiment Categories',
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132)', // Red
+                            'rgba(255, 206, 86)', // Yellow
+                            'rgba(75, 192, 192)' // Green
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)', // Red
+                            'rgba(255, 206, 86, 1)', // Yellow
+                            'rgba(75, 192, 192, 1)' // Green
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sentiment Categories Distribution',
+                            font: {
+                                size: 20
+                            }
+                        },
+                        subtitle: {
+                            display: true,
+                            text: 'Displays the count of orphans for each category for the current month',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+});
 </script>
 
 <!-- for age distribution chart -->

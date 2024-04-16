@@ -10,10 +10,13 @@ urlpatterns = [
     path('intervention_academics/', views.intervention_academics,
          name='intervention_academics'),
     #     path('get_orphan_health_data/<int:orphan_id>/',
-    #          views.get_orphan_health_data, name='get_orphan_health_data'),
+
 
     path('dashboard_academic_chart/',
          views.dashboard_academic_chart, name='dashboard_academic_chart'),
+    path('dashboard_behavior_chart/',
+         views.dashboard_behavior_chart, name='dashboard_behavior_chart'),
+
     path('overall_gpa_summary/',
          views.overall_gpa_summary, name='overall_gpa_summary'),
     path('individual_gpa_summary/<int:orphan_id>/',

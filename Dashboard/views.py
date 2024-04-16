@@ -460,29 +460,11 @@ def dashboard_view(request):
     total_orphans = Info.objects.count()
     requires_intervention_behavior = intervention_behavior_count()
 
-    # Prepare initial data structure for academic statuses
-    FAILING_GRADE_THRESHOLD = 75
-    FAILING_GRADE_THRESHOLD_COLLEGE = 3
-
-    academic_statuses = {
-        'meets expectations': 0,
-        'Needs Significant Improvement': 0,
-        'Critical Improvement Needed': 0,
-    }
-
     # Iterate over orphans instead of educations to aggregate failing grades count per orphan
     orphans = Info.objects.prefetch_related('educations__grades').all()
 
-    count_academic_interventions = 0
-    for orphan in orphans:
-        urgent_support_needed = False
-        partial_support_needed = False
-        exceptional_standing = False
-        stable_standing = False
-
     context = {
-        'academic_labels': list(academic_statuses.keys()),
-        'academic_data': list(academic_statuses.values()),
+
         'bmi_data': bmi_data,
         'sentiment_labels': labels,
         'sentiment_data': data,
@@ -494,11 +476,46 @@ def dashboard_view(request):
         'age_labels': [f'{start}-{end}' for start, end in age_ranges],
         'male_age_data': male_age_data,
         'female_age_data': female_age_data,
-        'count_academic_interventions': count_academic_interventions,
 
     }
 
     return render(request, 'Dashboard/Dashboard.html', context)
+
+
+
+def dashboard_behavior_chart(request):
+    current_month = datetime.today().month # Corrected line with proper import
+    queryset = Notes.objects.filter(
+        timestamp__month=current_month
+    ).annotate(
+        month=ExtractMonth('timestamp')
+    )
+
+    # Annotate each note with its sentiment category
+    queryset = queryset.annotate(
+        sentiment_category=Case(
+            When(sentiment_score__lt=-0.5, then=Value('negative')),
+            When(Q(sentiment_score__gte=-0.5) &
+                 Q(sentiment_score__lte=0.5), then=Value('neutral')),
+            When(sentiment_score__gt=0.5, then=Value('positive')),
+            output_field=CharField(),
+        )
+    )
+
+    # Aggregate by sentiment category and count distinct orphans for each category
+    results = queryset.values('sentiment_category').annotate(
+        count=Count('related_orphan__orphanID', distinct=True)
+    )
+
+    # Restructure data for JSON response
+    data = {
+        'labels': ['Negative', 'Neutral', 'Positive'],
+        'datasets': [{
+            'data': [result['count'] for result in results]
+        }]
+    }
+
+    return JsonResponse(data)
 
 
 def dashboard_academic_chart(request):
