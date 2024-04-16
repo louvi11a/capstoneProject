@@ -119,7 +119,7 @@
                                         <a class="dropdown-item" href="#" onclick="filterByStatus('none')">None</a>
                                         <a class="dropdown-item" href="#" onclick="filterByStatus('resolved')">Resolved</a>
                                         <a class="dropdown-item" href="#" onclick="filterByStatus('pending')">Pending</a>
-                                        <a class="dropdown-item" href="#" onclick="filterByStatus('unresolved')">Unresolved</a>
+                                        <!-- <a class="dropdown-item" href="#" onclick="filterByStatus('unresolved')">Unresolved</a> -->
                                         
                                         <!-- ... -->
 
@@ -132,29 +132,24 @@
                         </thead>
                         
 
-                        
                         <tbody>
                             {% for item in orphan_educations_status %}
                             <tr>
                                 <td>{{ item.last_modified|date:"Y-m-d"|default_if_none:"N/A" }}</td>
                                 <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
+                                <td><span class="badge bg-{{ item.status_color }}">{{ item.status }}</span></td>
+                                <td id="remarks-text-{{ item.orphan.orphanID }}">{{ item.remarks }}</td>
                                 <td>
-                                    <span class="badge bg-{{ item.status_color }}">{{ item.status }}</span>
+                                    <span class="badge bg-{{ item.intervention_color }}" id="status-badge-{{ item.orphan.orphanID }}">{{ item.intervention_status|default:"None" }}</span>
+
                                 </td>
-                                <td>{{ item.remarks }}</td>
-                                <td>
-                                    <span class="badge bg-{{ item.intervention_color }}">{{ item.intervention_status|default:"None" }}</span>
-                                </td>
+
                                 <td>
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn btn-sm btn-light dropdown-toggle edit-remarks-action" type="button" data-bs-toggle="modal" data-bs-target="#editRemarksModal"
+                                                data-orphan-id="{{ item.orphan.orphanID }}" data-remarks="{{ item.remarks }}" data-status="{{ item.intervention_status|default:'None' }}">
                                             Actions
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton{{ forloop.counter }}">
-                                            <li><a class="dropdown-item edit-remarks-action" href="#" data-orphan-id="{{ item.orphan.orphanID }}" data-bs-toggle="modal" data-bs-target="#editRemarksModal">Add remarks</a></li>
-
-                                            <li><a class="dropdown-item" href="#">View</a></li>
-                                        </ul>
                                     </div>
                                 </td>
                             </tr>
@@ -165,11 +160,13 @@
                         
                         
                         
+                        
                     </table>
                 </div>
 
 
 <!-- Add Remarks Modal -->
+
 <div class="modal fade" id="editRemarksModal" tabindex="-1" aria-labelledby="editRemarksModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -178,9 +175,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                    <form id="editRemarksForm" method="post">
-
+                <form id="editRemarksForm" method="post">
                     {% csrf_token %}
+
+                    <!-- Hidden input for storing the orphan ID -->
+                    <input type="hidden" id="orphanIdInput" name="orphanId">
 
                     <div class="mb-3">
                         <label for="remarksInput" class="form-label">Remarks:</label>
@@ -201,6 +200,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -378,48 +378,29 @@ function filterByStatus(filterValue) {
 </script>
 
 <!-- for submitting remarks/intervention -->
-
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Ensure this is selecting elements correctly, particularly after rendering or dynamic updates
     document.querySelectorAll('.edit-remarks-action').forEach(function(button) {
         button.addEventListener('click', function() {
             var orphanId = this.getAttribute('data-orphan-id');
-            console.log('Orphan ID set for modal:', orphanId); // Check if the ID is correct
-            var form = document.getElementById('editRemarksForm');
-            form.action = '/Dashboard/save_intervention/' + orphanId + '/'; // Set form action directly
+            var remarks = this.getAttribute('data-remarks');
+            var status = this.getAttribute('data-status');
+            
+            // Set values in the modal
+            document.getElementById('remarksInput').value = remarks;
+            document.getElementById('statusSelect').value = status;
+            console.log('Status set to:', document.getElementById('statusSelect').value);
+
+            document.getElementById('orphanIdInput').value = orphanId;
         });
     });
 
-
-    // Event listener for form submission within the modal
     document.getElementById('editRemarksForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        var formData = new FormData(this);
+        var orphanId = document.getElementById('orphanIdInput').value;
 
-        var modal = document.getElementById('editRemarksModal');
-        var orphanId = modal.getAttribute('data-orphan-id');
-        console.log('Sending AJAX request for Orphan ID:', orphanId); // This should not be undefined or empty
-
-        var remarks = document.getElementById('remarksInput').value;
-        var status = document.getElementById('statusSelect').value;
-
-        // Validate input
-        if (!remarks.trim()) {
-            document.getElementById('remarksValidationMessage').style.display = 'block';
-            return;
-        } else {
-            document.getElementById('remarksValidationMessage').style.display = 'none';
-        }
-
-        // Prepare the data to send in the AJAX request
-        var formData = new FormData();
-        formData.append('description', remarks);
-        formData.append('status', status);
-
-        // Make the AJAX request
-        console.log('Orphan ID:', orphanId);  // Add this line
-        fetch('/Dashboard/save_intervention/' + orphanId + '/', {
+        fetch('/Dashboard/save_academic_intervention/' + orphanId + '/', {
             method: 'POST',
             body: formData,
             headers: {
@@ -429,37 +410,72 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                return response.text().then(text => {
-                    try {
-                        const data = JSON.parse(text);
-                        throw new Error(data.message || 'Server error');
-                    } catch {
-                        // This will handle non-JSON responses gracefully
-                        throw new Error(text.slice(0, 100) + '...');  // Display the first 100 characters of the response
-                    }
-                });
+                throw new Error('Network response was not ok');
             }
             return response.json();
         })
-
         .then(data => {
             console.log('Success:', data);
             alert('Remarks saved successfully.');
-            document.getElementById('editRemarksForm').reset();
-            
-            var modalElement = document.getElementById('editRemarksModal');
-            var modalInstance = bootstrap.Modal.getInstance(modalElement);
-            modalInstance.hide();          
-        })
+            console.log('Intervention status sent to server:', document.getElementById('statusSelect').value); // Check what's being sent
+
+            // Update the status and remarks in the list
+            // updateStatusAndRemarks(orphanId, document.getElementById('statusSelect').value, document.getElementById('remarksInput').value);
+            updateStatusDisplay(orphanId, document.getElementById('statusSelect').value, document.getElementById('remarksInput').value); // Pass both newStatus and newRemarks 
+
+        // Close the modal
+        var modalElement = document.getElementById('editRemarksModal');
+        var modalInstance = bootstrap.Modal.getInstance(modalElement);
+        modalInstance.hide();
+    })
         .catch((error) => {
             console.error('Error:', error);
-            alert('An error occurred while saving the remarks: ' + error.message);
-            document.getElementById('editRemarksForm').reset();
+            alert('An error occurred while saving the remarks.');
         });
     });
 });
 
-// Function to get CSRF token
+// function updateStatusAndRemarks(orphanId, newStatus, newRemarks) {
+//     console.log('updateStatusAndRemarks called with status:', newStatus); // Check if it's being called with the right value
+
+//   var statusBadge = document.querySelector(`#status-badge-${orphanId}`);
+//   var remarksText = document.querySelector(`#remarks-text-${orphanId}`);
+//    
+//   if (statusBadge && remarksText) {
+//     statusBadge.textContent = newStatus;
+//     remarksText.textContent = newRemarks;
+
+//     // Color mapping - Replicate your server-side logic 
+//     const statusColors = {
+//       'Unresolved': 'danger',
+//       'Pending': 'warning',
+//       'Resolved': 'success',
+//       None: 'info'
+//     };
+//     const color = statusColors[newStatus] || 'info'; // Default to 'info' if not found
+
+//     // Apply the same color to both status and intervention 
+//     statusBadge.className = `badge bg-${color}`; 
+
+//     // Find the corresponding intervention status element by its ID if you have one  
+//     let interventionStatusElement = document.getElementById(`intervention-status-${orphanId}`); 
+//     if (interventionStatusElement) {
+//       interventionStatusElement.className = `badge bg-${color}`;  
+//     }
+//   }
+// }
+
+
+function getStatusColor(status) {
+    const statusColors = {
+        'Unresolved': 'danger',
+        'Pending': 'warning',
+        'Resolved': 'success',
+        None: 'info'
+    };
+    return statusColors[status] || 'secondary';
+}
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -475,7 +491,43 @@ function getCookie(name) {
     return cookieValue;
 }
 
-    </script>
+
+
+// Update the display of status on the frontend
+function updateStatusDisplay(orphanId, newStatus, newRemarks) {
+    let statusElement = document.getElementById(`status-badge-${orphanId}`);
+    let remarksElement = document.getElementById(`remarks-text-${orphanId}`);
+
+    if (statusElement) {
+        statusElement.textContent = newStatus;
+        statusElement.className = 'badge'; // Clear existing classes
+        statusElement.classList.add(getStatusColor(newStatus)); // Add new class based on status
+        console.log('Updated class to:', getStatusColor(newStatus)); // Verify correct class is added
+    }
+
+    if (remarksElement) {
+        remarksElement.textContent = newRemarks;
+    }
+}
+
+
+
+
+// Get the corresponding bootstrap class for the given status
+function getStatusColor(status) {
+    const statusColors = {
+        'Unresolved': 'danger',
+        'Pending': 'warning',
+        'Resolved': 'success',
+        'None': 'info'
+    };
+    console.log("Getting color for status:", status);  // Check received status
+    return statusColors[status] || 'secondary';
+}
+
+
+
+</script>
 
     <!-- Download Function -->
 

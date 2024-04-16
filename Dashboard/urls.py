@@ -4,8 +4,9 @@ from django.contrib.auth.views import LogoutView
 from . import views
 urlpatterns = [
 
-    path('save_intervention/<int:orphan_id>/',
-         views.save_intervention, name='save_intervention'),
+    path('save_academic_intervention/<int:orphan_id>/',
+         views.save_academic_intervention, name='save_academic_intervention'),
+
     path('intervention_academics/', views.intervention_academics,
          name='intervention_academics'),
     #     path('get_orphan_health_data/<int:orphan_id>/',
@@ -57,6 +58,6 @@ urlpatterns = [
     path('chart_bmi/', views.chart_bmi, name='chart_bmi'),
     path('chart_age/', views.chart_age, name='chart_age'),
     path('chart_health/', views.chart_health, name='chart_health'),
-    path('chart_academic/', views.chart_academic, name='chart_academic'),
+    #     path('chart_academic/', views.chart_academic, name='chart_academic'),
 
 ]

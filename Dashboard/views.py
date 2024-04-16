@@ -1,3 +1,4 @@
+from .forms import InterventionForm
 from decimal import Decimal
 from django.core.cache import cache
 from django.db.models import Prefetch
@@ -479,42 +480,6 @@ def dashboard_view(request):
         exceptional_standing = False
         stable_standing = False
 
-        # for education in orphan.educations.all():
-        #     # counting of needs intervention
-        #     count_academic_interventions = Info.objects.filter(
-        #         Q(educations__education_level='College', educations__grades__grade__gt=FAILING_GRADE_THRESHOLD_COLLEGE) |
-        #         Q(educations__education_level__in=[
-        #           'Elementary', 'High School'], educations__grades__grade__lt=FAILING_GRADE_THRESHOLD)
-        #     ).distinct().count()
-        #     print("academic intervention", count_academic_interventions)
-
-        #     failing_grades_count = education.grades.filter(
-        #         grade__lte=FAILING_GRADE_THRESHOLD).count()
-        #     highest_grade = education.grades.aggregate(Max('grade'))[
-        #         'grade__max'] or 0
-
-        #     if failing_grades_count >= 3:
-        #         urgent_support_needed = True
-
-        #     elif 1 <= failing_grades_count <= 2:
-        #         partial_support_needed = True
-
-        #     if highest_grade >= 91:
-        #         exceptional_standing = True
-        #     elif 76 <= highest_grade <= 90:
-        #         stable_standing = True
-
-        # # Update academic status counters based on criteria
-        # if urgent_support_needed:
-        #     academic_statuses['Urgent Academic Support'] += 1
-        # elif partial_support_needed:
-        #     academic_statuses['Partial Support Needed'] += 1
-        # elif exceptional_standing:
-        #     academic_statuses['Exceptional Academic Standing'] += 1
-        # elif stable_standing:
-        #     academic_statuses['Stable Academic Standing'] += 1
-        # Consider adding an else block for orphans that do not fit into any category
-
     context = {
         'academic_labels': list(academic_statuses.keys()),
         'academic_data': list(academic_statuses.values()),
@@ -603,21 +568,12 @@ def chart_age(request):
     return render(request, 'Dashboard/chart_age.html', {'orphans': orphans})
 
 
-def chart_academic(request):
-    subjects = Subject.objects.all().order_by('name').distinct('name')
-    education_records = Education.objects.prefetch_related('grades')
+def save_academic_intervention(request, orphan_id):
+    logger.debug(f"Received request for orphan ID: {orphan_id}")
 
-    # Combine both context variables into a single dictionary
-    context = {
-        'education_records': education_records,
-        'subjects': subjects,
-        'education_level_choices': Education.EDUCATION_LEVEL_CHOICES,
-    }
-
-    return render(request, 'Dashboard/chart_academic.html', context)
-
-def save_intervention(request, orphan_id):
     if request.method == 'POST':
+        logger.debug(f"POST data: {request.POST}")
+
         form = forms.InterventionForm(request.POST)
         if form.is_valid():
             try:
@@ -646,11 +602,8 @@ def save_intervention(request, orphan_id):
             return JsonResponse({'error': 'Form is not valid.'}, status=400)
     return JsonResponse({'error': 'Invalid request.'}, status=400)
 
+
 def intervention_academics(request):
-    current_year = now().year
-
-    orphan_educations_status = []
-
     # Define a dictionary to map intervention statuses to colors
     intervention_status_colors = {
         'Unresolved': 'danger',  # Red color for unresolved issues
@@ -659,74 +612,80 @@ def intervention_academics(request):
         None: 'info'  # Blue color for no intervention needed
     }
 
+    # Fetch all orphans and their latest intervention data
+    orphan_educations_status = []
     for orphan in Info.objects.prefetch_related('educations__grades', 'interventions').all():
-        critical_needed = False
-        significant_needed = False
-
         latest_intervention = orphan.interventions.order_by(
             '-last_modified').first()
+        critical_needed = any(grade.grade < 70 for education in orphan.educations.all(
+        ) for grade in education.grades.all())
+        significant_needed = any(70 <= grade.grade < 75 for education in orphan.educations.all(
+        ) for grade in education.grades.all())
+
+        # Setup intervention status based on latest data or defaults
         if latest_intervention:
             intervention_status = latest_intervention.status
-            intervention_color = intervention_status_colors.get(
-                intervention_status, 'info')
-            last_modified = latest_intervention.last_modified
+            remarks = latest_intervention.description
         else:
-            intervention_status = None
-            intervention_color = 'info'  # Default color for no intervention
-            last_modified = None
+            intervention_status = 'Unresolved' if critical_needed or significant_needed else None
+            remarks = ''
 
-        # Assess academic status based on grades
-        for education in orphan.educations.all():
-            for grade in education.grades.all():
-                if education.education_level == 'College':
-                    if grade.grade >= 3.00:
-                        significant_needed = True
-                    if grade.grade >= 4.00:
-                        critical_needed = True
-                else:  # High School or Elementary
-                    if 70 <= grade.grade < 75:
-                        significant_needed = True
-                    if grade.grade < 70:
-                        critical_needed = True
+        intervention_color = intervention_status_colors.get(
+            intervention_status, 'info')
 
         # Determine the academic status
         if critical_needed:
             status = 'Critical Improvement Needed'
-            intervention_status = 'Unresolved'
-            status_color = 'danger'
         elif significant_needed:
             status = 'Needs Significant Improvement'
-            intervention_status = 'Unresolved'
-            status_color = 'warning'
         else:
             status = 'Meets Expectations'
-            intervention_status = None
-            status_color = 'success'
 
-        # Set the intervention status color
-        intervention_color = intervention_status_colors.get(
-            intervention_status, 'info')
+        # Assuming same color logic for both for simplicity
+        status_color = intervention_color
 
-        # Append data for each orphan
+        # Collect data for rendering
         orphan_educations_status.append({
             'orphan': orphan,
             'status': status,
             'status_color': status_color,
             'intervention_status': intervention_status,
             'intervention_color': intervention_color,
-            'last_modified': last_modified,
-            'remarks': '',
+            'last_modified': latest_intervention.last_modified if latest_intervention else None,
+            'remarks': remarks,
         })
+        print(f"Final Status: {intervention_status}, Final Color: {
+              intervention_color}")
 
-    # Order the results by intervention status
-    sorted_orphan_status = sorted(
-        orphan_educations_status,
-        key=lambda x: {'Unresolved': 1, 'Pending': 2, 'None': 3,
-                       'Resolved': 4}.get(x['intervention_status'], 99)
-    )
+    # Define sort_key function for sorting based on priority
+
+    def sort_key(item):
+        # Define priority mapping
+        priority_mapping = {
+            'Critical Improvement Needed': 1,
+            'Needs Significant Improvement': 2,
+            'Meets Expectations': 3
+        }
+        # Resolve to a large number if status is unknown to ensure they appear at the end
+        status_priority = priority_mapping.get(item['status'], 99)
+
+        # Secondary sort by intervention status if needed
+        intervention_priority_mapping = {
+            'Unresolved': 1,
+            'Pending': 2,
+            'Resolved': 3,
+            None: 4
+        }
+        intervention_priority = intervention_priority_mapping.get(
+            item['intervention_status'], 99)
+
+        return (status_priority, intervention_priority)
+
+    # Sorting the list of orphans based on the defined sort key
+    orphan_educations_status.sort(key=sort_key)
 
     context = {
-        'orphan_educations_status': sorted_orphan_status,
+        'orphan_educations_status': orphan_educations_status,
         'orphan_ids': [orphan.orphanID for orphan in Info.objects.all()],
         'orphan_count': Info.objects.count(),
     }
