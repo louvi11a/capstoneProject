@@ -435,46 +435,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// function updateStatusAndRemarks(orphanId, newStatus, newRemarks) {
-//     console.log('updateStatusAndRemarks called with status:', newStatus); // Check if it's being called with the right value
-
-//   var statusBadge = document.querySelector(`#status-badge-${orphanId}`);
-//   var remarksText = document.querySelector(`#remarks-text-${orphanId}`);
-//    
-//   if (statusBadge && remarksText) {
-//     statusBadge.textContent = newStatus;
-//     remarksText.textContent = newRemarks;
-
-//     // Color mapping - Replicate your server-side logic 
-//     const statusColors = {
-//       'Unresolved': 'danger',
-//       'Pending': 'warning',
-//       'Resolved': 'success',
-//       None: 'info'
-//     };
-//     const color = statusColors[newStatus] || 'info'; // Default to 'info' if not found
-
-//     // Apply the same color to both status and intervention 
-//     statusBadge.className = `badge bg-${color}`; 
-
-//     // Find the corresponding intervention status element by its ID if you have one  
-//     let interventionStatusElement = document.getElementById(`intervention-status-${orphanId}`); 
-//     if (interventionStatusElement) {
-//       interventionStatusElement.className = `badge bg-${color}`;  
-//     }
-//   }
-// }
-
 
 function getStatusColor(status) {
+    status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(); // Normalize case
     const statusColors = {
-        'Unresolved': 'danger',
-        'Pending': 'warning',
-        'Resolved': 'success',
-        None: 'info'
+        'Unresolved': 'bg-danger',
+        'Pending': 'bg-warning',
+        'Resolved': 'bg-success',
+        'None': 'bg-info'
     };
-    return statusColors[status] || 'secondary';
+    return statusColors[status] || 'bg-secondary'; // Fallback to secondary if no match
 }
+
 
 function getCookie(name) {
     let cookieValue = null;
@@ -499,10 +471,14 @@ function updateStatusDisplay(orphanId, newStatus, newRemarks) {
     let remarksElement = document.getElementById(`remarks-text-${orphanId}`);
 
     if (statusElement) {
+        console.log('Applying color for status:', newStatus); // Before update
+        console.log('Class before update:', statusElement.className);
+
         statusElement.textContent = newStatus;
         statusElement.className = 'badge'; // Clear existing classes
         statusElement.classList.add(getStatusColor(newStatus)); // Add new class based on status
-        console.log('Updated class to:', getStatusColor(newStatus)); // Verify correct class is added
+
+        console.log('Class after update:', statusElement.className); // After update
     }
 
     if (remarksElement) {
@@ -512,18 +488,6 @@ function updateStatusDisplay(orphanId, newStatus, newRemarks) {
 
 
 
-
-// Get the corresponding bootstrap class for the given status
-function getStatusColor(status) {
-    const statusColors = {
-        'Unresolved': 'danger',
-        'Pending': 'warning',
-        'Resolved': 'success',
-        'None': 'info'
-    };
-    console.log("Getting color for status:", status);  // Check received status
-    return statusColors[status] || 'secondary';
-}
 
 
 

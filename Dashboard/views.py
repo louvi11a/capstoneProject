@@ -606,11 +606,12 @@ def save_academic_intervention(request, orphan_id):
 def intervention_academics(request):
     # Define a dictionary to map intervention statuses to colors
     intervention_status_colors = {
-        'Unresolved': 'danger',  # Red color for unresolved issues
-        'Pending': 'warning',  # Yellow color for pending issues
-        'Resolved': 'success',  # Green color for resolved issues
+        'unresolved': 'danger',  # Red color for unresolved issues
+        'pending': 'warning',  # Yellow color for pending issues
+        'resolved': 'success',  # Green color for resolved issues
         None: 'info'  # Blue color for no intervention needed
     }
+    print("Dictionary keys:", intervention_status_colors.keys())
 
     # Fetch all orphans and their latest intervention data
     orphan_educations_status = []
@@ -624,14 +625,21 @@ def intervention_academics(request):
 
         # Setup intervention status based on latest data or defaults
         if latest_intervention:
+            print(f"Latest intervention status: {latest_intervention.status}")
+
             intervention_status = latest_intervention.status
             remarks = latest_intervention.description
         else:
-            intervention_status = 'Unresolved' if critical_needed or significant_needed else None
+            intervention_status = 'unresolved' if critical_needed or significant_needed else None
             remarks = ''
 
         intervention_color = intervention_status_colors.get(
             intervention_status, 'info')
+        print(f"Mapping {intervention_status} to color {intervention_color}")
+
+        # Additional checks
+        if intervention_color == 'info' and intervention_status is not None:
+            print(f"Unexpected 'info' color for status {intervention_status}")
 
         # Determine the academic status
         if critical_needed:
@@ -671,9 +679,9 @@ def intervention_academics(request):
 
         # Secondary sort by intervention status if needed
         intervention_priority_mapping = {
-            'Unresolved': 1,
-            'Pending': 2,
-            'Resolved': 3,
+            'unresolved': 1,
+            'pending': 2,
+            'resolved': 3,
             None: 4
         }
         intervention_priority = intervention_priority_mapping.get(
@@ -689,6 +697,8 @@ def intervention_academics(request):
         'orphan_ids': [orphan.orphanID for orphan in Info.objects.all()],
         'orphan_count': Info.objects.count(),
     }
+    print(f"Before mapping: status={intervention_status}, available_keys={
+          list(intervention_status_colors.keys())}")
 
     return render(request, 'Dashboard/intervention_academics.html', context)
 
