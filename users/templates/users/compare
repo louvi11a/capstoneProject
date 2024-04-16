@@ -1,117 +1,474 @@
-
 {% extends "Dashboard/base.html" %}
 {% load static %}
 
-{% block title %}
-    Settings
-{% endblock %}
 
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'Css/setting.css' %}">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/fontawesome.min.css" integrity="sha384-jLKHWM3JRmfMU0A5x5AkjWkw/EYfGUAGagvnfryNV3F9VqM98XiIH7VBGVoxVSc7" crossorigin="anonymous">
-    <link rel=”stylesheet” href=”https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css” integrity=”sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T” crossorigin=”anonymous”>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 {% endblock %}
 
-<body>
-    <main>
-        {% block content %}
-        <div class="container row bg-light">
-            <div class="container border border-2 rounded mt-3 bg-none w-100" style="background-color: #e8f4f8;">
-                <div class="form-container p-4 rounded "style="background-color: #e8f4f8;">
-                  <form id="myForm" method="post" action="{% url 'update_user_info' %}">
-                    {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username:</label>
-                            <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly autocomplete="username">                        </div>
-                        <div class="mb-3">
-                            <label for="firstName" class="form-label">First Name:</label>
-                            <input type="text" class="form-control" id="firstName" value="{{ user.first_name }}" readonly>
-                        </div>
 
-                        <div class="mb-3">
-                            <label for="lastName" class="form-label">Last Name:</label>
-                            <input type="text" class="form-control" id="lastName" value="{{ user.last_name }}" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="middleName" class="form-label">Email Address:</label>
-                            <input type="text" class="form-control" id="email" value="{{ user.email }}" readonly>
-                        </div>
+{% block extra_meta %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password:</label>
-                            <input type="password" class="form-control" id="password" placeholder="********" readonly autocomplete="current-password">                        </div>
 
-                            <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                              Change Password
-                            </button>
-                            
-                          </form>
-                    <div class="d-grid gap-2">     
-                    <button id="editButton" class="btn btn-primary btn-block">Edit</button>
-                    <div class="editbtn">
-                        <button id="saveButton" class="btn btn-success" style="display: none;">Save</button>
-                        <button id="cancelButton" class="btn btn-secondary" style="display: none;">Cancel</button>
-                    </div>
-                    </div>
-                </div>
-                
-            </div>
-          
+{% block title %}
+    Dashboard
+{% endblock %}
 
-<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <form id="changePasswordForm" method="post" action="{% url 'change_password' %}">
-                  {% csrf_token %}
-                  <div class="mb-3 password-field">
-                      <label for="old_password" class="form-label">Current Password:</label>
-                      <div class="input-group">
-                          <input type="password" class="form-control" id="old_password" name="old_password" autocomplete="current-password">
-                          <span class="input-group-text password-toggle" data-toggle-password="old_password" onclick="togglePasswordVisibility('old_password', event)">
-                              <i class="bi bi-eye-fill"></i>
-                          </span>
-                      </div>
+{% block content %}        
+
+
+
+    <!-- content -->
+<div class="mb-0">
+  <div class="m-2">
+      <div class="row d-flex justify-content-center">
+          <a href="{% url 'overall_analysis' %}"
+              class=" btn btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+              <h5>Orphans Summary 
+                  <i class="txtColor icon fa-solid fa-children fs-4   border-0"></i>
+              </h5>
+              <!-- <h1 class="text-center mt-3">100</h1> -->
+              <!-- {{ total_orphans }} -->
+          </a>
+
+          <div
+              class=" col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+              <h5 class="pt-2 text-center">Gender <i class="txtColor icon fa-solid fa-venus-mars fs-5"></i></h5>
+              <div class="row">
+                  <div class="col-6 d-flex justify-content-center align-items-center">
+                      <p class="m-1">Male</p>
                   </div>
-                  <div class="mb-3 password-field">
-                      <label for="new_password1" class="form-label">New Password:</label>
-                      <div class="input-group">
-                          <input type="password" class="form-control" id="new_password1" name="new_password1" autocomplete="new-password">
-                          <span class="input-group-text password-toggle" data-toggle-password="new_password1" onclick="togglePasswordVisibility('new_password1', event)">
-                              <i class="bi bi-eye-fill"></i>
-                          </span>
-                      </div>
+                  <div class="col-6 d-flex justify-content-center align-items-center">
+                      <span class="badge bg-success rounded-pill">{{ male_count }}</span>
                   </div>
-                  <div class="mb-3 password-field">
-                      <label for="new_password2" class="form-label">Confirm New Password:</label>
-                      <div class="input-group">
-                          <input type="password" class="form-control" id="new_password2" name="new_password2" autocomplete="new-password">
-                          <span class="input-group-text password-toggle" data-toggle-password="new_password2" onclick="togglePasswordVisibility('new_password2', event)">
-                              <i class="bi bi-eye-fill"></i>
-                          </span>
-                      </div>
+                  <div class="col-6 d-flex justify-content-center align-items-center">
+                      <p class="m-1">Female</p>
                   </div>
-              </form>
+                  <div class="col-6 d-flex justify-content-center align-items-center">
+                      <span class="badge bg-danger rounded-pill">{{ female_count}}</span>
+                  </div>
+                  <hr class="mb-1">
+                  <div class="col-6 d-flex justify-content-center align-items-center">
+                      <p class="m-1">Total</p>
+                  </div>
+                  <div class="col-6 d-flex justify-content-center align-items-center">
+                      <span class="badge bg-secondary rounded-pill">{{ total_orphans}}</span>
+                  </div>
+              </div>
           </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" onclick="submitChangePasswordForm()">Save changes</button>
+
+          <div
+              class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+              <!-- <a href="{% url 'intervention_academics' %}" class="text-decoration-none txtColor"> -->
+                <a lass="text-decoration-none txtColor">
+
+                  <h5 class="pt-2">Age <i
+                          class="txtColor icon fa-solid fa-building-circle-exclamation fs-5"></i></h5>
+                  <h1 class="text-center mt-3">{{ count_academic_interventions }}</h1>
+                  <p>Needs Intervention</p>
+              </a>
           </div>
+
+          <div
+              class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+              <!-- <a href="{% url 'intervention_academics' %}" class="text-decoration-none txtColor"> -->
+                <a lass="text-decoration-none txtColor">
+
+                  <h5 class="pt-2">Education <i
+                          class="txtColor icon fa-solid fa-building-circle-exclamation fs-5"></i></h5>
+                  <h1 class="text-center mt-3">{{ count_academic_interventions }}</h1>
+                  <p>Needs Intervention</p>
+              </a>
+          </div>
+
+          <div
+              class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+              <!-- <a href="{% url 'intervention_health' %}" class="text-decoration-none txtColor"> -->
+                <a class="text-decoration-none txtColor">
+
+                  <h5 class="pt-2">Health <i class="txtColor icon fa-solid fa-heart-circle-exclamation fs-5"></i></h5>
+                  <h1 class="text-center mt-3">{{ orphan_count }}</h1>
+                  <p>Needs Intervention</p>
+              </a>
+          </div>
+
+          <div
+              class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+              <!-- <a href="{% url 'intervention_behavior' %}" class="text-decoration-none txtColor"> -->
+                <a  class="text-decoration-none txtColor">
+
+                  <h5 class="pt-2">Behavior <i class="txtColor icon fa-solid fa-person-circle-exclamation fs-5"></i>
+                  </h5>
+                  <h1 class="text-center mt-3">{{ requires_intervention_behavior }}</h1>
+                  <p>Needs Intervention</p>
+              </a>
+          </div>
+
       </div>
   </div>
 </div>
+        
+<hr class="m-0 mt-0 w-100">
+<!-- Charts section -->
 
-        {% endblock %}
+  <div class="container mt-0 ">
+  <div class="row">
+
+    <div class="container row justify-content-center">
+    <div class="col-md-4">
+      <div id="sentimentsChartContainer" class="container mt-2 mb-0 justify-content-center align-items-center d-flex p-0" style="height: 460px; flex-wrap: nowrap; flex-direction: column;">
+          <h5 class="text-center mt-lg-4">Behavior Chart</h5>
+          <canvas id="sentimentChart" class=""> </canvas>
+        </h5>
+      </div>
+    </div>
+  
     
-{% block js %}
-<script src="{% static 'Js/setting-popup.js' %}"></script>
-{% endblock %}
-</body>
+    <div class="col-md-4">
+      <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column p-0" style="height: 26.1h;">
+        <a href="{% url 'dashboard_academic_chart' %}" ></a>
+        <h5 class="text-center">Academic Chart</h4>
+        <canvas id="academicChart"></canvas>
+      </div>
+      
+      <div class="container-fluid mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0 chart-container">
+        <a href="{% url 'chart_health' %}" ></a>
+        <h5 class="text-center">Health Chart</h5>
+        <canvas id="healthChart"></canvas>
+      </div>
+    </div>
+    </div>
+    
+    {% comment %} 
+    <!-- <div class="col-md-4">
+      <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
+        <a href="{% url 'chart_age' %}"></a>
+        <h5 class="text-center">Age Chart</h5>
+        <canvas id="ageChart"></canvas>
+      </div>
+      
+      <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
+        <a href="{% url 'chart_bmi' %}" ></a>
+        <h5 class="text-center">BMI Chart</h5>
+        <canvas id="bmiChart"></canvas>
 
-</html>
+      </div>
+    </div>  -->
+    {% endcomment %}
+  </div>
+{% endblock %}
+
+
+            {% block js%}
+            <!-- for sentiment/behavior chart -->
+            <script>
+              fetch('/Dashboard/api/chart-sentiment/')
+              .then(response => response.json())
+              .then(sentimentData => {
+                  var ctx = document.getElementById('sentimentChart').getContext('2d');
+                  var myChart = new Chart(ctx, {
+                      type: 'pie',
+                      data: {
+                          labels: ['Positive', 'Negative', 'Neutral'],
+                          datasets: [{
+                              label: '# of Sentiments',
+                              data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
+                              backgroundColor: [
+                                  'rgba(255, 99, 132, 0.8)', 
+                                  'rgba(54, 162, 235, 0.8)', 
+                                  'rgba(255, 206, 86, 0.8)'
+                              ],
+                              borderColor: [
+                                  'rgba(255, 99, 132, 1)', 
+                                  'rgba(54, 162, 235, 1)', 
+                                  'rgba(255, 206, 86, 1)'
+                              ],
+                              borderWidth: 1
+                          }]
+                      },
+                      options: {
+                          responsive: true,
+                          maintainAspectRatio: false,
+                      }
+                  });
+              });
+              </script>
+          
+          <!-- for age distribution chart -->
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              var ctx = document.getElementById('ageChart').getContext('2d');
+              
+              // Assuming male_age_data and female_age_data are lists of numbers
+              var labels = ['0-10', '11-20', '21-30', '31-40'];
+              var maleAgeData = {{ male_age_data|safe }};
+              var femaleAgeData = {{ female_age_data|safe }};
+
+              var ageData = {
+                labels: labels,
+                datasets: [{
+                  label: 'Male',
+                  data: maleAgeData,
+                  backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                  borderColor: 'rgba(54, 162, 235, 1)',
+                  borderWidth: 1
+                }, {
+                  label: 'Female',
+                  data: femaleAgeData,
+                  backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  borderWidth: 1
+                }]
+              };
+
+              new Chart(ctx, {
+                type: 'bar',
+                data: ageData,
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }
+              });
+            });
+          </script>
+
+          <!-- for bmi chart -->
+          {{ bmi_data|json_script:"bmi-data" }}
+          <script type="text/javascript">
+            const bmiDataElement = document.getElementById('bmi-data');
+            // Renamed the variable to avoid conflicts
+            const bmiChartData = JSON.parse(bmiDataElement.textContent);
+
+            const chartData = {
+                labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
+                datasets: [{
+                    label: 'BMI Status',
+                    data: bmiChartData, // Use the renamed variable here
+                    backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                    borderWidth: 1
+                }]
+            };
+
+            var bmiChartCtx = document.getElementById('bmiChart').getContext('2d');
+            var bmiChart = new Chart(bmiChartCtx, {
+                type: 'bar',
+                data: chartData
+            });
+          </script>
+
+
+         {% comment %} <script>
+          document.addEventListener('DOMContentLoaded', function () {
+              const academicLabels = {{ academic_labels|safe }};
+              const academicData = {{ academic_data|safe }};
+              console.log(academicLabels, academicData);
+
+              const academicChartData = {
+                  labels: academicLabels,
+                  datasets: [{
+                      label: 'Academic Performance',
+                      data: {{ academic_data|safe }}.map(Number),
+                      backgroundColor: [
+                          'rgba(255, 99, 132, 0.8)',
+                          'rgba(255, 159, 64, 0.8)',
+                          'rgba(255, 205, 86, 0.8)',
+                          'rgba(75, 192, 192, 0.8)',
+                      ],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(255, 159, 64, 1)',
+                          'rgba(255, 205, 86, 1)',
+                          'rgba(75, 192, 192, 1)',
+                      ],
+                      borderWidth: 1
+                  }]
+              };
+
+              const config = {
+                  type: 'bar',
+                  data: academicChartData,
+                  options: {
+                    plugins:{
+                      scales: {
+                          y: {
+                              beginAtZero: true
+                          }
+                      },
+                      tooltips: { // Customizing tooltips
+                          enabled: true,
+                          mode: 'index',
+                          intersect: false,
+                          callbacks: {
+                              label: function(tooltipItem, data) {
+                                  var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                                  if (label) {
+                                      label += ': ';
+                                  }
+                                  label += tooltipItem.yLabel;
+                                  return label;
+                              }
+                          }
+                      }
+                    }
+                  },
+              };
+
+              var academicChartCtx = document.getElementById('academicChart').getContext('2d');
+              var academicChart = new Chart(academicChartCtx, config);
+          });
+          </script> {% endcomment %}
+
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const academicLabels = {{ academic_labels|safe }};
+                const academicData = {{ academic_data|safe }};
+                console.log(academicLabels, academicData);
+        
+                const academicChartData = {
+                    labels: academicLabels,
+                    datasets: [{
+                        label: 'Academic Performance',
+                        data: {{ academic_data|safe }}.map(Number),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                            'rgba(255, 205, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 205, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+        
+                const config = {
+                    type: 'bar',
+                    data: academicChartData,
+                    options: {
+                        plugins: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            tooltips: { // Customizing tooltips
+                                enabled: true,
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function (tooltipItem, data) {
+                                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += tooltipItem.yLabel;
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                };
+        
+                var academicChartCtx = document.getElementById('academicChart').getContext('2d');
+                var academicChart = new Chart(academicChartCtx, config);
+            });
+        </script>
+        
+
+
+            {% comment %} <script>  
+              const healthData = {
+                  labels: ['Normal', 'Sick', 'Admitted'],
+                  datasets: [{
+                      label: 'Health Status',
+                      data: ['5', '2', '1'], // Updated with normal, sick, admitted
+                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
+                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+                      borderWidth: 1
+                  }]
+              };
+            
+            
+              // Create Health chart
+              var healthChartCtx = document.getElementById('healthChart').getContext('2d');
+              var healthChart = new Chart(healthChartCtx, {
+                  type: 'bar',
+                  data: healthData
+              });
+            </script>   {% endcomment %}
+
+            <script>
+              const healthData = {
+                  labels: ['Normal', 'Sick', 'Admitted'],
+                  datasets: [{
+                      label: 'Health Status',
+                      data: ['5', '2', '1'], // Updated with normal, sick, admitted
+                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
+                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+                      borderWidth: 1
+                  }]
+              };
+          
+              // Create Health chart
+              var healthChartCtx = document.getElementById('healthChart').getContext('2d');
+              var healthChart = new Chart(healthChartCtx, {
+                  type: 'bar',
+                  data: healthData
+              });
+          </script>
+          
+          <style>
+              .chart-container {
+                  max-width: 100%; /* Set maximum width */
+                  max-height: 400px; /* Set maximum height */
+              }
+          </style>
+
+<!-- clickability of charts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const behaviorChartCanvas = document.getElementById('sentimentChart');
+  behaviorChartCanvas.style.cursor = 'pointer';
+  behaviorChartCanvas.addEventListener('click', function() {
+      window.location.href = '{% url "intervention_behavior" %}';
+  });
+
+  const academicChartCanvas = document.getElementById('academicChart');
+  academicChartCanvas.style.cursor = 'pointer';
+  academicChartCanvas.addEventListener('click', function() {
+      window.location.href = '{% url "intervention_academics" %}';
+  });
+
+  const ageChartCanvas = document.getElementById('ageChart');
+  ageChartCanvas.style.cursor = 'pointer';
+  ageChartCanvas.addEventListener('click', function() {
+      window.location.href = '{% url "chart_age" %}';
+  });
+
+  const healthChartCanvas = document.getElementById('healthChart');
+  healthChartCanvas.style.cursor = 'pointer';
+  healthChartCanvas.addEventListener('click', function() {
+      window.location.href = '{% url "intervention_health" %}';
+  });
+
+  const bmiChartCanvas = document.getElementById('bmiChart');
+  bmiChartCanvas.style.cursor = 'pointer';
+  bmiChartCanvas.addEventListener('click', function() {
+      window.location.href = '{% url "chart_bmi" %}';
+  });
+
+});
+</script>
+
+{% endblock %}
+

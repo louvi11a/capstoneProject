@@ -4,7 +4,7 @@
 
 {% block css %}
 {% endblock %}
-
+current
 
 {% block extra_meta %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,7 +24,7 @@
   <div class="m-2">
       <div class="row d-flex justify-content-center">
           <a href="{% url 'overall_analysis' %}"
-              class=" btn btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+          class=" btn btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
               <h5>Orphans Summary 
                   <i class="txtColor icon fa-solid fa-children fs-4   border-0"></i>
               </h5>
@@ -57,18 +57,17 @@
                   </div>
               </div>
           </div>
-
           <div
-              class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
-              <!-- <a href="{% url 'intervention_academics' %}" class="text-decoration-none txtColor"> -->
-                <a lass="text-decoration-none txtColor">
+          class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
+          <!-- <a href="{% url 'intervention_academics' %}" class="text-decoration-none txtColor"> -->
+            <a lass="text-decoration-none txtColor">
 
-                  <h5 class="pt-2">Age <i
-                          class="txtColor icon fa-solid fa-building-circle-exclamation fs-5"></i></h5>
-                  <h1 class="text-center mt-3">{{ count_academic_interventions }}</h1>
-                  <p>Needs Intervention</p>
-              </a>
-          </div>
+              <h5 class="pt-2">Age <i
+                      class="txtColor icon fa-solid fa-building-circle-exclamation fs-5"></i></h5>
+              <h1 class="text-center mt-3">{{ count_academic_interventions }}</h1>
+              <p>Needs Intervention</p>
+          </a>
+      </div>
 
           <div
               class=" btn  btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
@@ -114,29 +113,20 @@
 
   <div class="container mt-0 ">
   <div class="row">
-    <!-- <div class="col-md-4">
-      <div id="sentimentsChartContainer" class="container mt-2 mb-0 justify-content-center align-items-center border border-2 rounded-2 d-flex p-0" style="height: 460px; flex-wrap: nowrap; flex-direction: column;">
-        <a href="{% url 'chart_behavior' %}" ></a>
-        <h5 class="text-center mt-lg-4">Behavior Chart</h5>
-        <canvas id="sentimentChart"></canvas>
-      </div>
-    </div> -->
-
     <div class="container row justify-content-center">
     <div class="col-md-4">
       <div id="sentimentsChartContainer" class="container mt-2 mb-0 justify-content-center align-items-center d-flex p-0" style="height: 460px; flex-wrap: nowrap; flex-direction: column;">
-          <!-- <h5 class="text-center mt-lg-4">Behavior Chart</h5> -->
-          <canvas id="behaviorStatusChart" class=""> </canvas>
-        </h5>
+          <h5 class="text-center mt-lg-4">Behavior Chart</h5>
+          <canvas id="behaviorStatusChart"></canvas>
       </div>
-    </div>
+  </div>
   
     
     <div class="col-md-4">
       <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column p-0" style="height: 26.1h;">
         <a href="{% url 'dashboard_academic_chart' %}" ></a>
         <h5 class="text-center">Academic Chart</h4>
-        <canvas id="academicChart"></canvas>
+        <canvas id="academicStatusChart"></canvas>
       </div>
       
       <div class="container-fluid mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0 chart-container">
@@ -146,12 +136,18 @@
       </div>
     </div>
     </div>
-    
-    {% comment %} <div class="col-md-4">
       <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
         <a href="{% url 'chart_age' %}"></a>
         <h5 class="text-center">Age Chart</h5>
         <canvas id="ageChart"></canvas>
+      </div>
+    </div>
+    
+    <!-- <div class="col-md-4">
+      <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
+        <a href="{% url 'chart_health' %}" ></a>
+        <h5 class="text-center">Health Chart</h5>
+        <canvas id="healthChart"></canvas>
       </div>
       
       <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
@@ -160,7 +156,7 @@
         <canvas id="bmiChart"></canvas>
 
       </div>
-    </div> {% endcomment %}
+    </div> -->
   </div>
 {% endblock %}
 
@@ -249,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             display: true,
                             text: 'Displays the count of orphans for each category for the current month',
                             font: {
-                                size: 11
+                                size: 10
                             }
                         }
                     }
@@ -270,271 +266,183 @@ document.addEventListener('DOMContentLoaded', function() {
     var maleAgeData = {{ male_age_data|safe }};
     var femaleAgeData = {{ female_age_data|safe }};
 
-              var ageData = {
-                labels: labels,
-                datasets: [{
-                  label: 'Male',
-                  data: maleAgeData,
-                  backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                  borderColor: 'rgba(54, 162, 235, 1)',
-                  borderWidth: 1
-                }, {
-                  label: 'Female',
-                  data: femaleAgeData,
-                  backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                  borderColor: 'rgba(255, 99, 132, 1)',
-                  borderWidth: 1
-                }]
-              };
+    var ageData = {
+      labels: labels,
+      datasets: [{
+        label: 'Male',
+        data: maleAgeData,
+        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }, {
+        label: 'Female',
+        data: femaleAgeData,
+        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+      }]
+    };
 
-              new Chart(ctx, {
-                type: 'bar',
-                data: ageData,
-                options: {
-                  scales: {
-                    y: {
-                      beginAtZero: true
-                    }
-                  }
-                }
-              });
-            });
-          </script>
+    new Chart(ctx, {
+      type: 'bar',
+      data: ageData,
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  });
+</script>
 
-          <!-- for bmi chart -->
-          {{ bmi_data|json_script:"bmi-data" }}
-          <script type="text/javascript">
-            const bmiDataElement = document.getElementById('bmi-data');
-            // Renamed the variable to avoid conflicts
-            const bmiChartData = JSON.parse(bmiDataElement.textContent);
+<!-- for bmi chart -->
+{{ bmi_data|json_script:"bmi-data" }}
+<script type="text/javascript">
+  const bmiDataElement = document.getElementById('bmi-data');
+  // Renamed the variable to avoid conflicts
+  const bmiChartData = JSON.parse(bmiDataElement.textContent);
 
-            const chartData = {
-                labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
-                datasets: [{
-                    label: 'BMI Status',
-                    data: bmiChartData, // Use the renamed variable here
-                    backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
-                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
-                    borderWidth: 1
-                }]
-            };
+  const chartData = {
+      labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
+      datasets: [{
+          label: 'BMI Status',
+          data: bmiChartData, // Use the renamed variable here
+          backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
+          borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+          borderWidth: 1
+      }]
+  };
 
-            var bmiChartCtx = document.getElementById('bmiChart').getContext('2d');
-            var bmiChart = new Chart(bmiChartCtx, {
-                type: 'bar',
-                data: chartData
-            });
-          </script>
+  var bmiChartCtx = document.getElementById('bmiChart').getContext('2d');
+  var bmiChart = new Chart(bmiChartCtx, {
+      type: 'bar',
+      data: chartData
+  });
+</script>
 
 
-         {% comment %} <script>
-          document.addEventListener('DOMContentLoaded', function () {
-              const academicLabels = {{ academic_labels|safe }};
-              const academicData = {{ academic_data|safe }};
-              console.log(academicLabels, academicData);
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const ctx = document.getElementById('academicStatusChart').getContext('2d');
+      let academicStatusChart;
 
-              const academicChartData = {
-                  labels: academicLabels,
+      fetch('/Dashboard/dashboard_academic_chart/')  // Ensure this is the correct endpoint
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok: ' + response.statusText);
+          }
+          return response.json();
+      })
+      .then(data => {
+          if (academicStatusChart) {
+              academicStatusChart.destroy();
+          }
+          academicStatusChart = new Chart(ctx, {
+              type: 'bar', // Bar chart to display counts
+              data: {
+                  labels: data.labels, // Labels are dynamically received from the server
                   datasets: [{
-                      label: 'Academic Performance',
-                      data: {{ academic_data|safe }}.map(Number),
+                      label: 'Number of Orphans',
+                      data: data.datasets[0].data, // Make sure the data array matches the expected format
                       backgroundColor: [
-                          'rgba(255, 99, 132, 0.8)',
-                          'rgba(255, 159, 64, 0.8)',
-                          'rgba(255, 205, 86, 0.8)',
-                          'rgba(75, 192, 192, 0.8)',
+                          'rgba(54, 162, 235, 0.6)', // More opaque for better visibility
+                          'rgba(255, 206, 86, 0.6)',
+                          'rgba(255, 99, 132, 0.6)'
                       ],
                       borderColor: [
-                          'rgba(255, 99, 132, 1)',
-                          'rgba(255, 159, 64, 1)',
-                          'rgba(255, 205, 86, 1)',
-                          'rgba(75, 192, 192, 1)',
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          'rgba(255, 99, 132, 1)'
                       ],
                       borderWidth: 1
                   }]
-              };
-
-              const config = {
-                  type: 'bar',
-                  data: academicChartData,
-                  options: {
-                    plugins:{
-                      scales: {
-                          y: {
-                              beginAtZero: true
-                          }
-                      },
-                      tooltips: { // Customizing tooltips
-                          enabled: true,
-                          mode: 'index',
-                          intersect: false,
-                          callbacks: {
-                              label: function(tooltipItem, data) {
-                                  var label = data.datasets[tooltipItem.datasetIndex].label || '';
-                                  if (label) {
-                                      label += ': ';
-                                  }
-                                  label += tooltipItem.yLabel;
-                                  return label;
-                              }
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true, // Ensures that the y-axis starts from zero
+                          ticks: {
+                              precision: 0 // No fractional ticks on the y-axis
                           }
                       }
-                    }
                   },
-              };
-
-              var academicChartCtx = document.getElementById('academicChart').getContext('2d');
-              var academicChart = new Chart(academicChartCtx, config);
-          });
-          </script> {% endcomment %}
-
-          <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const academicLabels = {{ academic_labels|safe }};
-                const academicData = {{ academic_data|safe }};
-                console.log(academicLabels, academicData);
-        
-                const academicChartData = {
-                    labels: academicLabels,
-                    datasets: [{
-                        label: 'Academic Performance',
-                        data: {{ academic_data|safe }}.map(Number),
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(255, 159, 64, 0.8)',
-                            'rgba(255, 205, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 159, 64, 1)',
-                            'rgba(255, 205, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                        ],
-                        borderWidth: 1
-                    }]
-                };
-        
-                const config = {
-                    type: 'bar',
-                    data: academicChartData,
-                    options: {
-                        plugins: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            tooltips: { // Customizing tooltips
-                                enabled: true,
-                                mode: 'index',
-                                intersect: false,
-                                callbacks: {
-                                    label: function (tooltipItem, data) {
-                                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        label += tooltipItem.yLabel;
-                                        return label;
-                                    }
-                                }
-                            }
-                        }
-                    },
-                };
-        
-                var academicChartCtx = document.getElementById('academicChart').getContext('2d');
-                var academicChart = new Chart(academicChartCtx, config);
-            });
-        </script>
-        
-
-
-            {% comment %} <script>  
-              const healthData = {
-                  labels: ['Normal', 'Sick', 'Admitted'],
-                  datasets: [{
-                      label: 'Health Status',
-                      data: ['5', '2', '1'], // Updated with normal, sick, admitted
-                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
-                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
-                      borderWidth: 1
-                  }]
-              };
-            
-            
-              // Create Health chart
-              var healthChartCtx = document.getElementById('healthChart').getContext('2d');
-              var healthChart = new Chart(healthChartCtx, {
-                  type: 'bar',
-                  data: healthData
-              });
-            </script>   {% endcomment %}
-
-            <script>
-              const healthData = {
-                  labels: ['Normal', 'Sick', 'Admitted'],
-                  datasets: [{
-                      label: 'Health Status',
-                      data: ['5', '2', '1'], // Updated with normal, sick, admitted
-                      backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
-                      borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
-                      borderWidth: 1
-                  }]
-              };
-          
-              // Create Health chart
-              var healthChartCtx = document.getElementById('healthChart').getContext('2d');
-              var healthChart = new Chart(healthChartCtx, {
-                  type: 'bar',
-                  data: healthData
-              });
-          </script>
-          
-          <style>
-              .chart-container {
-                  max-width: 100%; /* Set maximum width */
-                  max-height: 400px; /* Set maximum height */
+                  plugins: {
+                      legend: {
+                          display: true // Optionally turn off if not needed
+                      }
+                  }
               }
-          </style>
+          });
+      })
+      .catch(error => {
+          console.error('Error fetching academic status data:', error);
+          alert('Failed to load academic status data.'); // Display a simple alert or modify the DOM to show an error message
+      });
+  });
+</script>
+
+
+
+<script>  
+  const healthData = {
+      labels: ['Normal', 'Sick', 'Admitted'],
+      datasets: [{
+          label: 'Health Status',
+          data: ['5', '2', '1'], // Updated with normal, sick, admitted
+          backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
+          borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+          borderWidth: 1
+      }]
+  };
+
+
+  // Create Health chart
+  var healthChartCtx = document.getElementById('healthChart').getContext('2d');
+  var healthChart = new Chart(healthChartCtx, {
+      type: 'bar',
+      data: healthData
+  });
+</script>  
 
 <!-- clickability of charts -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const behaviorChartCanvas = document.getElementById('sentimentChart');
-  behaviorChartCanvas.style.cursor = 'pointer';
-  behaviorChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "intervention_behavior" %}';
-  });
-
-  const academicChartCanvas = document.getElementById('academicChart');
-  academicChartCanvas.style.cursor = 'pointer';
-  academicChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "intervention_academics" %}';
-  });
-
-  const ageChartCanvas = document.getElementById('ageChart');
-  ageChartCanvas.style.cursor = 'pointer';
-  ageChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "chart_age" %}';
-  });
-
-  const healthChartCanvas = document.getElementById('healthChart');
-  healthChartCanvas.style.cursor = 'pointer';
-  healthChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "intervention_health" %}';
-  });
-
-  const bmiChartCanvas = document.getElementById('bmiChart');
-  bmiChartCanvas.style.cursor = 'pointer';
-  bmiChartCanvas.addEventListener('click', function() {
-      window.location.href = '{% url "chart_bmi" %}';
-  });
-
-});
-</script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const behaviorChartCanvas = document.getElementById('behaviorStatusChart');
+      behaviorChartCanvas.style.cursor = 'pointer';
+      behaviorChartCanvas.addEventListener('click', function() {
+          window.location.href = '{% url "chart_behavior" %}';
+      });
+    
+      const academicChartCanvas = document.getElementById('academicStatusChart');
+      academicChartCanvas.style.cursor = 'pointer';
+      academicChartCanvas.addEventListener('click', function() {
+          window.location.href = '{% url "intervention_academics" %}';
+      });
+    
+      const ageChartCanvas = document.getElementById('ageChart');
+      ageChartCanvas.style.cursor = 'pointer';
+      ageChartCanvas.addEventListener('click', function() {
+          window.location.href = '{% url "chart_age" %}';
+      });
+    
+      const healthChartCanvas = document.getElementById('healthChart');
+      healthChartCanvas.style.cursor = 'pointer';
+      healthChartCanvas.addEventListener('click', function() {
+          window.location.href = '{% url "chart_health" %}';
+      });
+    
+      const bmiChartCanvas = document.getElementById('bmiChart');
+      bmiChartCanvas.style.cursor = 'pointer';
+      bmiChartCanvas.addEventListener('click', function() {
+          window.location.href = '{% url "chart_bmi" %}';
+      });
+    
+    });
+    </script>
 
 {% endblock %}
+
 
 
