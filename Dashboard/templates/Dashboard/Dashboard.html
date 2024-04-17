@@ -116,7 +116,7 @@ current
     <div class="container row justify-content-center">
     <div class="col-md-6 mt-5">
       <div id="sentimentsChartContainer" class="container mt-2 mb-0 justify-content-center align-items-center d-flex p-0" style="height: 460px; flex-wrap: nowrap; flex-direction: column;">
-          <h5 class="text-center mt-lg-4">Behavior Chart</h5>
+          <!-- <h5 class="text-center mt-lg-4">Behavior Chart</h5> -->
           <canvas id="behaviorStatusChart" ></canvas>
       </div>
   </div>
@@ -125,13 +125,13 @@ current
     <div class="col-md-6 ">
       <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column p-0" style="height: 26.1h;">
         <a href="{% url 'dashboard_academic_chart' %}" ></a>
-        <h5 class="text-center">Academic Chart</h4>
+        <!-- <h5 class="text-center">Academic Chart</h4> -->
         <canvas id="academicStatusChart"></canvas>
       </div>
       
       <div class="container-fluid mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0 chart-container">
         <a href="{% url 'dashboard_health_chart' %}" ></a>
-        <h5 class="text-center">Health Chart</h5>
+        <!-- <h5 class="text-center">Health Chart</h5> -->
         <canvas id="healthStatusChart"></canvas>
       </div>
     </div>
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Sentiment Categories',
+                        label: 'Number of orphans',
                         data: counts,
                         backgroundColor: [
                             'rgba(255, 99, 132)', // Red
@@ -206,6 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     responsive: true,
                     plugins: {
                         legend: {
+                            display: true,
                             position: 'top',
                         },
                         title: {
@@ -213,16 +214,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             text: 'Behavior Categories Distribution',
                             font: {
                                 size: 20
-                            }
+                            },
+                            padding: { top: 30 }
                         },
                         subtitle: {
                             display: true,
                             text: 'Displays the count of orphans for each category for the current month',
-                            font: {
-                                size: 11
+                            font: {size: 12}
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                }
                             }
-                        }
-                    }
+                }
+            }
                 }
             });
         })
@@ -230,73 +236,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+
+
+
 </script>
 
-<!-- for age distribution chart -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var ctx = document.getElementById('ageChart').getContext('2d');
-    
-    // Assuming male_age_data and female_age_data are lists of numbers
-    var labels = ['0-10', '11-20', '21-30', '31-40'];
-    var maleAgeData = {{ male_age_data|safe }};
-    var femaleAgeData = {{ female_age_data|safe }};
-
-    var ageData = {
-      labels: labels,
-      datasets: [{
-        label: 'Male',
-        data: maleAgeData,
-        backgroundColor: 'rgba(54, 162, 235, 0.8)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }, {
-        label: 'Female',
-        data: femaleAgeData,
-        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1
-      }]
-    };
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: ageData,
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  });
 </script>
 
-<!-- for bmi chart -->
-<!-- {{ bmi_data|json_script:"bmi-data" }}
-<script type="text/javascript">
-  const bmiDataElement = document.getElementById('bmi-data');
-  // Renamed the variable to avoid conflicts
-  const bmiChartData = JSON.parse(bmiDataElement.textContent);
 
-  const chartData = {
-      labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
-      datasets: [{
-          label: 'BMI Status',
-          data: bmiChartData, // Use the renamed variable here
-          backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
-          borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
-          borderWidth: 1
-      }]
-  };
-
-  var bmiChartCtx = document.getElementById('bmiChart').getContext('2d');
-  var bmiChart = new Chart(bmiChartCtx, {
-      type: 'bar',
-      data: chartData
-  });
-</script> -->
 
 <!-- ACADEMIC CHART -->
 <script>
@@ -350,7 +297,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         title: {
                             display: true,
-                            text: 'Your Academic Status Chart', // Replace with your desired title
+                            text: 'Academic Status Chart', // Replace with your desired title
+                            font: { size: 20 },
+
                             subtitle: {
                                 display: true,
                                 text: 'A descriptive subtitle' // Replace with your subtitle
@@ -369,6 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+<!-- health chart -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('healthStatusChart').getContext('2d');
@@ -410,9 +361,29 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         subtitle: {
                             display: true,
-                            text: 'Categorizes health status based on daily scores for the current month',
-                            font: { size: 15 },
+                            text: 'Categorizes health status based on the average of daily scores for the current month',
+                            font: { size: 12 },
                             padding: { bottom: 10 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    let label = tooltipItem.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += tooltipItem.raw;
+                                    const category = tooltipItem.label;
+                                    const descriptions = {
+                                        'Excellent Health': '90 - 100 points',
+                                        'Good Health': '75 - 89 points',
+                                        'Fair Health': '50 - 74 points',
+                                        'Poor Health': 'Below 50 points'
+                                    };
+                                    label += ` with: (${descriptions[category]})`;
+                                    return label;
+                                }
+                            }
                         }
                     }
                 }
@@ -421,6 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching data:', error));
 });
 </script>
+
 
 
 <!-- clickability of charts -->
@@ -444,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //       window.location.href = '{% url "chart_age" %}';
     //   });
     
-      const healthChartCanvas = document.getElementById('healthChart');
+      const healthChartCanvas = document.getElementById('healthStatusChart');
       healthChartCanvas.style.cursor = 'pointer';
       healthChartCanvas.addEventListener('click', function() {
           window.location.href = '{% url "intervention_health" %}';

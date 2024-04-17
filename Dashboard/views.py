@@ -471,12 +471,11 @@ def dashboard_view(request):
     return render(request, 'Dashboard/Dashboard.html', context)
 
 
-
 def dashboard_health_chart(request):
     current_month = datetime.now().month
     current_year = datetime.now().year
     orphans = Info.objects.all()
-    
+
     health_categories = {
         'Excellent Health': 0,
         'Good Health': 0,
@@ -485,7 +484,8 @@ def dashboard_health_chart(request):
     }
 
     for orphan in orphans:
-        score = HealthDetail.calculate_monthly_health_score(orphan, current_month, current_year)
+        score = HealthDetail.calculate_monthly_health_score(
+            orphan, current_month, current_year)
         if score >= 90:
             health_categories['Excellent Health'] += 1
         elif score >= 75:
@@ -513,6 +513,119 @@ def dashboard_health_chart(request):
     return JsonResponse(data)
 
 
+def intervention_health(request):
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+
+    # Define health status colors based on categories
+    health_status_colors = {
+        'Excellent Health': 'success',
+        'Good Health': 'warning',
+        'Fair Health': 'primary',
+        'Poor Health': 'danger',
+    }
+
+    # Define intervention status colors
+    intervention_status_colors = {
+        'unresolved': 'danger',
+        'pending': 'warning',
+        'resolved': 'success',
+        None: 'info'
+    }
+
+    # Initialize list to gather data
+    orphans_with_health = []
+
+    # Get all orphans
+    orphans = Info.objects.all()
+    for orphan in orphans:
+        # Calculate the monthly health score for the current month and year
+        monthly_health_score = HealthDetail.calculate_monthly_health_score(
+            orphan, current_month, current_year)
+
+        # Get the latest intervention details
+        latest_intervention = orphan.healthinterventions.order_by(
+            '-last_modified').first()
+
+        # Assign health category based on the score
+        if monthly_health_score >= 90:
+            health_category = 'Excellent Health'
+        elif 75 <= monthly_health_score < 90:
+            health_category = 'Good Health'
+        elif 50 <= monthly_health_score < 75:
+            health_category = 'Fair Health'
+        else:
+            health_category = 'Poor Health'
+
+        # Set default intervention status based on health category
+        if not latest_intervention:
+            if health_category == 'Excellent Health':
+                intervention_status = None  # Default to None for Excellent Health
+            else:
+                intervention_status = 'unresolved'  # Default to unresolved for others
+            intervention_plan = ''
+            intervention_color = intervention_status_colors.get(
+                intervention_status, 'info')
+        else:
+            intervention_status = latest_intervention.status
+            intervention_plan = latest_intervention.description
+            intervention_color = intervention_status_colors.get(
+                intervention_status, 'info')
+
+        # Append data for rendering
+        orphans_with_health.append({
+            'orphan': orphan,
+            'health_score': monthly_health_score,
+            'health_category': health_category,
+            'status_color': health_status_colors[health_category],
+            'last_modified': latest_intervention.last_modified if latest_intervention else None,
+            'intervention_status': intervention_status,
+            'intervention_color': intervention_color,
+            'intervention_plan': intervention_plan
+        })
+
+    # Define sorting key based on priority mapping
+    def sort_key(x):
+        health_priority = {
+            'Poor Health': 1,
+            'Fair Health': 2,
+            'Good Health': 3,
+            'Excellent Health': 4
+        }
+        intervention_priority = {
+            'unresolved': 1,
+            'pending': 2,
+            'resolved': 3,
+            None: 4
+        }
+        return (health_priority[x['health_category']], intervention_priority.get(x['intervention_status'], 99))
+
+    # Sort the list based on the defined sort key
+    orphans_with_health.sort(key=sort_key)
+
+    # Render the data to the template
+    return render(request, 'Dashboard/intervention_health.html', {'orphans_with_health': orphans_with_health})
+
+
+def save_health_intervention(request, orphan_id):
+    if request.method == 'POST':
+        form = HealthInterventionForm(request.POST)
+        if form.is_valid():
+            orphan = get_object_or_404(Info, pk=orphan_id)
+            # Update or create health intervention for the orphan
+            intervention, created = HealthIntervention.objects.update_or_create(
+                orphan=orphan,
+                defaults=form.cleaned_data
+            )
+
+            # Respond with a success message
+            return JsonResponse({'message': 'Health intervention saved successfully.'}, status=200)
+        else:
+            # Return form validation errors
+            return JsonResponse({'error': form.errors.as_json()}, status=400)
+
+    # Handle incorrect request methods
+    return JsonResponse({'error': 'Invalid request.'}, status=400)
 
 
 def dashboard_behavior_chart(request):
@@ -832,12 +945,6 @@ def save_academic_intervention(request, orphan_id):
             return JsonResponse({'error': form.errors.as_json()}, status=400)
 
     return JsonResponse({'error': 'Invalid request.'}, status=400)
-
-
-def intervention_health(request):
-    # You can calculate or fetch orphan_count here
-    orphan_count = 55
-    return render(request, 'Dashboard/intervention_health.html', {'orphan_count': orphan_count})
 
 
 def files_detail(request, pk):

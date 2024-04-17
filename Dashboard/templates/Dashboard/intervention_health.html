@@ -7,9 +7,7 @@
 
 {% block extra_meta %}
   <!-- Custom styles for this template-->
-  <link href="css/sb-admin-2.min.css" rel="stylesheet">
   <!-- charts.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 
@@ -22,9 +20,9 @@
 <!-- Heading -->
     <!-- content -->
     <div class="m-2">
-        <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
+        <!-- <a href="{% url 'Dashboard' %}" class="btn btn-primary mt-3">
             <i class="fa-solid fa-arrow-left"></i>
-        </a>
+        </a> -->
         <div class="text-center mx-auto">
             <h1 class="mb-0">Orphan Health Interventions</h1>
         </div>
@@ -60,96 +58,6 @@
                     </div>
                 </div>
                 
-                <script>
-                    document.addEventListener("DOMContentLoaded", function() {
-                        // Get the select element
-                        var entriesSelect = document.getElementById("entriesSelect");
-                
-                        // Add event listener for change
-                        entriesSelect.addEventListener("change", function() {
-                            // Get the selected value
-                            var selectedValue = entriesSelect.value;
-                            // Call a function to update the table with the selected number of entries
-                            updateTableEntries(selectedValue);
-                        });
-                    });
-                
-                    function updateTableEntries(entries) {
-                        // Get the table body
-                        var tableBody = document.querySelector('#healthDetailsTable tbody');
-                        // Get all rows in the table
-                        var rows = tableBody.querySelectorAll('tr');
-                
-                        // Show all rows if 'All' is selected
-                        if (entries === 'all') {
-                            rows.forEach(function(row) {
-                                row.style.display = '';
-                            });
-                            return;
-                        }
-                
-                        // Hide all rows
-                        rows.forEach(function(row) {
-                            row.style.display = 'none';
-                        });
-                
-                        // Show only the specified number of entries
-                        for (var i = 0; i < entries; i++) {
-                            if (rows[i]) {
-                                rows[i].style.display = '';
-                            }
-                        }
-                    }
-                </script>
-
- <!-- Download Function -->
-
- <script>
-    function downloadData() {
-    // Get reference to the table
-    var table = document.getElementById('healthDetailsTable');
-
-    // Check if table exists
-    if (!table) {
-        console.error("Table not found.");
-        return;
-    }
-
-    // Start CSV content with column headers
-    var csvContent = "Date,Name,Health Status,Remarks,Intervention Status\n";
-
-    // Convert table content to CSV format
-    var rows = table.querySelectorAll('tbody tr');
-    if (rows.length === 0) {
-        console.warn("No data found in the table.");
-        return;
-    }
-
-    rows.forEach(function(row) {
-        var rowData = [];
-        var cells = row.querySelectorAll('td');
-
-        cells.forEach(function(cell) {
-            var cellContent = cell.textContent.trim().replace(/"/g, '""');
-            rowData.push('"' + cellContent + '"');
-        });
-
-        csvContent += rowData.join(',') + '\n';
-    });
-
-    // Create a link and trigger download
-    var encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
-    var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Health_data");
-    document.body.appendChild(link);
-    link.click();
-
-    // Clean up
-    document.body.removeChild(link);
-}
-
-</script>
 
 <div class="mb-3">
     <table id="healthDetailsTable" class="table table-striped">
@@ -209,93 +117,68 @@
                 <th scope="col">Details</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td>2024-02-26</td>
-                <td>Alice Smith</td>
-                <td><span class="badge bg-warning">Not Urgent</span></td>
-                <td>Student showed improvement in class participation.</td>
-                <td><span class="badge bg-warning">Pending</span></td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
-                            <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
-                            <li><a class="dropdown-item" href="../orphans/html/health_profile.html">View Health Details</a></li>
-                        </ul> 
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>2024-06-29</td>
-                <td>John Doe</td>
-                <td><span class="badge bg-warning">Not Urgent</span></td>
-                <td>Student showed improvement in class participation.</td>
-                <td><span class="badge bg-success">Resolved</span></td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
-                            <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
-                            <li><a class="dropdown-item" href="../orphans/html/health_profile.html">View Health Details</a></li>
-                        </ul> 
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>2024-06-29</td>
-                <td>Joana Makilala</td>
-                <td><span class="badge bg-danger">Urgent</span></td>
-                <td>Student showed improvement in class participation.</td>
-                <td><span class="badge bg-danger">Unresolved</span></td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton">
-                            <li><a class="dropdown-item" href="#" id="editRemarksAction">Edit Remarks</a></li>
-                            <li><a class="dropdown-item" href="../orphans/html/health_profile.html">View Health Details</a></li>
-                        </ul>  
-                    </div>
-                </td>
-            </tr>
-            
+
+<!-- Health Intervention Table -->
+
+    <tbody>
+        {% for item in orphans_with_health %}
+        <tr>
+            <td>{{ item.last_modified|date:"Y-m-d" }}</td>
+            <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
+            <td><span class="badge bg-{{ item.status_color }}">{{ item.health_category }}</span></td>
+            <td>{{ item.intervention_plan }}</td>
+            <td><span class="badge bg-{{ item.intervention_color }}">{{ item.intervention_status|default:"None" }}</span></td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
+                        Actions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton{{ forloop.counter }}">
+                        <li><a class="dropdown-item edit-remarks-action" href="#" data-orphan-id="{{ item.orphan.orphanID }}" data-remarks="{{ item.intervention_plan }}" data-status="{{ item.intervention_status|default:'None' }}" data-bs-toggle="modal" data-bs-target="#editHealthModal">Add/Edit Intervention Plan</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orphan_profile' item.orphan.orphanID %}">View Profile</a></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No health data available.</td></tr>
+        {% endfor %}
+    </tbody>
+
+</table>
 
 
-        </tbody>
-    </table>
 </div>
 
 
-<!-- Edit Remarks Modal -->
-<div class="modal fade" id="editRemarksModal" tabindex="-1" aria-labelledby="editRemarksModalLabel" aria-hidden="true">
+<!-- Health Intervention Modal -->
+<div class="modal fade" id="editHealthModal" tabindex="-1" aria-labelledby="editHealthModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editRemarksModalLabel">Edit Remarks</h5>
+                <h5 class="modal-title" id="editHealthModalLabel">Add/Edit Health Intervention</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editRemarksForm">
+                <form id="editHealthForm" method="post">
+                    {% csrf_token %}
+
+                    <!-- Assume CSRF token is managed globally or you provide it here -->
+                    <input type="hidden" id="healthOrphanIdInput" name="orphanId">
+
                     <div class="mb-3">
-                        <label for="remarksInput" class="form-label">Remarks:</label>
-                        <textarea class="form-control" id="remarksInput" rows="3"></textarea>
-                        <div id="remarksValidationMessage" class="invalid-feedback">Remarks cannot be empty.</div>
+                        <label for="healthRemarksInput" class="form-label">Intervention Plan:</label>
+                        <textarea class="form-control" id="healthRemarksInput" name="description" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="statusSelect" class="form-label">Status:</label>
-                        <select class="form-select" id="statusSelect">
+                        <label for="healthStatusSelect" class="form-label">Status:</label>
+                        <select class="form-select" id="healthStatusSelect" name="status">
                             <option value="resolved">Resolved</option>
                             <option value="pending">Pending</option>
                             <option value="unresolved">Unresolved</option>
                         </select>
                     </div>
-                    <button type="button" class="btn btn-primary" id="saveRemarksBtn">Save Changes</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
             </div>
         </div>
@@ -303,40 +186,179 @@
 </div>
 
 
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Event delegation to handle click on "Edit Remarks" dropdown item
-        document.querySelector('body').addEventListener('click', function(e) {
-            if (e.target && e.target.id === 'editRemarksAction') {
-                $('#editRemarksModal').modal('show');
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle the click event on edit-remarks-action buttons
+        document.querySelectorAll('.edit-remarks-action').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var orphanId = this.getAttribute('data-orphan-id');
+                var remarks = this.getAttribute('data-remarks');
+                var status = this.getAttribute('data-status');
+    
+                // Set values in the health modal
+                document.getElementById('healthRemarksInput').value = remarks || ''; // Ensure empty string if null
+                document.getElementById('healthStatusSelect').value = status || 'None'; // Default to 'None' if status is undefined
+                document.getElementById('healthOrphanIdInput').value = orphanId;
+    
+                console.log('Orphan ID on modal trigger:', orphanId); // Confirm the orphan ID is fetched correctly
+            });
         });
-
-        // Function to save remarks
-        $('#saveRemarksBtn').click(function() {
-            var remarks = $('#remarksInput').val();
-            var remarksValidationMessage = $('#remarksValidationMessage');
-
-            if (remarks.trim() === "") {
-                remarksValidationMessage.show();
-            } else {
-                remarksValidationMessage.hide();
-                // Save remarks (for demonstration purposes, just simulate saving)
-                if (confirm("Changes saved.")) {
-                    $('#editRemarksModal').modal('hide');
-                    // Redirect to the appropriate page
-                    window.location.href = "../html/intervention_health.html";
+    
+        // Handle form submission for editing health interventions
+        document.getElementById('editHealthForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            var orphanId = document.getElementById('healthOrphanIdInput').value;
+    
+            fetch('/Dashboard/save_health_intervention/' + orphanId + '/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') // CSRF token is necessary for Django forms
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-            }
-        });
-
-        // Function to handle modal close event
-        $('#editRemarksModal').on('hidden.bs.modal', function () {
-            // Redirect to the appropriate page
-            window.location.href = "../html/intervention_health/";
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                alert('Health intervention saved successfully.');
+                
+                // Refresh the page to show updated data
+                window.location.reload(); 
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving the health intervention.');
+            });
         });
     });
+    
+    // Function to retrieve a CSRF token from a cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Function to get the appropriate color class based on the intervention status
+    function getStatusColor(status) {
+        const statusColors = {
+            'Resolved': 'bg-success',
+            'Pending': 'bg-warning',
+            'Unresolved': 'bg-danger',
+            'None': 'bg-info'
+        };
+        return statusColors[status] || 'bg-secondary';
+    }
+    </script>
+    
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get the select element
+        var entriesSelect = document.getElementById("entriesSelect");
+
+        // Add event listener for change
+        entriesSelect.addEventListener("change", function() {
+            // Get the selected value
+            var selectedValue = entriesSelect.value;
+            // Call a function to update the table with the selected number of entries
+            updateTableEntries(selectedValue);
+        });
+    });
+
+    function updateTableEntries(entries) {
+        // Get the table body
+        var tableBody = document.querySelector('#healthDetailsTable tbody');
+        // Get all rows in the table
+        var rows = tableBody.querySelectorAll('tr');
+
+        // Show all rows if 'All' is selected
+        if (entries === 'all') {
+            rows.forEach(function(row) {
+                row.style.display = '';
+            });
+            return;
+        }
+
+        // Hide all rows
+        rows.forEach(function(row) {
+            row.style.display = 'none';
+        });
+
+        // Show only the specified number of entries
+        for (var i = 0; i < entries; i++) {
+            if (rows[i]) {
+                rows[i].style.display = '';
+            }
+        }
+    }
 </script>
+
+<!-- Download Function -->
+
+<script>
+function downloadData() {
+// Get reference to the table
+var table = document.getElementById('healthDetailsTable');
+
+// Check if table exists
+if (!table) {
+console.error("Table not found.");
+return;
+}
+
+// Start CSV content with column headers
+var csvContent = "Date,Name,Health Status,Remarks,Intervention Status\n";
+
+// Convert table content to CSV format
+var rows = table.querySelectorAll('tbody tr');
+if (rows.length === 0) {
+console.warn("No data found in the table.");
+return;
+}
+
+rows.forEach(function(row) {
+var rowData = [];
+var cells = row.querySelectorAll('td');
+
+cells.forEach(function(cell) {
+var cellContent = cell.textContent.trim().replace(/"/g, '""');
+rowData.push('"' + cellContent + '"');
+});
+
+csvContent += rowData.join(',') + '\n';
+});
+
+// Create a link and trigger download
+var encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+var link = document.createElement("a");
+link.setAttribute("href", encodedUri);
+link.setAttribute("download", "Health_data");
+document.body.appendChild(link);
+link.click();
+
+// Clean up
+document.body.removeChild(link);
+}
+
+</script>
+
 
 <!-- Dropdown Functions -->
 <script>
@@ -453,6 +475,5 @@ function filterByStatus(filterValue) {
     {% block js %}
     {% endblock %}
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 </html>

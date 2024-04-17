@@ -478,8 +478,8 @@ class HealthDetail(models.Model):
 
     def calculate_monthly_health_score(orphan, month, year):
         try:
-            logger.info(f"Calculating health score for orphan {
-                        orphan.orphanID}, Month: {month}, Year: {year}")
+            # logger.info(f"Calculating health score for orphan {
+            #             orphan.orphanID}, Month: {month}, Year: {year}")
 
             from calendar import monthrange
             from datetime import date, timedelta
