@@ -130,9 +130,9 @@ current
       </div>
       
       <div class="container-fluid mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0 chart-container">
-        <a href="{% url 'chart_health' %}" ></a>
+        <a href="{% url 'dashboard_health_chart' %}" ></a>
         <h5 class="text-center">Health Chart</h5>
-        <canvas id="healthChart"></canvas>
+        <canvas id="healthStatusChart"></canvas>
       </div>
     </div>
     </div>
@@ -166,8 +166,6 @@ current
 {% block js%}
 <!-- for sentiment/behavior chart -->
 <script>
-
-
 document.addEventListener('DOMContentLoaded', function() {
     // Fetch data from the Django view
     fetch('/Dashboard/dashboard_behavior_chart/')
@@ -212,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         },
                         title: {
                             display: true,
-                            text: 'Sentiment Categories Distribution',
+                            text: 'Behavior Categories Distribution',
                             font: {
                                 size: 20
                             }
@@ -336,24 +334,32 @@ document.addEventListener('DOMContentLoaded', function() {
                       ],
                       borderWidth: 1
                   }]
-              },
-              options: {
-                  scales: {
-                      y: {
-                          beginAtZero: true, // Ensures that the y-axis starts from zero
-                          ticks: {
-                              precision: 0 // No fractional ticks on the y-axis
-                          }
-                      }
-                  },
-                  plugins: {
-                      legend: {
-                          display: true // Optionally turn off if not needed
-                      }
-                  }
-              }
-          });
-      })
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true, // Ensures that the y-axis starts from zero
+                            ticks: {
+                                precision: 0 // No fractional ticks on the y-axis
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true // Optionally turn off if not needed
+                        },
+                        title: {
+                            display: true,
+                            text: 'Your Academic Status Chart', // Replace with your desired title
+                            subtitle: {
+                                display: true,
+                                text: 'A descriptive subtitle' // Replace with your subtitle
+                            }
+                        }
+                    }
+                }
+                });
+                })
       .catch(error => {
           console.error('Error fetching academic status data:', error);
           alert('Failed to load academic status data.'); // Display a simple alert or modify the DOM to show an error message
@@ -363,26 +369,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<script>  
-  const healthData = {
-      labels: ['Normal', 'Sick', 'Admitted'],
-      datasets: [{
-          label: 'Health Status',
-          data: ['5', '2', '1'], // Updated with normal, sick, admitted
-          backgroundColor: ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
-          borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
-          borderWidth: 1
-      }]
-  };
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('healthStatusChart').getContext('2d');
+    fetch('/Dashboard/dashboard_health_chart/')
+        .then(response => response.json())
+        .then(data => {
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: data.datasets[0].label,
+                        data: data.datasets[0].data,
+                        backgroundColor: data.datasets[0].backgroundColor,
+                        borderColor: [
+                            'rgba(0, 0, 0, 1)',
+                            'rgba(0, 0, 0, 1)',
+                            'rgba(0, 0, 0, 1)',
+                            'rgba(0, 0, 0, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Health Status Distribution',
+                            font: { size: 20 }
+                        },
+                        subtitle: {
+                            display: true,
+                            text: 'Categorizes health status based on daily scores for the current month',
+                            font: { size: 15 },
+                            padding: { bottom: 10 }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+});
+</script>
 
-
-  // Create Health chart
-  var healthChartCtx = document.getElementById('healthChart').getContext('2d');
-  var healthChart = new Chart(healthChartCtx, {
-      type: 'bar',
-      data: healthData
-  });
-</script>  
 
 <!-- clickability of charts -->
 <script>
@@ -408,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const healthChartCanvas = document.getElementById('healthChart');
       healthChartCanvas.style.cursor = 'pointer';
       healthChartCanvas.addEventListener('click', function() {
-          window.location.href = '{% url "chart_health" %}';
+          window.location.href = '{% url "intervention_health" %}';
       });
     
     //   const bmiChartCanvas = document.getElementById('bmiChart');

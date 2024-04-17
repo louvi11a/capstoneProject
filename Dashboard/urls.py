@@ -6,6 +6,9 @@ urlpatterns = [
     path('save_academic_intervention/<int:orphan_id>/',
          views.save_academic_intervention, name='save_academic_intervention'),
 
+    path('save_behavior_intervention/<int:orphan_id>/',
+         views.save_behavior_intervention, name='save_behavior_intervention'),
+
     path('intervention_academics/', views.intervention_academics,
          name='intervention_academics'),
     #     path('get_orphan_health_data/<int:orphan_id>/',
@@ -13,8 +16,12 @@ urlpatterns = [
 
     path('dashboard_academic_chart/',
          views.dashboard_academic_chart, name='dashboard_academic_chart'),
+
     path('dashboard_behavior_chart/',
          views.dashboard_behavior_chart, name='dashboard_behavior_chart'),
+
+    path('dashboard_health_chart/',
+         views.dashboard_health_chart, name='dashboard_health_chart'),
 
     path('overall_gpa_summary/',
          views.overall_gpa_summary, name='overall_gpa_summary'),

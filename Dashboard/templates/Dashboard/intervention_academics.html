@@ -137,38 +137,30 @@
                             <tr>
                                 <td>{{ item.last_modified|date:"Y-m-d"|default_if_none:"N/A" }}</td>
                                 <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
-                                <td><span class="badge bg-{{ item.status_color }}">{{ item.status }}</span></td>
+                                <!-- Displaying the academic status with its respective color -->
+                                <td><span class="badge bg-{{ item.academic_status_color }}">{{ item.academic_status }}</span></td>
                                 <td id="remarks-text-{{ item.orphan.orphanID }}">{{ item.remarks }}</td>
+                                <!-- Displaying the intervention status with its respective color -->
                                 <td>
                                     <span class="badge bg-{{ item.intervention_color }}" id="status-badge-{{ item.orphan.orphanID }}">{{ item.intervention_status|default:"None" }}</span>
-
                                 </td>
-
                                 <td>
-                                    <!-- <div class="dropdown">
-                                        <button class="btn btn-sm btn-light dropdown-toggle edit-remarks-action" type="button" data-bs-toggle="modal" data-bs-target="#editRemarksModal"
-                                                data-orphan-id="{{ item.orphan.orphanID }}" data-remarks="{{ item.remarks }}" data-status="{{ item.intervention_status|default:'None' }}">
-                                            Actions
-                                        </button>
-                                    </div> -->
-
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="actionsDropdownButton{{ forloop.counter }}" data-bs-toggle="dropdown" aria-expanded="false">
                                             Actions
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton{{ forloop.counter }}">
-                                            <li><a class="dropdown-item edit-remarks-action" href="#" data-orphan-id="{{ item.orphan.orphanID }}" data-remarks="{{ item.remarks }}"  data-status="{{ item.intervention_status|default:'None' }}" data-bs-toggle="modal" data-bs-target="#editRemarksModal">Add/Edit Intervention Plan</a></li>
+                                            <li><a class="dropdown-item edit-remarks-action" href="#" data-orphan-id="{{ item.orphan.orphanID }}" data-remarks="{{ item.remarks }}" data-status="{{ item.intervention_status|default:'None' }}" data-bs-toggle="modal" data-bs-target="#editRemarksModal">Add/Edit Intervention Plan</a></li>
                                             <li><a class="dropdown-item" href="{% url 'academic_profile' item.orphan.orphanID %}">View Profile</a></li>
-
                                         </ul>
                                     </div>
-
                                 </td>
-
-                                
                             </tr>
+                            {% empty %}
+                            <tr><td colspan="7">No academic data available.</td></tr>
                             {% endfor %}
                         </tbody>
+                        
                         
 
                         
@@ -433,7 +425,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Update the status and remarks in the list
             // updateStatusAndRemarks(orphanId, document.getElementById('statusSelect').value, document.getElementById('remarksInput').value);
-            updateStatusDisplay(orphanId, document.getElementById('statusSelect').value, document.getElementById('remarksInput').value); // Pass both newStatus and newRemarks 
+            // updateStatusDisplay(orphanId, document.getElementById('statusSelect').value, document.getElementById('remarksInput').value); // Pass both newStatus and newRemarks 
+
+
+            // Here we trigger the page reload
+            window.location.reload(); // Reload the page to update the view with the latest data
 
         // Close the modal
         var modalElement = document.getElementById('editRemarksModal');
