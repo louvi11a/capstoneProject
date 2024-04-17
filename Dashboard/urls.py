@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LogoutView
-from . import views
 urlpatterns = [
 
     path('save_academic_intervention/<int:orphan_id>/',
@@ -57,7 +56,7 @@ urlpatterns = [
          name='intervention_health'),
 
 
-    path('chart_behavior/', views.chart_behavior, name='chart_behavior'),
+    #     path('chart_behavior/', views.chart_behavior, name='chart_behavior'),
     path('chart_bmi/', views.chart_bmi, name='chart_bmi'),
     path('chart_age/', views.chart_age, name='chart_age'),
     path('chart_health/', views.chart_health, name='chart_health'),

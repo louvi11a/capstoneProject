@@ -136,11 +136,13 @@ current
       </div>
     </div>
     </div>
-      {% comment %} <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
+      <!-- {% comment %} 
+      <div class="container mt-2 mb-0 justify-content-evenly align-items-center border border-2 rounded-2 d-flex flex-column  p-0" style="height: 26.1h;">
         <a href="{% url 'chart_age' %}"></a>
         <h5 class="text-center">Age Chart</h5>
         <canvas id="ageChart"></canvas>
-      </div> {% endcomment %}
+      </div> 
+      {% endcomment %} -->
     </div>
     
     <!-- <div class="col-md-4">
@@ -164,43 +166,17 @@ current
 {% block js%}
 <!-- for sentiment/behavior chart -->
 <script>
-//   fetch('/Dashboard/api/chart-sentiment/')
-//   .then(response => response.json())
-//   .then(sentimentData => {
-//       var ctx = document.getElementById('sentimentChart').getContext('2d');
-//       var myChart = new Chart(ctx, {
-//           type: 'pie',
-//           data: {
-//               labels: ['Positive', 'Negative', 'Neutral'],
-//               datasets: [{
-//                   label: '# of Sentiments',
-//                   data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
-//                   backgroundColor: [
-//                       'rgba(91, 216, 86, 0.8)', 
-//                       'rgba(255, 99, 132, 0.8)', 
-//                       'rgba(255, 206, 86, 0.8)'
-//                   ],
-//                   borderColor: [
-//                       'rgba(255, 99, 132, 1)', 
-//                       'rgba(54, 162, 235, 1)', 
-//                       'rgba(255, 206, 86, 1)'
-//                   ],
-//                   borderWidth: 1
-//               }]
-//           },
-//           options: {
-//               responsive: true,
-//               maintainAspectRatio: false,
-//           }
-//       });
-//   });
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Fetch data from the Django view
     fetch('/Dashboard/dashboard_behavior_chart/')
         .then(response => response.json())
         .then(data => {
-            // Prepare data for the pie chart
+            // Verify the data has the expected structure
+            if (!data.labels || !data.datasets || !data.datasets.length) {
+                throw new Error('Data format is incorrect');
+            }
             const labels = data.labels;
             const counts = data.datasets[0].data;
 
@@ -245,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             display: true,
                             text: 'Displays the count of orphans for each category for the current month',
                             font: {
-                                size: 10
+                                size: 11
                             }
                         }
                     }
@@ -254,6 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => console.error('Error fetching data:', error));
 });
+
+
 </script>
 
 <!-- for age distribution chart -->
@@ -298,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- for bmi chart -->
-{{ bmi_data|json_script:"bmi-data" }}
+<!-- {{ bmi_data|json_script:"bmi-data" }}
 <script type="text/javascript">
   const bmiDataElement = document.getElementById('bmi-data');
   // Renamed the variable to avoid conflicts
@@ -320,9 +298,9 @@ document.addEventListener('DOMContentLoaded', function() {
       type: 'bar',
       data: chartData
   });
-</script>
+</script> -->
 
-
+<!-- ACADEMIC CHART -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
       const ctx = document.getElementById('academicStatusChart').getContext('2d');
@@ -412,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const behaviorChartCanvas = document.getElementById('behaviorStatusChart');
       behaviorChartCanvas.style.cursor = 'pointer';
       behaviorChartCanvas.addEventListener('click', function() {
-          window.location.href = '{% url "chart_behavior" %}';
+          window.location.href = '{% url "intervention_behavior" %}';
       });
     
       const academicChartCanvas = document.getElementById('academicStatusChart');
@@ -421,11 +399,11 @@ document.addEventListener('DOMContentLoaded', function() {
           window.location.href = '{% url "intervention_academics" %}';
       });
     
-      const ageChartCanvas = document.getElementById('ageChart');
-      ageChartCanvas.style.cursor = 'pointer';
-      ageChartCanvas.addEventListener('click', function() {
-          window.location.href = '{% url "chart_age" %}';
-      });
+    //   const ageChartCanvas = document.getElementById('ageChart');
+    //   ageChartCanvas.style.cursor = 'pointer';
+    //   ageChartCanvas.addEventListener('click', function() {
+    //       window.location.href = '{% url "chart_age" %}';
+    //   });
     
       const healthChartCanvas = document.getElementById('healthChart');
       healthChartCanvas.style.cursor = 'pointer';
@@ -433,11 +411,11 @@ document.addEventListener('DOMContentLoaded', function() {
           window.location.href = '{% url "chart_health" %}';
       });
     
-      const bmiChartCanvas = document.getElementById('bmiChart');
-      bmiChartCanvas.style.cursor = 'pointer';
-      bmiChartCanvas.addEventListener('click', function() {
-          window.location.href = '{% url "chart_bmi" %}';
-      });
+    //   const bmiChartCanvas = document.getElementById('bmiChart');
+    //   bmiChartCanvas.style.cursor = 'pointer';
+    //   bmiChartCanvas.addEventListener('click', function() {
+    //       window.location.href = '{% url "chart_bmi" %}';
+    //   });
     
     });
     </script>

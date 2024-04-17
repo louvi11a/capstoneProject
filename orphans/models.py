@@ -358,12 +358,7 @@ class Info(models.Model):
             return 'Stable'
 
 
-class Intervention(models.Model):
-    TYPE_CHOICES = [
-        ('academic', 'Academic'),
-        ('behavior', 'Behavior'),
-        ('health', 'Health'),
-    ]
+class BaseIntervention(models.Model):
     STATUS_CHOICES = [
         ('resolved', 'Resolved'),
         ('pending', 'Pending'),
@@ -371,16 +366,33 @@ class Intervention(models.Model):
     ]
 
     orphan = models.ForeignKey(
-        'Info', on_delete=models.CASCADE, related_name='interventions')
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+        'Info', on_delete=models.CASCADE, related_name='%(class)s')
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default='pending')
     description = models.TextField()
     date_created = models.DateField(auto_now_add=True)
     last_modified = models.DateField(auto_now=True)
 
-    def __str__(self):
-        return f'{self.get_type_display()} intervention for {self.orphan} - {self.get_status_display()}'
+    class Meta:
+        abstract = True
+
+
+class AcademicIntervention(BaseIntervention):
+    orphan = models.ForeignKey(
+        Info, on_delete=models.CASCADE, related_name='academicinterventions')
+    # other fields...
+
+
+class BehaviorIntervention(BaseIntervention):
+    orphan = models.ForeignKey(
+        Info, on_delete=models.CASCADE, related_name='behaviorinterventions')
+    # other fields...
+
+
+class HealthIntervention(BaseIntervention):
+    orphan = models.ForeignKey(
+        Info, on_delete=models.CASCADE, related_name='healthinterventions')
+    # other fields...
 
 
 def get_sentiment_data():
@@ -466,7 +478,8 @@ class HealthDetail(models.Model):
 
     def calculate_monthly_health_score(orphan, month, year):
         try:
-            logger.info(f"Calculating health score for orphan {orphan.orphanID}, Month: {month}, Year: {year}")
+            logger.info(f"Calculating health score for orphan {
+                        orphan.orphanID}, Month: {month}, Year: {year}")
 
             from calendar import monthrange
             from datetime import date, timedelta
@@ -515,7 +528,8 @@ class HealthDetail(models.Model):
                 f"Date error in calculate_monthly_health_score: {str(e)}")
             raise
         except Exception as e:
-            logger.error(f"Unexpected error in calculate_monthly_health_score for orphan {orphan.orphanID}: {str(e)}")
+            logger.error(f"Unexpected error in calculate_monthly_health_score for orphan {
+                         orphan.orphanID}: {str(e)}")
             raise
 
 

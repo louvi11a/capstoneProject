@@ -108,9 +108,15 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
         },
-        'your_app_name': {  # Replace 'your_app_name' with the name of your app
+        'Dashboard': {  # Replace 'your_app_name' with the name of your app
             'handlers': ['console'],
             'level': 'DEBUG',  # Set to 'DEBUG' to see more detailed logs
+            'propagate': True,
+        },
+        'orphans': {  # Replace 'your_app_name' with the name of your app
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Set to 'DEBUG' to see more detailed logs
+            'propagate': True,
         },
     },
 }

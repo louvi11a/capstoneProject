@@ -56,6 +56,99 @@
 </div>
 </div>
 
+<!-- Sentiments Details Table -->
+<div class="mb-3">
+    <table id="sentimentDetailsTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">
+                    Date 
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('date')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- Date filter dropdown -->
+                    <div id="dateDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByDate('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByDate('ascending')">Ascending</a>
+                        <a class="dropdown-item" href="#" onclick="filterByDate('descending')">Descending</a>
+                    </div>
+                </th>
+                <th scope="col">
+                    Name 
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('name')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- Name filter dropdown -->
+                    <div id="nameDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByName('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByName('ascending')">Ascending</a>
+                        <a class="dropdown-item" href="#" onclick="filterByName('descending')">Descending</a>
+                    </div>
+                </th>
+                <!-- <th scope="col">Behavior Logs</th> -->
+                <th scope="col">
+                    behavior Status 
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- Status filter dropdown -->
+                    <div id="statusDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('positive')">Positive</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('neutral')">Neutral</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('negative')">Negative</a>
+                    </div>
+                </th>
+                <th scope="col">Intervention Plan</th>
+
+                <th scope="col">
+                    Intervention Status
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('urgency')">
+                        <i class="bi bi-filter"></i>
+                    </button>
+                    <!-- Urgency filter dropdown -->
+                    <div id="urgencyDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('none')">None</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('resolved')">Resolved</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('pending')">Pending</a>
+                        <!-- <a class="dropdown-item" href="#" onclick="filterByStatus('unresolved')">Unresolved</a> -->
+                        
+                        <!-- ... -->
+
+                    </div>
+                </th>
+
+
+                <th scope="col">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in orphans_with_sentiment %}
+            <tr>
+                <td>{{ item.last_modified|date:"Y-m-d" }}</td>
+                <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
+                <td>{{ item.average_score|floatformat:2 }}</td>
+                <td><span class="badge bg-{{ item.intervention_color }}">{{ item.sentiment_category }}</span></td>
+                <td>{{ item.intervention_status }}</td>
+                <td>{{ item.intervention_plan }}</td>
+                <td><a href="{{ item.orphan.get_absolute_url }}" class="btn btn-sm btn-light">View Profile</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No behavior data available.</td></tr>
+            {% endfor %}
+        </tbody>
+        
+        
+        
+        
+        </table>
+    </div>
+</div>
+</div>
+</div>
+ 
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Get the select element
@@ -145,85 +238,6 @@
 
 </script>
 
-<!-- Sentiments Details Table -->
-<div class="mb-3">
-    <table id="sentimentDetailsTable" class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">
-                    Date 
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('date')">
-                        <i class="bi bi-filter"></i>
-                    </button>
-                    <!-- Date filter dropdown -->
-                    <div id="dateDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterByDate('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByDate('ascending')">Ascending</a>
-                        <a class="dropdown-item" href="#" onclick="filterByDate('descending')">Descending</a>
-                    </div>
-                </th>
-                <th scope="col">
-                    Name 
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('name')">
-                        <i class="bi bi-filter"></i>
-                    </button>
-                    <!-- Name filter dropdown -->
-                    <div id="nameDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterByName('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByName('ascending')">Ascending</a>
-                        <a class="dropdown-item" href="#" onclick="filterByName('descending')">Descending</a>
-                    </div>
-                </th>
-                <th scope="col">Note Description</th>
-                <th scope="col">
-                    Status 
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
-                        <i class="bi bi-filter"></i>
-                    </button>
-                    <!-- Status filter dropdown -->
-                    <div id="statusDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('positive')">Positive</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('neutral')">Neutral</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('negative')">Negative</a>
-                    </div>
-                </th>
-                <th scope="col">Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for note in notes %}
-                <tr>
-                    <td>{{ note.timestamp|date:"Y-m-d" }}</td>
-                    <td>
-                        <!-- Concatenating the first, middle, and last names -->
-                        {{ note.related_orphan.firstName }} {{ note.related_orphan.middleName }} {{ note.related_orphan.lastName }}
-                    </td>
-                    <td>{{ note.text}}</td>
-                    <td>
-                        <!-- Displaying sentiment as a badge; adjust according to your needs -->
-                        <span class="badge {% if note.sentiment_score > 0 %}bg-success{% elif note.sentiment_score == 0 %}bg-secondary{% else %}bg-danger{% endif %}">
-                            {% if note.sentiment_score > 0 %}Positive{% elif note.sentiment_score == 0 %}Neutral{% else %}Negative{% endif %}
-                        </span>
-                    </td>
-                    <td>
-                        <a href="{{ note.related_orphan.get_absolute_url }}" class="btn btn-sm btn-light">View Profile</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="6">No notes found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-        
-        
-        </table>
-    </div>
-</div>
-</div>
-</div>
- 
 <!-- Dropdown Functions -->
 <script>
     function toggleDropdown(dropdownId) {
