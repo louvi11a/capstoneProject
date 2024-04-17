@@ -130,9 +130,9 @@
                 <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
                 <td>{{ item.average_score|floatformat:2 }}</td>
                 <td><span class="badge bg-{{ item.intervention_color }}">{{ item.sentiment_category }}</span></td>
-                <td>{{ item.intervention_status }}</td>
+                <td><span class="badge bg-{{ item.intervention_color }}">{{ item.intervention_status }}</span></td>
                 <td>{{ item.intervention_plan }}</td>
-                <td><a href="{{ item.orphan.get_absolute_url }}" class="btn btn-sm btn-light">View Profile</a></td>
+                <td><a href="{{ item.orphan.get_absolute_url }}" class="btn btn-sm btn-primary">View Profile</a></td>
             </tr>
             {% empty %}
             <tr><td colspan="7">No behavior data available.</td></tr>

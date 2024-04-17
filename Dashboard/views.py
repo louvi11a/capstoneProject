@@ -542,7 +542,7 @@ def intervention_behavior(request):
         average_score = orphan_score['average_score']
         last_modified = orphan_score['last_modified']
 
-        latest_intervention = orphan.interventions.order_by(
+        latest_intervention = orphan.behaviorinterventions.order_by(
             '-last_modified').first()
 
         if latest_intervention:
