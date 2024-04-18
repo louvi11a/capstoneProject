@@ -176,7 +176,8 @@ class Orphan_Search(View):
                         'value': orphan_url  # This will be used for redirection
                     })
                 except Exception as e:
-                    print(f"Error generating URL for orphan {orphan.orphanID}: {e}")
+                    print(f"Error generating URL for orphan {
+                          orphan.orphanID}: {e}")
 
             return JsonResponse(data, safe=False)
         else:

@@ -53,6 +53,22 @@ from django.db.models.functions import ExtractYear, ExtractMonth
 logger = logging.getLogger(__name__)
 
 
+def orphan_chart_summary(request, orphan_id):
+    # You can pass context variables to the template if needed
+    # Fetch the orphan instance using the provided orphanID.
+    orphan = get_object_or_404(Info, pk=orphan_id)
+
+    orphan = Info.objects.prefetch_related(
+        'physical_health', 'orphan_files').get(orphanID=orphan_id)
+
+    context = {
+        'orphan_id': orphan_id,
+        'orphan': orphan,
+
+    }
+    return render(request, 'Dashboard/orphan_chart_summary.html', context)
+
+
 def categorize_grades_by_year(grades_with_year):
     categorized_data = {}
 
