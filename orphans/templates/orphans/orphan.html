@@ -86,20 +86,23 @@ Orphan List
             <a
               class="card m-2 btn btn-light d-flex align-items-center orphancard"
               href="{% url 'orphan_profile' orphan.orphanID %}">
-              <div class="image-container">
-
-            {% if orphan.orphan_picture %}
-            <img 
-            src="{{ orphan.orphan_picture.url }}"
-              class="orphan-image"
-              alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
+              <div class="border image-container d-flex justify-content-center align-items-center" style="height: 100px; width: 100px; overflow: hidden; border-radius: 50%;">
+                <!-- Adjust the height and width as needed -->
+                {% if orphan.orphan_picture %}
+                <img 
+                src="{{ orphan.orphan_picture.url }}"
+                class="orphan-image img-fluid"
+                style="width: auto; height: 100%; object-fit: cover; display: inline-block; max-width: none; max-height: none;"
+                alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture"/>
                 {% else %}
-            <img
-              src="{% static 'images/default_orphan_picture.png' %}"
-              class="orphan-image"              
-              alt="Default profile picture" />
-              {% endif %}
-        </div>  
+                <img
+                src="{% static 'images/default_orphan_picture.png' %}"
+                class="orphan-image img-fluid"
+                style="width: auto; height: 100%; object-fit: cover; display: inline-block; max-width: none; max-height: none;"
+                alt="Default profile picture" />
+                {% endif %}
+            </div>
+            
               <div class="card-body d-flex flex-column justify-content-between">
                 <div>
                   <h3 class="h4 text-truncate">{{ orphan.firstName }} {{ orphan.lastName }}
@@ -388,20 +391,21 @@ Orphan List
               }
               // Construct the orphan profile HTML
               var orphanHtml = `
-                  <a href="${orphanProfileUrl}" class="card m-2 btn btn-light d-flex align-items-center orphancard" href="/orphan_profile/${orphan.orphanID}">
-                    <div class="image-container">
-                      <img src="${orphanImageSrc}" class="orphan-image" alt="${orphanImageAlt}" />
+              <a href="${orphanProfileUrl}" class="card m-2 btn btn-light d-flex align-items-center orphancard" href="/orphan_profile/${orphan.orphanID}">
+                <div class="image-container" style="height: 100px; width: 100px; overflow: hidden; border-radius: 50%;">
+                    <img src="${orphanImageSrc}" class="orphan-image" style="width: auto; height: 100%; object-fit: cover; display: inline-block; max-width: none; max-height: none;" alt="${orphanImageAlt}" />
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="h4 text-truncate">${orphan.firstName} ${orphan.lastName}</h3>
+                        <p class="status text-center mb-2">
+                            <span class="badge bg-warning rounded-pill">${statusDescription}</span>
+                        </p>
                     </div>
-                    <div class="card-body d-flex flex-column justify-content-between">
-                          <div>
-                              <h3 class="h4 text-truncate">${orphan.firstName} ${orphan.lastName}</h3>
-                              <p class="status text-center mb-2">
-                                  <span class="badge bg-warning rounded-pill">${statusDescription}</span>
-                              </p>
-                          </div>
-                          <p class="small text-muted text-center mt-auto mb-0 pb-2 text-truncate">Date Admitted: ${formattedDate}</p>
-                      </div>
-                  </a>
+                    <p class="small text-muted text-center mt-auto mb-0 pb-2 text-truncate">Date Admitted: ${formattedDate}</p>
+                </div>
+            </a>
+            
               `;
               orphanList.innerHTML += orphanHtml;
           });

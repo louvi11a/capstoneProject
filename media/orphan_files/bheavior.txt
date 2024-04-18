@@ -1,0 +1,21 @@
+<div class="container">
+          <div class="col-lg-12 d-flex rounded-2 m-3" id="behavior">
+            <div class="row p-2 border rounded-2">
+              <h3 style="text-align: center; font-weight: bold;">Overall Behavior Summary</h3>
+            
+              <canvas id="sentimentHistogram" class="chart-container"></canvas>
+            </div>
+            
+            <div class="row p-2 border rounded-2 w-50">
+              <h3 style="text-align: center; font-weight: bold;">Individual Behavior Trends</h3>
+              <select class="form-select mb-3" id="individual-orphan-education">
+                <option value="">Select Orphan</option>
+                {% for orphan in orphans %}
+                <option value="{{ orphan.orphanID }}">{{ orphan.firstName }} {{ orphan.lastName }}</option>
+                {% endfor %}
+              </select>
+            
+              <canvas id="IndividualBehaviorChart"></canvas>
+            </div>
+            </div>
+          </div>
