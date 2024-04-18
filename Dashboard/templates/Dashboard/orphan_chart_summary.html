@@ -28,6 +28,8 @@
         <hr class="mt-3">
         <div class="col-md-8">
             <h3>Orphan Chart Summary</h3>
+            <canvas id="statusBreakdownChartCanvas"></canvas>
+
             <canvas id="gpaChartCanvas"></canvas>
             <canvas id="behaviorChartCanvas"></canvas>
             <canvas id="healthChartCanvas"></canvas>
@@ -38,7 +40,9 @@
 </div>
 
 
-    <script>
+<script>
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const orphanId = "{{ orphan_id }}"; 
 
@@ -135,11 +139,49 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-    console.log(`Orphan ID: ${orphanId}`);
-    console.log(`GPA Summary URL: /Dashboard/individual_gpa_summary/${orphanId}/`);
-    console.log(`Behavior Summary URL: /Dashboard/individual_behavior_summary/${orphanId}/`);
-    console.log(`Health Summary URL: /Dashboard/individual_health_summary/${orphanId}/`);
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const orphanId = "{{ orphan_id }}";
+    fetch(`/Dashboard/orphan_status_breakdown/${orphanId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('statusBreakdownChartCanvas').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)', // Red for Education
+                            'rgba(255, 205, 86, 0.2)', // Orange for Health
+                            'rgba(75, 192, 192, 0.2)' // Green for Behavior
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)', // Red border
+                            'rgba(255, 205, 86, 1)', // Orange border
+                            'rgba(75, 192, 192, 1)' // Green border
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Orphan Status Breakdown'
+                        }
+                    }
+                },
+            });
+        });
+});
+
         </script>
         
         

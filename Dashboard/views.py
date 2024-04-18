@@ -53,6 +53,27 @@ from django.db.models.functions import ExtractYear, ExtractMonth
 logger = logging.getLogger(__name__)
 
 
+def orphan_status_breakdown(request, orphan_id):
+    orphan = Info.objects.get(pk=orphan_id)
+    weights = {
+        'education': Decimal('0.3'),
+        'health': Decimal('0.3'),
+        'behavior': Decimal('0.4')
+    }
+    education_score = Decimal(
+        orphan.calculate_education_score(last_months=4) or 0)
+    behavior_score = Decimal(
+        orphan.calculate_behavior_score(last_months=4) or 0)
+    health_score = Decimal(
+        HealthDetail.calculate_average_health_score(orphan, months=4) or 0)
+
+    data = {
+        'labels': ['Education', 'Health', 'Behavior'],
+        'data': [education_score * weights['education'], health_score * weights['health'], behavior_score * weights['behavior']]
+    }
+    return JsonResponse(data)
+
+
 def orphan_chart_summary(request, orphan_id):
     # You can pass context variables to the template if needed
     # Fetch the orphan instance using the provided orphanID.

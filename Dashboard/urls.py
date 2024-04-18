@@ -3,6 +3,8 @@ from . import views
 from django.contrib.auth.views import LogoutView
 urlpatterns = [
 
+    path('orphan_status_breakdown/<int:orphan_id>/',
+         views.orphan_status_breakdown, name='orphan_status_breakdown'),
     path('orphan_chart_summary/<int:orphan_id>/',
          views.orphan_chart_summary, name='orphan_chart_summary'),
 
