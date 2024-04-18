@@ -29,6 +29,7 @@
         <div class="col-md-8">
             <h3>Orphan Chart Summary</h3>
             <canvas id="statusBreakdownChartCanvas"></canvas>
+            <div id="statusBreakdownData"></div>
 
             <canvas id="gpaChartCanvas"></canvas>
             <canvas id="behaviorChartCanvas"></canvas>
@@ -41,7 +42,76 @@
 
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const orphanId = "{{ orphan_id }}";
+    fetch(`/Dashboard/orphan_status_breakdown/${orphanId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('statusBreakdownChartCanvas').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)', // Red for Education
+                            'rgba(255, 205, 86, 0.2)', // Orange for Health
+                            'rgba(75, 192, 192, 0.2)' // Green for Behavior
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)', // Red border
+                            'rgba(255, 205, 86, 1)', // Orange border
+                            'rgba(75, 192, 192, 1)' // Green border
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Orphan Status Breakdown'
+                        }
+                    }
+                },
+            });
 
+            function getStatusBasedOnData(data) {
+            // Calculate the composite score
+            const compositeScore = Number(data[0]) + Number(data[1]) + Number(data[2]);
+
+            // Determine status based on composite score
+            let status;
+            if (compositeScore < 50) {
+                status = 'Critical Attention Needed';
+            } else if (compositeScore < 70) {
+                status = 'Monitoring Required';
+            } else {
+                status = 'Stable';
+            }
+            // Return both the status and the composite score
+            return { status: status, score: compositeScore };
+        }
+
+        // Display the data and status textually
+        // After fetching the data and creating the chart...
+
+        const statusAndScore = getStatusBasedOnData(data.data); // Use the data array from the chart
+        const statusBreakdownDataDiv = document.getElementById('statusBreakdownData');
+        let statusBreakdownText = 'Status Breakdown:<br>';
+        data.labels.forEach((label, index) => {
+            statusBreakdownText += `${label}: ${data.data[index]}<br>`;
+        });
+        statusBreakdownText += `Resulting Status: ${statusAndScore.status}<br>`;
+        statusBreakdownText += `Total Score: ${Number(statusAndScore.score).toFixed(2)}`; // Display the total score with 2 decimal places
+        statusBreakdownDataDiv.innerHTML = statusBreakdownText;
+        });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const orphanId = "{{ orphan_id }}"; 
@@ -141,46 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const orphanId = "{{ orphan_id }}";
-    fetch(`/Dashboard/orphan_status_breakdown/${orphanId}/`)
-        .then(response => response.json())
-        .then(data => {
-            const ctx = document.getElementById('statusBreakdownChartCanvas').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: data.labels,
-                    datasets: [{
-                        data: data.data,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)', // Red for Education
-                            'rgba(255, 205, 86, 0.2)', // Orange for Health
-                            'rgba(75, 192, 192, 0.2)' // Green for Behavior
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)', // Red border
-                            'rgba(255, 205, 86, 1)', // Orange border
-                            'rgba(75, 192, 192, 1)' // Green border
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Orphan Status Breakdown'
-                        }
-                    }
-                },
-            });
-        });
-});
+
 
         </script>
         
