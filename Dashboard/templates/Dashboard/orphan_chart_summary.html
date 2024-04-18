@@ -14,8 +14,8 @@
 
 {% block content %}
 <div>
-    <div class=" row">
-    <h1 class="mb-0 text-center m-2">Orphan Summary</h1>
+    {% comment %} <div class="row">
+    <h1 class="mb-0 text-center">Orphan Summary</h1>
         {% if orphan.orphan_picture %}
         <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}" height="100px" width="100px" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
         {% else %}
@@ -24,16 +24,43 @@
         <div class="col-5 mt-3">
             <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
         </div>
+    </div> {% endcomment %}
+
+    <div class="row align-items-center">
+        <h1 class="mb-0 text-center">Orphan Summary</h1>
+        <div class="col-md-2 d-flex justify-content-center img-fluid">
+            <div class="image-container" style="height: 200px; width: 200px; overflow: hidden; border-radius: 50%;">
+                {% if orphan.orphan_picture %}
+                <img class="file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}" style="width: auto; height: 100%; object-fit: cover; display: inline-block; max-width: none; max-height: none;" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+                {% else %}
+                <img class="file-icon fs-1 img-fluid picsize" src="{% static 'images/default_orphan_picture.png' %}" style="width: auto; height: 100%; object-fit: cover; display: inline-block; max-width: none; max-height: none;" alt="Default profile picture">
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-5 mt-3">
+            <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
+        </div>
+    </div>
+    
 
         <hr class="mt-3">
-        <div class="col-md-8">
-            <h3>Orphan Chart Summary</h3>
-            <canvas id="statusBreakdownChartCanvas"></canvas>
-            <div id="statusBreakdownData"></div>
-
-            <canvas id="gpaChartCanvas"></canvas>
-            <canvas id="behaviorChartCanvas"></canvas>
-            <canvas id="healthChartCanvas"></canvas>
+        <div class="container-fluid row">
+                <h3 class="">Orphan Chart Summary</h3>
+            <div class="col-md-4">
+                <canvas id="statusBreakdownChartCanvas"></canvas>
+                <div id="statusBreakdownData"></div>
+            </div>
+            <div class="container border p-3 rounded-3 col-md-8 row">
+                <div class="col-md-6 mb-1 border rounded ">
+                    <canvas id="gpaChartCanvas"></canvas>
+                </div>
+                <div class="col-md-6 mb-1 border rounded ">
+                    <canvas id="behaviorChartCanvas"></canvas>
+                </div>
+                <div class="col-md-12 align-content-center border rounded p-2">
+                    <canvas id="healthChartCanvas"></canvas>
+                </div>
+            </div>
         </div>
 
         </div>
