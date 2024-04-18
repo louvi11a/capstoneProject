@@ -490,24 +490,24 @@ def dashboard_view(request):
         'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
 
     current_year = datetime.now().year
-    orphans = Info.objects.annotate(
-        age=Case(
-            When(birthDate__isnull=False, then=current_year -
-                 ExtractYear('birthDate')),
-            default=None,
-            output_field=IntegerField(),
-        )
-    )
+    # orphans = Info.objects.annotate(
+    #     age=Case(
+    #         When(birthDate__isnull=False, then=current_year -
+    #              ExtractYear('birthDate')),
+    #         default=None,
+    #         output_field=IntegerField(),
+    #     )
+    # )
 
-    age_ranges = [(0, 10), (11, 20), (21, 30), (31, 40)]
-    male_age_data = [0] * len(age_ranges)
-    female_age_data = [0] * len(age_ranges)
+    # age_ranges = [(0, 10), (11, 20), (21, 30), (31, 40)]
+    # male_age_data = [0] * len(age_ranges)
+    # female_age_data = [0] * len(age_ranges)
 
-    for i, (start_age, end_age) in enumerate(age_ranges):
-        male_age_data[i] = orphans.filter(
-            age__gte=start_age, age__lte=end_age, gender='Male').count()
-        female_age_data[i] = orphans.filter(
-            age__gte=start_age, age__lte=end_age, gender='Female').count()
+    # for i, (start_age, end_age) in enumerate(age_ranges):
+    #     male_age_data[i] = orphans.filter(
+    #         age__gte=start_age, age__lte=end_age, gender='Male').count()
+    #     female_age_data[i] = orphans.filter(
+    #         age__gte=start_age, age__lte=end_age, gender='Female').count()
 
     # Fetch sentiment data from the database
     sentiment_data = Notes.objects.values(
@@ -529,9 +529,9 @@ def dashboard_view(request):
         'female_count': female_count,
         'total_orphans': total_orphans,
         # Add the age distribution data to the existing context
-        'age_labels': [f'{start}-{end}' for start, end in age_ranges],
-        'male_age_data': male_age_data,
-        'female_age_data': female_age_data,
+        # 'age_labels': [f'{start}-{end}' for start, end in age_ranges],
+        # 'male_age_data': male_age_data,
+        # 'female_age_data': female_age_data,
 
     }
 
@@ -993,8 +993,9 @@ def chart_health(request):
 
 
 def chart_age(request):
-    orphans = Info.objects.all()
-    return render(request, 'Dashboard/chart_age.html', {'orphans': orphans})
+    orphans = Info.objects.all().order_by('age')  # Order by the 'age' field
+    context = {'orphans': orphans}
+    return render(request, 'Dashboard/chart_age.html', context)
 
 
 def save_academic_intervention(request, orphan_id):

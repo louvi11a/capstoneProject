@@ -117,6 +117,8 @@ class Info(models.Model):
         max_length=6, choices=GENDER_CHOICES, blank=True, null=True)
     birthDate = models.DateField(blank=True, null=True)
     dateAdmitted = models.DateField(blank=True, null=True)
+    age = models.IntegerField(null=True, blank=True)
+
     orphan_picture = models.ImageField(
         upload_to='orphan_pictures/',  blank=True, null=True)
     family = models.ForeignKey(
@@ -175,6 +177,10 @@ class Info(models.Model):
         # Add more conditions as necessary
         else:
             return "30+"
+
+    def save(self, *args, **kwargs):
+        self.age = self.calculate_age()  # Call your calculate_age method
+        super().save(*args, **kwargs)  # Call the original save method
 
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.

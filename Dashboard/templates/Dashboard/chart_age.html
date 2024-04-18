@@ -66,94 +66,7 @@
 
                 
     
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Get the select element
-            var entriesSelect = document.getElementById("entriesSelect");
-    
-            // Add event listener for change
-            entriesSelect.addEventListener("change", function() {
-                // Get the selected value
-                var selectedValue = entriesSelect.value;
-                // Call a function to update the table with the selected number of entries
-                updateTableEntries(selectedValue);
-            });
-        });
-    
-        function updateTableEntries(entries) {
-            // Get the table body
-            var tableBody = document.querySelector('#ageDetailsTable tbody');
-            // Get all rows in the table
-            var rows = tableBody.querySelectorAll('tr');
-    
-            // Show all rows if 'All' is selected
-            if (entries === 'all') {
-                rows.forEach(function(row) {
-                    row.style.display = '';
-                });
-                return;
-            }
-    
-            // Hide all rows
-            rows.forEach(function(row) {
-                row.style.display = 'none';
-            });
-    
-            // Show only the specified number of entries
-            for (var i = 0; i < entries; i++) {
-                if (rows[i]) {
-                    rows[i].style.display = '';
-                }
-            }
-        }
-    </script>
 
-<script>
-    function downloadData() {
-    // Get reference to the table
-    var table = document.getElementById('ageDetailsTable');
-
-    // Check if table exists
-    if (!table) {
-        console.error("Table not found.");
-        return;
-    }
-
-    // Start CSV content with column headers
-    var csvContent = "Name, Birthdate, Age, Age Range\n";
-
-    // Convert table content to CSV format
-    var rows = table.querySelectorAll('tbody tr');
-    if (rows.length === 0) {
-        console.warn("No data found in the table.");
-        return;
-    }
-
-    rows.forEach(function(row) {
-        var rowData = [];
-        var cells = row.querySelectorAll('td');
-
-        cells.forEach(function(cell) {
-            var cellContent = cell.textContent.trim().replace(/"/g, '""');
-            rowData.push('"' + cellContent + '"');
-        });
-
-        csvContent += rowData.join(',') + '\n';
-    });
-
-    // Create a link and trigger download
-    var encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
-    var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "summaryAgerange_data");
-    document.body.appendChild(link);
-    link.click();
-
-    // Clean up
-    document.body.removeChild(link);
-}
-
-</script> 
 
 <!-- Age Details Table -->
 <div class="mb-3">
@@ -220,7 +133,7 @@
             {% for orphan in orphans %}
                     <td>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</td>
                     <td>{{ orphan.birthDate|date:"Y-m-d" }}</td>
-                    <td>{{ orphan.calculate_age }}</td>
+                    <td>{{ orphan.age }}</td>
                     <td>
                         <span class="badge bg-info text-dark">{{ orphan.determine_age_range }}</span>
                     </td>
@@ -239,6 +152,97 @@
         
         
             </table>
+
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Get the select element
+                    var entriesSelect = document.getElementById("entriesSelect");
+            
+                    // Add event listener for change
+                    entriesSelect.addEventListener("change", function() {
+                        // Get the selected value
+                        var selectedValue = entriesSelect.value;
+                        // Call a function to update the table with the selected number of entries
+                        updateTableEntries(selectedValue);
+                    });
+                });
+            
+                function updateTableEntries(entries) {
+                    // Get the table body
+                    var tableBody = document.querySelector('#ageDetailsTable tbody');
+                    // Get all rows in the table
+                    var rows = tableBody.querySelectorAll('tr');
+            
+                    // Show all rows if 'All' is selected
+                    if (entries === 'all') {
+                        rows.forEach(function(row) {
+                            row.style.display = '';
+                        });
+                        return;
+                    }
+            
+                    // Hide all rows
+                    rows.forEach(function(row) {
+                        row.style.display = 'none';
+                    });
+            
+                    // Show only the specified number of entries
+                    for (var i = 0; i < entries; i++) {
+                        if (rows[i]) {
+                            rows[i].style.display = '';
+                        }
+                    }
+                }
+            </script>
+        
+        <script>
+            function downloadData() {
+            // Get reference to the table
+            var table = document.getElementById('ageDetailsTable');
+        
+            // Check if table exists
+            if (!table) {
+                console.error("Table not found.");
+                return;
+            }
+        
+            // Start CSV content with column headers
+            var csvContent = "Name, Birthdate, Age, Age Range\n";
+        
+            // Convert table content to CSV format
+            var rows = table.querySelectorAll('tbody tr');
+            if (rows.length === 0) {
+                console.warn("No data found in the table.");
+                return;
+            }
+        
+            rows.forEach(function(row) {
+                var rowData = [];
+                var cells = row.querySelectorAll('td');
+        
+                cells.forEach(function(cell) {
+                    var cellContent = cell.textContent.trim().replace(/"/g, '""');
+                    rowData.push('"' + cellContent + '"');
+                });
+        
+                csvContent += rowData.join(',') + '\n';
+            });
+        
+            // Create a link and trigger download
+            var encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "summaryAgerange_data");
+            document.body.appendChild(link);
+            link.click();
+        
+            // Clean up
+            document.body.removeChild(link);
+        }
+        
+        </script> 
+
 
 <script>
     // Function to toggle dropdown menu visibility
