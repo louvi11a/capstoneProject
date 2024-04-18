@@ -179,6 +179,7 @@ class Info(models.Model):
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
 
+
     def calculate_behavior_score(self, last_months=4):
         current_date = datetime.now().date()
         past_date = current_date - timedelta(days=last_months * 30)
@@ -290,31 +291,9 @@ class Info(models.Model):
 
         return trend_analysis_result
 
-# Computes a composite score combining education, physical wellbeing, and behavior scores using specified weights.
-    # def calculate_composite_score(self, last_months=4):
-    #     # Define weightings
-    #     education_weight = Decimal('0.3')
-    #     physical_wellbeing_weight = Decimal('0.4')
-    #     behavior_weight = Decimal('0.3')
-
-    #     # Calculate or retrieve individual scores
-    #     # Assuming you have a method or logic to calculate the education score
-    #     # Retrieve individual scores, ensuring they're not None
-    #     education_score = Decimal(
-    #         self.calculate_education_score(last_months=last_months) or 0)
-    #     health_score = Decimal(HealthDetail.calculate_average_health_score(
-    #         self, months=last_months) or 0)
-    #     behavior_score = Decimal(
-    #         self.calculate_behavior_score(last_months=last_months) or 0)
-
-    #     # Calculate the weighted sum of the scores, ensuring all calculations are done with Decimal
-    #     composite_score = (education_score * education_weight +
-    #                        health_score * physical_wellbeing_weight +
-    #                        Decimal(behavior_score) * Decimal(behavior_weight))
-
-        return composite_score
 
 # Determines a status based on a weighted score that considers education, health, and behavior. It adjusts weights based on the health score and provides a final status indicating the level of attention needed.
+
     def calculate_status(self):
         # Define base weights
         weights = {

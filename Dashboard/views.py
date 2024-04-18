@@ -451,8 +451,36 @@ def sentiment_chart_view(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-# @login_required
+def get_behavior_intervention_count(request):
+    current_year = datetime.now().year
+    count = Notes.objects.filter(
+        sentiment_score__lt=-0.5,
+        timestamp__year=current_year
+    ).exclude(
+        related_orphan__behaviorinterventions__status='resolved'
+    ).count()
+    return count
+
+
+def get_academic_intervention_count(request):
+    count = Info.objects.filter(
+        academicinterventions__status='unresolved').count()
+    return count
+
+
+def get_health_intervention_count(request):
+    count = Info.objects.filter(
+        healthinterventions__status='unresolved'
+    ).count()
+    return count
+
+
+@login_required
 def dashboard_view(request):
+    requires_intervention_behavior = get_behavior_intervention_count(request)
+    requires_intervention_academics = get_academic_intervention_count(request)
+    requires_intervention_health = get_health_intervention_count(request)
+
     bmi_categories = BMI.objects.values('bmi_category').annotate(
         count=Count('bmi_category')).order_by('bmi_category')
     # Create a dictionary to hold the count for each category
@@ -493,7 +521,9 @@ def dashboard_view(request):
     orphans = Info.objects.prefetch_related('educations__grades').all()
 
     context = {
-
+        'requires_intervention_behavior': requires_intervention_behavior,
+        'requires_intervention_academics': requires_intervention_academics,
+        'requires_intervention_health': requires_intervention_health,
         'bmi_data': bmi_data,
         'male_count': male_count,
         'female_count': female_count,

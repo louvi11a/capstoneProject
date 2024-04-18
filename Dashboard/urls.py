@@ -52,10 +52,20 @@ urlpatterns = [
     path('get_orphan_bmi_data/<int:orphan_id>/',
          views.get_orphan_bmi_data, name='get_orphan_bmi_data'),
 
-    path('overall_analysis/',
-         views.overall_analysis, name='overall_analysis'),
+    path('get_behavior_intervention_count/',
+         views.get_behavior_intervention_count, name='get_behavior_intervention_count'),
+
+    path('get_academic_intervention_count/',
+         views.get_academic_intervention_count, name='get_academic_intervention_count'),
+
+
+    path('get_health_intervention_count/',
+         views.get_health_intervention_count, name='get_health_intervention_count'),
+
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
 
+    path('overall_analysis/',
+         views.overall_analysis, name='overall_analysis'),
     path('intervention_behavior/', views.intervention_behavior,
          name='intervention_behavior'),
 
