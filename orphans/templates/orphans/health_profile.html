@@ -76,11 +76,11 @@
 
 <!-- Health Details Table -->
 <div class="mb-3">
-    <table id="healthdetailsTable" class="table table-striped">
+    <table id="healthdetailsTable" class="table table-striped ">
         <thead>
             <tr>
                 <th scope="col">
-                    Date 
+                    Date Added
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('date')">
                         <i class="bi bi-filter"></i>
                     </button>
@@ -145,7 +145,7 @@
                 </th>
                 <th scope="col"> 
                     Other Details </th>
-                <th>Sick end date</th>
+                <th>Status</th>
                 <!-- <th scope="col">
                     Status
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
@@ -163,7 +163,8 @@
                         <tbody>
                             {% for detail in health_details %}
                             <tr>
-                                <td>{{ detail.date|date:"Y-m-d" }}</td>
+                                <!-- <td>{{ detail.date|date:"Y-m-d" }}</td> -->
+                                <td>{{ detail.sick_start_date|date:"Y-m-d" }}</td> 
                                 <td>{{ detail.temperature }}</td>
                                 <td>{{ detail.blood_pressure }}</td>
                                 <td>
@@ -177,12 +178,28 @@
                                     {% if detail.others_symptoms %}{{ detail.others_symptoms }}{% endif %}
                                 </td>
                                 <td>{{ detail.other_details }}</td>
-                                <td>{{ detail.status }}</td>
-                            
-                                    <td>{{ detail.sick_resolved|yesno:"Yes,No" }}</td> 
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-primary mark-resolved" data-record-id="{{ detail.id }}">Mark as Resolved</button>
-                                    </td>
+                                <!-- <td>{{ detail.status }}</td> -->
+                        
+ 
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-primary mark-resolved" 
+                                            data-record-id="{{ detail.id }}"
+                                            onclick="return confirmMarkResolved({{ detail.id }})"
+                                            {% if detail.sick_resolved %} disabled {% endif %}> 
+                                        {% if detail.sick_resolved %}
+                                            Resolved 
+                                        {% else %}
+                                            Mark as Resolved?
+                                        {% endif %}
+                                    </button> 
+                                </td> 
+                                
+                                
+                                
+                                
+                                <!-- <td>{{ detail.resolved|date:"Y-m-d" }}</td>        -->
+
+
                                 
                             </tr>
                             {% empty %}
@@ -307,6 +324,24 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function confirmMarkResolved(recordId) {
+            let button = document.querySelector(`button[data-record-id="${recordId}"]`);
+            if (button.disabled) { 
+                return false; // Button is disabled, do nothing
+            }
+        
+            if (confirm("Are you sure you want to mark this record as resolved? This action is irreversible.")) {
+                // ... (Rest of your JavaScript code)
+                return true; 
+            } else {
+                return false; 
+            }
+        }
+        </script>
+        
+        
 
 <!-- for marking sick as resolved -->
 <script>
