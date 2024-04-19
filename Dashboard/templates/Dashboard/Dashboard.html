@@ -191,14 +191,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         label: 'Number of orphans',
                         data: counts,
                         backgroundColor: [
-                            'rgba(255, 99, 132)', // Red
-                            'rgba(255, 206, 86)', // Yellow
-                            'rgba(75, 192, 192)' // Green
+                            'rgba(255, 99, 132, 0.6)', // Red
+                            'rgba(255, 206, 86, 0.6)', // Yellow
+                            'rgba(98, 255, 147, 0.6)' // Green
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)', // Red
                             'rgba(255, 206, 86, 1)', // Yellow
-                            'rgba(75, 192, 192, 1)' // Green
+                            'rgba(98, 255, 147, 1)' // Green
                         ],
                         borderWidth: 1
                     }]
@@ -271,9 +271,9 @@ document.addEventListener('DOMContentLoaded', function() {
                       label: 'Number of Orphans',
                       data: data.datasets[0].data, // Make sure the data array matches the expected format
                       backgroundColor: [
-                          'rgba(54, 162, 235, 0.6)', // More opaque for better visibility
-                          'rgba(255, 206, 86, 0.6)',
-                          'rgba(255, 99, 132, 0.6)'
+                          'rgba(54, 162, 235, 0.6)', //blue More opaque for better visibility
+                          'rgba(255, 206, 86, 0.6)', //yellow
+                          'rgba(255, 99, 132, 0.6)', //red
                       ],
                       borderColor: [
                           'rgba(54, 162, 235, 1)',
@@ -334,12 +334,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     datasets: [{
                         label: data.datasets[0].label,
                         data: data.datasets[0].data,
-                        backgroundColor: data.datasets[0].backgroundColor,
+                        backgroundColor: [
+                        'rgba(98, 255, 147, 0.6)', //green
+                        'rgba(54, 162, 235, 0.6)', //blue
+                        'rgba(255, 237, 145, 0.6)', //yellow
+                        'rgba(255, 99, 132, 0.6)', //red
+                        ],
                         borderColor: [
-                            'rgba(0, 0, 0, 1)',
-                            'rgba(0, 0, 0, 1)',
-                            'rgba(0, 0, 0, 1)',
-                            'rgba(0, 0, 0, 1)'
+                        'rgba(98, 255, 147, 1)', //green
+                        'rgba(54, 162, 235, 1)', //blue
+                        'rgba(255, 237, 145, 1)', //yellow
+                        'rgba(255, 99, 132, 1)', //red
                         ],
                         borderWidth: 1
                     }]

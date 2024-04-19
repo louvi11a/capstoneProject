@@ -240,8 +240,14 @@
                         {% endfor %}
                         </select>
                         <div id="bmiChartMessage"></div>
-                        <canvas id="individualBmiChart"></canvas>
-                        <canvas id="individualHealthChart"></canvas>  
+			<div class="container row justify-content-center">
+				<div class="col-md-6">
+					<canvas id="individualBmiChart"></canvas>
+				</div>
+				<div class="col-md-6">
+					<canvas id="individualHealthChart"></canvas>
+				</div>  
+			</div>
                     </div>
                 </div>                    
             </div>
@@ -606,12 +612,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return response.json();
     })
+    //.then(data => {
+    //    var datasets = Object.keys(data.datasets).map(function(key) {
+    //        return {
+    //            label: key,
+    //            data: data.datasets[key].data,
+    //            backgroundColor: data.datasets[key].backgroundColor
+    //        };
+    //    });
+    //    window.bmiTrendChart = new Chart(ctx, {
+    //        type: 'bar',
+    //        data: {
+    //            labels: data.labels,
+    //            datasets: datasets
+    //        },
+    //        options: {
+    //            scales: {
+    //                x: {
+    //                    stacked: true
+    //                },
+    //                y: {
+    //                    stacked: true,
+    //                    beginAtZero: true
+    //                }
+    //            }
+    //        }
+    //    });
+    //})
+
     .then(data => {
-        var datasets = Object.keys(data.datasets).map(function(key) {
+        var datasets = Object.keys(data.datasets).map(function(key, index) {
+            var backgroundColor;
+            // Assign colors based on index
+            if (index === 0) {
+                backgroundColor = 'rgba(255, 206, 86, 0.4)'; // yellow underweight
+            } else if (index === 1) {
+                backgroundColor = 'rgba(98, 255, 147, 0.4)'; // green
+            } else if (index === 2) {
+                backgroundColor = 'rgba(255, 157, 77, 0.4)'; // orange
+            } else if (index === 3) {
+                backgroundColor = 'rgba(255, 99, 132, 0.4)'; // red
+            }
             return {
                 label: key,
                 data: data.datasets[key].data,
-                backgroundColor: data.datasets[key].backgroundColor
+                backgroundColor: backgroundColor,
+                borderColor: 'rgba(0, 0, 0, 0.2)', // Add border color here if needed
+                borderWidth: 1 // Add border width here if needed
             };
         });
         window.bmiTrendChart = new Chart(ctx, {
@@ -633,6 +680,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     })
+    
+
     .catch(error => {
         console.error('Error fetching overall health data:', error);
         alert('Failed to fetch health data: ' + error.message);
