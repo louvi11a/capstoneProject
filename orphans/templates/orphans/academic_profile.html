@@ -277,12 +277,11 @@
                 <td>{{ grade.subject.name }}</td>
                 <td>{{ grade.grade }}</td>
                 <td>
-                    {% if grade.grade >= 75 %}
-                        Passed
-                    {% else %}
-                        Failed
-                    {% endif %}
-                </td>
+                    {% if education.education_level == 'College' %} 
+                      {% if grade.grade <= 3.0 %} Passed {% else %} Failed {% endif %}
+                    {% else %} {% if grade.grade >= 75 %} Passed {% else %} Failed {% endif %}
+                    {% endif %} 
+                  </td>
             </tr>
         {% endfor %}
     {% empty %}
