@@ -377,6 +377,7 @@ class BehaviorIntervention(BaseIntervention):
 class HealthIntervention(BaseIntervention):
     orphan = models.ForeignKey(
         Info, on_delete=models.CASCADE, related_name='healthinterventions')
+
     # other fields...
 
 
@@ -560,8 +561,6 @@ class HealthDetail(models.Model):
                 orphan.orphanID}: {str(e)}")
             raise
 
-
-
     # @staticmethod
     # def calculate_average_health_score(orphan, months=4):
     #     current_date = date.today()
@@ -627,7 +626,6 @@ class HealthDetail(models.Model):
 
     #             # Ensure the score for each day doesn't drop below 0
     #             daily_scores.append(max(daily_score, 0))
-
     #         # Average the daily scores to get the monthly health score
     #         monthly_health_score = sum(daily_scores) / days_in_month
     #         return monthly_health_score

@@ -53,6 +53,68 @@ from django.db.models.functions import ExtractYear, ExtractMonth
 logger = logging.getLogger(__name__)
 
 
+def dashboard_view(request):
+    requires_intervention_behavior = get_behavior_intervention_count(request)
+    requires_intervention_academics = get_academic_intervention_count(request)
+    requires_intervention_health = get_health_intervention_count(request)
+
+    bmi_categories = BMI.objects.values('bmi_category').annotate(
+        count=Count('bmi_category')).order_by('bmi_category')
+    # Create a dictionary to hold the count for each category
+    bmi_data_dict = {category['bmi_category']: category['count']
+                     for category in bmi_categories}
+    bmi_data = [bmi_data_dict.get(category, 0) for category in [
+        'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
+
+    current_year = datetime.now().year
+    # orphans = Info.objects.annotate(
+    #     age=Case(
+    #         When(birthDate__isnull=False, then=current_year -
+    #              ExtractYear('birthDate')),
+    #         default=None,
+    #         output_field=IntegerField(),
+    #     )
+    # )
+
+    # age_ranges = [(0, 10), (11, 20), (21, 30), (31, 40)]
+    # male_age_data = [0] * len(age_ranges)
+    # female_age_data = [0] * len(age_ranges)
+
+    # for i, (start_age, end_age) in enumerate(age_ranges):
+    #     male_age_data[i] = orphans.filter(
+    #         age__gte=start_age, age__lte=end_age, gender='Male').count()
+    #     female_age_data[i] = orphans.filter(
+    #         age__gte=start_age, age__lte=end_age, gender='Female').count()
+
+    # Fetch sentiment data from the database
+    sentiment_data = Notes.objects.values(
+        'sentiment_score').exclude(sentiment_score=None)
+    # Prepare data for the pie chart
+    male_count = Info.objects.filter(gender='Male').count()
+    female_count = Info.objects.filter(gender='Female').count()
+    total_orphans = Info.objects.count()
+
+    # Iterate over orphans instead of educations to aggregate failing grades count per orphan
+    orphans = Info.objects.prefetch_related('educations__grades').all()
+
+    context = {
+        'requires_intervention_behavior': requires_intervention_behavior,
+        'requires_intervention_academics': requires_intervention_academics,
+        'requires_intervention_health': requires_intervention_health,
+        'bmi_data': bmi_data,
+        'male_count': male_count,
+        'female_count': female_count,
+        'total_orphans': total_orphans,
+        # Add the age distribution data to the existing context
+        # 'age_labels': [f'{start}-{end}' for start, end in age_ranges],``
+        # 'male_age_data': male_age_data,
+        # 'female_age_data': female_age_data,
+
+    }
+
+    return render(request, 'Dashboard/Dashboard.html', context)
+
+
 def orphan_status_breakdown(request, orphan_id):
     orphan = Info.objects.get(pk=orphan_id)
     weights = {
@@ -468,74 +530,18 @@ def get_academic_intervention_count(request):
     return count
 
 
+# def get_health_intervention_count(request):
+#     count = Info.objects.filter(
+#         healthinterventions__status='unresolved'
+#     ).count()
+#     return count
+
 def get_health_intervention_count(request):
+    # Count distinct Info objects with unresolved interventions
     count = Info.objects.filter(
         healthinterventions__status='unresolved'
-    ).count()
+    ).distinct().count()
     return count
-
-
-# @login_required
-def dashboard_view(request):
-    requires_intervention_behavior = get_behavior_intervention_count(request)
-    requires_intervention_academics = get_academic_intervention_count(request)
-    requires_intervention_health = get_health_intervention_count(request)
-
-    bmi_categories = BMI.objects.values('bmi_category').annotate(
-        count=Count('bmi_category')).order_by('bmi_category')
-    # Create a dictionary to hold the count for each category
-    bmi_data_dict = {category['bmi_category']: category['count']
-                     for category in bmi_categories}
-    bmi_data = [bmi_data_dict.get(category, 0) for category in [
-        'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
-
-    current_year = datetime.now().year
-    # orphans = Info.objects.annotate(
-    #     age=Case(
-    #         When(birthDate__isnull=False, then=current_year -
-    #              ExtractYear('birthDate')),
-    #         default=None,
-    #         output_field=IntegerField(),
-    #     )
-    # )
-
-    # age_ranges = [(0, 10), (11, 20), (21, 30), (31, 40)]
-    # male_age_data = [0] * len(age_ranges)
-    # female_age_data = [0] * len(age_ranges)
-
-    # for i, (start_age, end_age) in enumerate(age_ranges):
-    #     male_age_data[i] = orphans.filter(
-    #         age__gte=start_age, age__lte=end_age, gender='Male').count()
-    #     female_age_data[i] = orphans.filter(
-    #         age__gte=start_age, age__lte=end_age, gender='Female').count()
-
-    # Fetch sentiment data from the database
-    sentiment_data = Notes.objects.values(
-        'sentiment_score').exclude(sentiment_score=None)
-    # Prepare data for the pie chart
-    male_count = Info.objects.filter(gender='Male').count()
-    female_count = Info.objects.filter(gender='Female').count()
-    total_orphans = Info.objects.count()
-
-    # Iterate over orphans instead of educations to aggregate failing grades count per orphan
-    orphans = Info.objects.prefetch_related('educations__grades').all()
-
-    context = {
-        'requires_intervention_behavior': requires_intervention_behavior,
-        'requires_intervention_academics': requires_intervention_academics,
-        'requires_intervention_health': requires_intervention_health,
-        'bmi_data': bmi_data,
-        'male_count': male_count,
-        'female_count': female_count,
-        'total_orphans': total_orphans,
-        # Add the age distribution data to the existing context
-        # 'age_labels': [f'{start}-{end}' for start, end in age_ranges],
-        # 'male_age_data': male_age_data,
-        # 'female_age_data': female_age_data,
-
-    }
-
-    return render(request, 'Dashboard/Dashboard.html', context)
 
 
 def dashboard_health_chart(request):
@@ -582,47 +588,6 @@ def dashboard_health_chart(request):
     }
     print('data is:', data)
     return JsonResponse(data)
-
-# def dashboard_health_chart(request):
-#     current_month = datetime.now().month
-#     current_year = datetime.now().year
-#     orphans = Info.objects.all()
-
-#     health_categories = {
-#         'Excellent Health': 0,
-#         'Good Health': 0,
-#         'Fair Health': 0,
-#         'Poor Health': 0,
-#     }
-
-#     for orphan in orphans:
-#         score = HealthDetail.calculate_monthly_health_score(
-#             orphan, current_month, current_year)
-#         if score >= 90:
-#             health_categories['Excellent Health'] += 1
-#         elif score >= 75:
-#             health_categories['Good Health'] += 1
-#         elif score >= 50:
-#             health_categories['Fair Health'] += 1
-#         else:
-#             health_categories['Poor Health'] += 1
-
-#     # Format the data for the chart
-#     data = {
-#         'labels': list(health_categories.keys()),
-#         'datasets': [{
-#             'label': 'Health Status Distribution',
-#             'data': list(health_categories.values()),
-#             'backgroundColor': [
-#                 '#4caf50',  # Green for Excellent
-#                 '#ffeb3b',  # Yellow for Good
-#                 '#ff9800',  # Orange for Fair
-#                 '#f44336'   # Red for Poor
-#             ],
-#         }]
-#     }
-
-#     return JsonResponse(data)
 
 
 def intervention_health(request):
@@ -684,6 +649,9 @@ def intervention_health(request):
             intervention_color = intervention_status_colors.get(
                 intervention_status, 'info')
 
+        if latest_intervention:  # Ensure it exists before updating
+            latest_intervention.save()  # Save the change
+
         # Append data for rendering
         orphans_with_health.append({
             'orphan': orphan,
@@ -693,7 +661,9 @@ def intervention_health(request):
             'last_modified': latest_intervention.last_modified if latest_intervention else None,
             'intervention_status': intervention_status,
             'intervention_color': intervention_color,
-            'intervention_plan': intervention_plan
+            'intervention_plan': intervention_plan,
+            'orphans_with_health': orphans_with_health,
+
         })
 
     # Define sorting key based on priority mapping
