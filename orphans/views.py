@@ -612,21 +612,17 @@ def upload_file(request):
         return JsonResponse({'message': 'Invalid request method.'}, status=405)
 
     try:
-        print("Inside the try block")
         file = request.FILES.get('file')
         file_name = request.POST.get('fileName', '')
 
         if not file:
-            return JsonResponse({'error': 'No file uploaded.'}, status=400)
+            return JsonResponse({'message': 'No file uploaded.'}, status=400)
 
         file_instance = Files(fileName=file_name, file=file)
         file_instance.save()
-
-        return redirect('files_view')
+        return JsonResponse({'message': 'File uploaded successfully.'})
     except Exception as e:
-        print("Exception occurred:", e)
-        # Error response
-        return JsonResponse({'error': 'File upload failed.'}, status=500)
+        return JsonResponse({'message': 'Server error: ' + str(e)}, status=500)
 
 
 @require_POST
