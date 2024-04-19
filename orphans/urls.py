@@ -75,6 +75,10 @@ urlpatterns = [
     path('edit_orphan/<int:orphan_id>/', views.edit_orphan, name='edit_orphan'),
     path('save_changes/<int:orphan_id>/',
          views.save_changes, name='save_changes'),
+
+    path('mark-health-resolved/', views.mark_health_resolved,
+         name='mark_health_resolved'),
+
 ]
 
 urlpatterns += staticfiles_urlpatterns() + static(settings.MEDIA_URL,

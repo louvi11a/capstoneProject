@@ -134,8 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
         data.labels.forEach((label, index) => {
             statusBreakdownText += `${label}: ${data.data[index]}<br>`;
         });
+        statusBreakdownText += `Total Score: ${Number(statusAndScore.score).toFixed(2)}<br>`; // Display the total score with 2 decimal places
         statusBreakdownText += `Resulting Status: ${statusAndScore.status}<br>`;
-        statusBreakdownText += `Total Score: ${Number(statusAndScore.score).toFixed(2)}`; // Display the total score with 2 decimal places
         statusBreakdownDataDiv.innerHTML = statusBreakdownText;
         });
 });

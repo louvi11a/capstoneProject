@@ -367,36 +367,29 @@ document.addEventListener('DOMContentLoaded', function() {
                             padding: { bottom: 10 }
                         },
                         tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    let label = tooltipItem.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += tooltipItem.raw;
-                                    const category = tooltipItem.label;
-                                    const descriptions = {
-                                        'Excellent Health': '90 - 100 points',
-                                        'Good Health': '75 - 89 points',
-                                        'Fair Health': '50 - 74 points',
-                                        'Poor Health': 'Below 50 points'
-                                    };
-                                    label += ` with: (${descriptions[category]})`;
-                                    return label;
-                                }
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            let label = tooltipItem.dataset.label || '';
+
+                            if (label) {
+                                label += ': ';
                             }
+                            label += tooltipItem.raw; // Show the number of orphans in that category
+
+                            return label; // Simplified
                         }
                     }
                 }
-            });
-        })
-        .catch(error => console.error('Error fetching data:', error));
+            }
+        }
+    });
+});
 });
 </script>
 
 
 
-<!-- clickability of charts -->
+// <!-- clickability of charts -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
       const behaviorChartCanvas = document.getElementById('behaviorStatusChart');
@@ -433,6 +426,3 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 
 {% endblock %}
-
-
-

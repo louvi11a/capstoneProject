@@ -26,7 +26,7 @@ from django.utils.dateparse import parse_date
 from .models import Files  # Make sure to import your Files model
 from django.views.decorators.http import require_POST
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, date
 from django.shortcuts import HttpResponseRedirect
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from django.views import View
@@ -126,33 +126,33 @@ def filter_orphans(request):
     return JsonResponse(data, safe=False)
 
 
-def add_health_details(request):
-    orphan_id = request.POST.get('orphan_id')
-    orphan = get_object_or_404(Info, orphanID=orphan_id)
+# def add_health_details(request):
+#     orphan_id = request.POST.get('orphan_id')
+#     orphan = get_object_or_404(Info, orphanID=orphan_id)
 
-    # Fetch all symptom values from the form
-    # This will be a list of values for checked boxes
-    submitted_symptoms = request.POST.getlist('symptoms')
+#     # Fetch all symptom values from the form
+#     # This will be a list of values for checked boxes
+#     submitted_symptoms = request.POST.getlist('symptoms')
 
-    # For each symptom, check if it's in the submitted symptoms and set accordingly
-    health_detail = HealthDetail(
-        orphan=orphan,
-        date=request.POST.get('dateInput'),
-        temperature=request.POST.get('temperatureInput'),
-        blood_pressure=request.POST.get('bloodPressureInput'),
-        nausea='nausea' in submitted_symptoms,
-        vomiting='vomiting' in submitted_symptoms,
-        headache='headache' in submitted_symptoms,
-        stomachache='stomachache' in submitted_symptoms,
-        cough='cough' in submitted_symptoms,
-        dizziness='dizziness' in submitted_symptoms,
-        pain='pain' in submitted_symptoms,
-        # others_symptoms=request.POST.get('othersCheckbox', ''),
-        other_details=request.POST.get('otherDetailsInput', '')
-    )
-    health_detail.save()
+#     # For each symptom, check if it's in the submitted symptoms and set accordingly
+#     health_detail = HealthDetail(
+#         orphan=orphan,
+#         date=request.POST.get('dateInput'),
+#         temperature=request.POST.get('temperatureInput'),
+#         blood_pressure=request.POST.get('bloodPressureInput'),
+#         nausea='nausea' in submitted_symptoms,
+#         vomiting='vomiting' in submitted_symptoms,
+#         headache='headache' in submitted_symptoms,
+#         stomachache='stomachache' in submitted_symptoms,
+#         cough='cough' in submitted_symptoms,
+#         dizziness='dizziness' in submitted_symptoms,
+#         pain='pain' in submitted_symptoms,
+#         # others_symptoms=request.POST.get('othersCheckbox', ''),
+#         other_details=request.POST.get('otherDetailsInput', '')
+#     )
+#     health_detail.save()
 
-    return redirect('health_profile', orphan_id=orphan_id)
+#     return redirect('health_profile', orphan_id=orphan_id)
 
 
 class Orphan_Search(View):
@@ -417,6 +417,68 @@ def orphan_profile(request, orphanID):
 
     # Render the template with the context.
     return render(request, 'orphans/orphan-content.html', context)
+
+
+def add_health_details(request):
+    print(request.POST)  # Print all POST data
+    print(request.POST.getlist('symptoms'))
+    orphan_id = request.POST.get('orphan_id')
+    orphan = get_object_or_404(Info, orphanID=orphan_id)
+
+    # Fetch all symptom values from the form
+    submitted_symptoms = request.POST.getlist('symptoms')
+
+    # For each symptom, check if it's in the submitted symptoms and set accordingly
+    health_detail = HealthDetail(
+        orphan=orphan,
+        sick_start_date=request.POST.get('sickStartDateInput'),
+        temperature=request.POST.get('temperatureInput'),
+        blood_pressure=request.POST.get('bloodPressureInput'),
+        # Update how symptoms are assigned
+        # nausea='nausea' in request.POST.getlist('symptoms'),  # Update
+        vomiting='vomiting' in request.POST.getlist('symptoms'),  # Update
+        headache='headache' in request.POST.getlist('symptoms'),  # Update
+        stomachache='stomachache' in request.POST.getlist(
+            'symptoms'),  # Update
+        cough='cough' in request.POST.getlist('symptoms'),  # Update
+        dizziness='dizziness' in request.POST.getlist('symptoms'),  # Update
+        body_pain='body_pain' in request.POST.getlist('symptoms'),  # Update
+        other_details=request.POST.get('otherDetailsInput', '')
+    )
+    health_detail.save()
+
+    return redirect('health_profile', orphan_id=orphan_id)
+
+
+def mark_health_resolved(request):
+    print("mark_health_resolved view called")  # Debugging line
+    orphan_id = None  # Initialize orphan_id outside the 'if' block
+
+    if request.method == 'POST':
+        record_id = request.POST.get('record_id')
+        print("record_id:", record_id, type(record_id))  # Debugging line
+
+        try:
+            record = HealthDetail.objects.get(pk=record_id)
+            orphan_id = record.orphan.orphanID  # Get the orphan_id
+            record.sick_resolved = True  # Mark as resolved
+            record.resolved = date.today()  # Update the resolved_date
+            record.save()  # Save the changes
+            print("Record after saving:", record)
+
+            print("Found HealthDetail:", record)
+            return JsonResponse({'success': True})
+        except HealthDetail.DoesNotExist:
+            return JsonResponse({'success': False})
+
+    # Ensure orphan_id is assigned a value before using it in the redirect function
+    if orphan_id is None:
+        # Assign a default value or handle the case where orphan_id is None
+        # For example, you might redirect to a default page or return an error response
+        return JsonResponse({'success': False})
+
+    print('orphan id is', orphan_id)
+    return redirect('health_profile', orphan_id=orphan_id)
 
 
 def health_profile(request, orphan_id):
