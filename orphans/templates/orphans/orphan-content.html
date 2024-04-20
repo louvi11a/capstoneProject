@@ -26,7 +26,7 @@
           {% if orphan.status == "A" %}
               <div class="d-flex flex-column align-items-start">
                   <span class="badge bg-success rounded-pill" id="admittedBadge">Admitted</span>
-                  <button id="graduateBtn" class="btn btn-outline-danger mt-2" onclick="confirmGraduation({{ orphan.orphanID }});">Mark as Graduated?</button>
+                  <button id="graduateBtn" class="btn btn-outline-danger mt-2" onclick="confirmGraduation({{ orphan.orphanID }});">Mark as discharged?</button>
               </div>
           {% elif orphan.status == "G" %}
               <span class="badge bg-danger rounded-pill" id="graduatedBadge">Graduated</span>
@@ -390,7 +390,7 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     // Handle profile picture upload
-    document.getElementById("uploadProfilePictureBtn").addEventListener("click", function () {
+    document.getElementById("changeProfilePictureModal").addEventListener("click", function () {
       var profilePictureInput = document.getElementById("profilePictureInput");
       var profilePicture = profilePictureInput.files[0];
       if (!profilePicture) {

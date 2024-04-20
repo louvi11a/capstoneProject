@@ -126,35 +126,6 @@ def filter_orphans(request):
     return JsonResponse(data, safe=False)
 
 
-# def add_health_details(request):
-#     orphan_id = request.POST.get('orphan_id')
-#     orphan = get_object_or_404(Info, orphanID=orphan_id)
-
-#     # Fetch all symptom values from the form
-#     # This will be a list of values for checked boxes
-#     submitted_symptoms = request.POST.getlist('symptoms')
-
-#     # For each symptom, check if it's in the submitted symptoms and set accordingly
-#     health_detail = HealthDetail(
-#         orphan=orphan,
-#         date=request.POST.get('dateInput'),
-#         temperature=request.POST.get('temperatureInput'),
-#         blood_pressure=request.POST.get('bloodPressureInput'),
-#         nausea='nausea' in submitted_symptoms,
-#         vomiting='vomiting' in submitted_symptoms,
-#         headache='headache' in submitted_symptoms,
-#         stomachache='stomachache' in submitted_symptoms,
-#         cough='cough' in submitted_symptoms,
-#         dizziness='dizziness' in submitted_symptoms,
-#         pain='pain' in submitted_symptoms,
-#         # others_symptoms=request.POST.get('othersCheckbox', ''),
-#         other_details=request.POST.get('otherDetailsInput', '')
-#     )
-#     health_detail.save()
-
-#     return redirect('health_profile', orphan_id=orphan_id)
-
-
 class Orphan_Search(View):
     def get(self, request, *args, **kwargs):
         query = request.GET.get('q', '')
@@ -306,7 +277,7 @@ def orphan_view(request):
         Prefetch('orphan_files', queryset=birth_certificates,
                  to_attr='birth_certificate_files')
     )
-
+    print(orphans_query)
     paginator = Paginator(orphans_query, entries_per_page)
 
     try:
@@ -744,11 +715,6 @@ def permanent_file_deletion(request):
 
 
 def save_changes(request, orphan_id):
-    # Debug prints
-    # print('Request method:', request.method)
-    # print('Request body:', request.body)
-
-    # Get the orphan
     orphan = get_object_or_404(Info, orphanID=orphan_id)
 
     # Debug print orphan's name before update
@@ -829,9 +795,6 @@ def addOrphanForm(request):
             info.family = family
             info.save()
             info_form.save_m2m()  # Save any many-to-many relationships
-
-            # Process birth certificate and other file separately
-            # You need to manually create OrphanFiles instances for each file
 
             # Handling the birth certificate
             birth_certificate_file = request.FILES.get('birth_certificate')
