@@ -185,7 +185,6 @@ class Info(models.Model):
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
 
-
     def calculate_behavior_score(self, last_months=4):
         current_date = datetime.now().date()
         past_date = current_date - timedelta(days=last_months * 30)
@@ -299,6 +298,7 @@ class Info(models.Model):
 
 
 # Determines a status based on a weighted score that considers education, health, and behavior. It adjusts weights based on the health score and provides a final status indicating the level of attention needed.
+
 
     def calculate_status(self):
         # Define base weights
@@ -436,10 +436,6 @@ class HealthDetail(models.Model):
     def __str__(self):
         return f"Health Details for {self.orphan.firstName}, Resolved on {self.resolved}"
 
-    # def is_symptom_active(self, symptom_name, check_date):
-    #     # Check if a symptom was active on a given day
-    #     return getattr(self, symptom_name) and (self.resolved is None or self.resolved >= check_date)
-
     def is_symptom_active(self, symptom_name, check_date):
         # Check if a symptom was active on a given day
         if not self.sick_start_date:  # No sick start date, symptom never active
@@ -493,11 +489,11 @@ class HealthDetail(models.Model):
         SYMPTOM_SCORES = {
             'fever': 5,
             'vomiting': 4,
-            'headache': 3,
-            'stomachache': 3,
-            'cough': 2,
-            'dizziness': 2,
-            'body_pain': 2
+            'headache': 4,
+            'stomachache': 4,
+            'cough': 4,
+            'dizziness': 4,
+            'body_pain': 4
         }
 
         DURATION_THRESHOLDS = [
@@ -561,82 +557,7 @@ class HealthDetail(models.Model):
                 orphan.orphanID}: {str(e)}")
             raise
 
-    # @staticmethod
-    # def calculate_average_health_score(orphan, months=4):
-    #     current_date = date.today()
-    #     scores = []
 
-    #     for i in range(months):
-    #         # Calculate the month and year for each month going backwards
-    #         month_year = (current_date.month - i - 1) % 12 + 1
-    #         year = current_date.year if (
-    #             current_date.month - i - 1) >= 0 else current_date.year - 1
-
-    #         # Adjust for the month/year roll-over
-    #         if current_date.month - i - 1 < 0:
-    #             year -= 1
-
-    #         score = HealthDetail.calculate_monthly_health_score(
-    #             orphan, month_year, year)
-    #         scores.append(score)
-
-    #     if scores:
-    #         return sum(scores) / len(scores)
-    #     return 0
-
-    # def calculate_monthly_health_score(orphan, month, year):
-    #     try:
-    #         # logger.info(f"Calculating health score for orphan {
-    #         #             orphan.orphanID}, Month: {month}, Year: {year}")
-
-    #         from calendar import monthrange
-    #         from datetime import date, timedelta
-
-    #         # Ensure month is within the valid range
-    #         if not 1 <= month <= 12:
-    #             logger.error(
-    #                 f"Invalid month passed to calculate_monthly_health_score: {month}")
-    #             raise ValueError("Month must be in 1..12")
-
-    #         start_of_month = date(year, month, 1)
-    #         days_in_month = monthrange(year, month)[1]
-    #         end_of_month = start_of_month + \
-    #             timedelta(days=days_in_month - 1)
-
-    #         daily_scores = []
-    #         symptom_weights = {
-    #             'fever': 20,  # 20% of 50 points = 10 points
-    #             'vomiting': 20,  # 20% = 10 points
-    #             'headache': 20,  # 15% = 7.5 points
-    #             'cough': 20,  # 15% = 7.5 points
-    #             'dizziness': 10,  # 10% = 5 points
-    #             'body_pain': 10   # 10% = 5 points
-    #         }
-    #         for single_date in (start_of_month + timedelta(n) for n in range(days_in_month)):
-    #             daily_score = 100  # Start each day with a full score
-    #             symptoms_today = HealthDetail.objects.filter(
-    #                 orphan=orphan, date=single_date)
-
-    #             for detail in symptoms_today:
-    #                 for symptom, percentage in symptom_weights.items():
-    #                     if getattr(detail, symptom):
-    #                         # Calculate the points to be deducted for this symptom
-    #                         points_deducted = (percentage / 100) * 50
-    #                         daily_score -= points_deducted
-
-    #             # Ensure the score for each day doesn't drop below 0
-    #             daily_scores.append(max(daily_score, 0))
-    #         # Average the daily scores to get the monthly health score
-    #         monthly_health_score = sum(daily_scores) / days_in_month
-    #         return monthly_health_score
-    #     except ValueError as e:
-    #         logger.error(
-    #             f"Date error in calculate_monthly_health_score: {str(e)}")
-    #         raise
-    #     except Exception as e:
-    #         logger.error(f"Unexpected error in calculate_monthly_health_score for orphan {
-    #                      orphan.orphanID}: {str(e)}")
-    #         raise
 health_details = HealthDetail.objects.prefetch_related(
     Prefetch('orphan', queryset=Info.objects.all())
 )

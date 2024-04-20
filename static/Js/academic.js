@@ -48,7 +48,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 { value: 7, text: 'Grade 7' },
                 { value: 8, text: 'Grade 8' },
                 { value: 9, text: 'Grade 9' },
-                { value: 10, text: 'Grade 10' }
+                { value: 10, text: 'Grade 10' },
+                { value: 11, text: 'Grade 11' },
+                { value: 12, text: 'Grade 12' }
+
             ];
         } else { // Elementary
             quarterOptions = [

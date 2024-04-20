@@ -30,7 +30,6 @@ from django.db.models import Max
 from datetime import date
 from django.db import models
 from orphans.models import models
-from django.db.models.functions import TruncMonth
 from django.db.models import Count
 from django.core import serializers
 from django.db.models import Case, When, Value, CharField
@@ -67,26 +66,7 @@ def dashboard_view(request):
         'Underweight', 'Normal Weight', 'Overweight', 'Obesity']]
 
     current_year = datetime.now().year
-    # orphans = Info.objects.annotate(
-    #     age=Case(
-    #         When(birthDate__isnull=False, then=current_year -
-    #              ExtractYear('birthDate')),
-    #         default=None,
-    #         output_field=IntegerField(),
-    #     )
-    # )
 
-    # age_ranges = [(0, 10), (11, 20), (21, 30), (31, 40)]
-    # male_age_data = [0] * len(age_ranges)
-    # female_age_data = [0] * len(age_ranges)
-
-    # for i, (start_age, end_age) in enumerate(age_ranges):
-    #     male_age_data[i] = orphans.filter(
-    #         age__gte=start_age, age__lte=end_age, gender='Male').count()
-    #     female_age_data[i] = orphans.filter(
-    #         age__gte=start_age, age__lte=end_age, gender='Female').count()
-
-    # Fetch sentiment data from the database
     sentiment_data = Notes.objects.values(
         'sentiment_score').exclude(sentiment_score=None)
     # Prepare data for the pie chart
@@ -192,13 +172,21 @@ def individual_gpa_summary(request, orphan_id):
                  then=Concat(Value('Semester '), Cast('semester', output_field=CharField()))),
             When(quarter__isnull=False,
                  then=Concat(Value('Quarter '), Cast('quarter', output_field=CharField()))),
-            # Optional: Handle cases where neither semester nor quarter is set
             default=Value('N/A'),
             output_field=CharField()
-        )
-    ).values('year', 'time_period').annotate(
+        ),
+        education_level=F('education__education_level')
+    ).values('year', 'time_period', 'education_level').annotate(
         average_grade=Avg('grade')
     ).order_by('year', 'time_period')
+
+    # Normalize the grade data based on education level
+    for grade in grades:
+        if grade['education_level'] == 'College':
+            # Invert college grades so higher is better (e.g., 1 is best, 5 is worst)
+            # Assuming grades range from 1 to 5
+            grade['average_grade'] = 6 - grade['average_grade']
+        # Optionally normalize other grades if needed
 
     return JsonResponse(list(grades), safe=False)
 
@@ -530,12 +518,6 @@ def get_academic_intervention_count(request):
     return count
 
 
-# def get_health_intervention_count(request):
-#     count = Info.objects.filter(
-#         healthinterventions__status='unresolved'
-#     ).count()
-#     return count
-
 def get_health_intervention_count(request):
     # Count distinct Info objects with unresolved interventions
     count = Info.objects.filter(
@@ -559,10 +541,10 @@ def dashboard_health_chart(request):
     for orphan in orphans:
         score = HealthDetail.calculate_monthly_health_score(
             orphan, current_month, current_year)
-        print(f"Orphan ID {orphan.orphanID}: Score - {score}")  # Add this line
+        # print(f"Orphan ID {orphan.orphanID}: Score - {score}")  # Add this line
 
         # Update health_categories based on the calculated score
-        print(health_categories)
+        # print(health_categories)
         if score >= 95:
             health_categories['Optimal Health'] += 1
         elif score >= 75:
@@ -586,7 +568,7 @@ def dashboard_health_chart(request):
             ],
         }]
     }
-    print('data is:', data)
+    # print('data is:', data)
     return JsonResponse(data)
 
 
@@ -738,8 +720,8 @@ def dashboard_behavior_chart(request):
             category = 'Negative'
 
         # Log the information
-        print(f"Orphan ID: {orphan_id}, Average Score: {
-              average_score}, Sentiment Category: {category}")
+        # print(f"Orphan ID: {orphan_id}, Average Score: {
+        #       average_score}, Sentiment Category: {category}")
 
     data = {
         'labels': ['Negative', 'Neutral', 'Positive'],
@@ -864,44 +846,61 @@ def dashboard_academic_chart(request):
     current_month_start = now().replace(
         day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    # Aggregate counts by current month and by academic status
-    academic_statuses = Grade.objects.annotate(
-        month=TruncMonth('education__date_recorded')
-    ).filter(
-        month=current_month_start
-    ).values(
-        'education__education_level', 'grade'
-    ).annotate(
-        count=Count('education__orphan', distinct=True)
-    )
-
-    # Initialize the response structure for Chart.js
     chart_data = {
         'labels': ['Meets Expectations', 'Needs Significant Improvement', 'Critical Improvement Needed'],
         'datasets': [{
             'label': 'Number of Orphans',
-            'data': [0, 0, 0],  # This will hold counts for each category
+            'data': [0, 0, 0],
             'backgroundColor': [
-                'rgba(54, 162, 235, 0.6)',  # Blue
-                'rgba(255, 206, 86, 0.6)',  # Yellow
-                'rgba(255, 99, 132, 0.6)'   # Red
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(255, 99, 132, 0.6)'
             ]
         }]
     }
 
-    for status in academic_statuses:
-        education_level = status['education__education_level']
-        grade = status['grade']
-        count = status['count']
+    education_levels = ['College', 'Elementary', 'High School']
 
-        # Define criteria for each category based on the grade and education level
-        if (education_level == 'College' and grade <= 2.75) or (education_level in ['Elementary', 'High School'] and grade >= 80):
-            chart_data['datasets'][0]['data'][0] += count
-        elif (education_level == 'College' and grade == 3.00) or (education_level in ['Elementary', 'High School'] and 70 <= grade < 75):
-            chart_data['datasets'][0]['data'][1] += count
-        elif (education_level == 'College' and grade >= 4.00) or (education_level in ['Elementary', 'High School'] and grade < 70):
-            chart_data['datasets'][0]['data'][2] += count
+    for level in education_levels:
+        failing_threshold = 3.0 if level == 'College' else 75
 
+        # Aggregate all grades for this month and year by orphan
+        grades = Grade.objects.filter(
+            education__education_level=level,
+            education__date_recorded__month=current_month_start.month,
+            education__date_recorded__year=current_month_start.year
+        ).values('education__orphan').annotate(
+            total_grades=Count('id'),
+            failing_grades=Count('id', filter=Q(grade__gte=failing_threshold))
+        )
+
+        orphan_status_counts = {
+            'Meeting': 0,
+            'Significant': 0,
+            'Critical': 0
+        }
+
+        # Print the count of grades and the aggregation results
+        print(f"Processing {level}: Total graded entries: {grades.count()}")
+        for grade in grades:
+            print(f"Orphan ID {grade['education__orphan']} - Total Grades: {
+                  grade['total_grades']}, Failing Grades: {grade['failing_grades']}")
+
+            if grade['failing_grades'] == 0:
+                orphan_status_counts['Meeting'] += 1
+            elif grade['failing_grades'] == 1:
+                orphan_status_counts['Significant'] += 1
+            elif grade['failing_grades'] > 1:
+                orphan_status_counts['Critical'] += 1
+
+        print(f"{level} - Meeting: {orphan_status_counts['Meeting']}, Significant: {
+              orphan_status_counts['Significant']}, Critical: {orphan_status_counts['Critical']}")
+
+        chart_data['datasets'][0]['data'][0] += orphan_status_counts['Meeting']
+        chart_data['datasets'][0]['data'][1] += orphan_status_counts['Significant']
+        chart_data['datasets'][0]['data'][2] += orphan_status_counts['Critical']
+
+    print('Educational chart data is', chart_data)
     return JsonResponse(chart_data)
 
 

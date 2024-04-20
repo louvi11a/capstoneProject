@@ -22,7 +22,7 @@
 
         <div class="col-5 mt-3">
           <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
-          <!-- Temporary debug print -->      
+          <!-- Status Display -->
           {% if orphan.status == "A" %}
               <div class="d-flex flex-column align-items-start">
                   <span class="badge bg-success rounded-pill" id="admittedBadge">Admitted</span>
@@ -31,9 +31,12 @@
           {% elif orphan.status == "G" %}
               <span class="badge bg-danger rounded-pill" id="graduatedBadge">Graduated</span>
           {% elif orphan.status == "P" %}
-              <span class="badge bg-warning rounded-pill">Pending</span>
+              <span class="badge bg-warning rounded-pill" id="pendingBadge">Pending</span>
+          {% else %}
+              <span class="badge bg-secondary rounded-pill">Status Unknown</span>
           {% endif %}
-        </div>
+      </div>
+      
     
         <div class="col text-end align-items-end justify-content-end">
           <div class="row mt-3 text-end px-0 mx-5 info-icon">
