@@ -1,5 +1,5 @@
-const uploadForm = document.getElementById("uploadFileForm");
-const fileInput = document.getElementById("file");
+// const uploadForm = document.getElementById("uploadFileForm");
+// const fileInput = document.getElementById("file");
 const uploadProgress = document.getElementById("uploadProgress");
 const uploadMessage = document.getElementById("uploadMessage");
 function getCookie(name) {
@@ -50,56 +50,56 @@ window.openFile = function() {
   }
 };
 
-// uploading file
-document.addEventListener('DOMContentLoaded', function() {
-  const uploadForm = document.getElementById("uploadFileForm");
-  const fileInput = document.getElementById("file");
-  const uploadProgress = document.getElementById("uploadProgress");
-  const uploadMessage = document.getElementById("uploadMessage");
+// // uploading file
+// document.addEventListener('DOMContentLoaded', function() {
+//   const uploadForm = document.getElementById("uploadFileForm");
+//   const fileInput = document.getElementById("file");
+//   const uploadProgress = document.getElementById("uploadProgress");
+//   const uploadMessage = document.getElementById("uploadMessage");
 
-  if (uploadForm) {
-      uploadForm.addEventListener("submit", function(event) {
-          event.preventDefault();
+//   if (uploadForm) {
+//       uploadForm.addEventListener("submit", function(event) {
+//           event.preventDefault();
 
-          // Validate file selection
-          if (!fileInput.files.length) {
-              uploadMessage.textContent = "Please select a file to upload.";
-              return;
-          }
+//           // Validate file selection
+//           if (!fileInput.files.length) {
+//               uploadMessage.textContent = "Please select a file to upload.";
+//               return;
+//           }
 
-          // Show upload progress indicator
-          uploadProgress.style.display = "block";
+//           // Show upload progress indicator
+//           uploadProgress.style.display = "block";
 
-          // Create a FormData object and append the file
-          var formData = new FormData(uploadForm);
+//           // Create a FormData object and append the file
+//           var formData = new FormData(uploadForm);
 
-          // Send a POST request to the server
-          fetch("/orphans/upload_file/", {
-              method: "POST",
-              body: formData,
-          })
-          .then((response) => {
-              if (!response.ok) {
-                  throw new Error("Network response was not ok: " + response.statusText);
-              }
-              return response.json();
-          })
-          .then((data) => {
-              uploadProgress.style.display = "none";
-              if (data.message) {
-                  uploadMessage.textContent = data.message;
-              }
-          })
-          .catch((error) => {
-              uploadProgress.style.display = "none";
-              uploadMessage.textContent = "Upload failed: " + error.message;
-              console.error("Error:", error);
-          });
-      });
-  } else {
-      console.log('Upload form not found');
-  }
-});
+//           // Send a POST request to the server
+//           fetch("/orphans/upload_file/", {
+//               method: "POST",
+//               body: formData,
+//           })
+//           .then((response) => {
+//               if (!response.ok) {
+//                   throw new Error("Network response was not ok: " + response.statusText);
+//               }
+//               return response.json();
+//           })
+//           .then((data) => {
+//               uploadProgress.style.display = "none";
+//               if (data.message) {
+//                   uploadMessage.textContent = data.message;
+//               }
+//           })
+//           .catch((error) => {
+//               uploadProgress.style.display = "none";
+//               uploadMessage.textContent = "Upload failed: " + error.message;
+//               console.error("Error:", error);
+//           });
+//       });
+//   } else {
+//       console.log('Upload form not found');
+//   }
+// });
 
 
 // function handleRename() {

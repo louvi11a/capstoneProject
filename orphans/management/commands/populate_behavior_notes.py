@@ -47,8 +47,8 @@ class Command(BaseCommand):
         ]
 
         # Define the date range explicitly as datetime objects
-        start_date = datetime(2024, 1, 1)
-        end_date = datetime.now()
+        start_date = datetime(2020, 1, 1)
+        end_date = datetime(2023, 1, 1)
 
         # Attempt to translate phrases once and cache the results
         translator = GoogleTranslator(source='ceb', target='english')
@@ -63,7 +63,7 @@ class Command(BaseCommand):
 
         infos = Info.objects.all()
         for info in infos:
-            for _ in range(6):  # Generate 5 notes per orphan
+            for _ in range(4):  # Generate 5 notes per orphan
                 bisaya_text = random.choice(bisaya_phrases)
                 # Use cached translation
                 translated_text = translations[bisaya_text]

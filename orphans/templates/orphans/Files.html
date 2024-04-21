@@ -130,7 +130,8 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="uploadFileForm" method="POST" action="/upload_file/" enctype="multipart/form-data">                            {% csrf_token %}
+                        <form id="uploadFileForm" method="POST" action="{% url 'upload_file' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
                             <div class="mb-3">
                                 <label for="fileName" class="form-label">File Name</label>
                                 <input type="text" class="form-control" id="fileName" name="fileName" placeholder="Enter file name">
@@ -146,12 +147,12 @@
                             </div>
                         <button type="submit" class="btn btn-primary">Upload</button>
                         </form>
-                        <div id="uploadProgress" class="mt-3 text-center" style="display: none;">
+                        <!-- <div id="uploadProgress" class="mt-3 text-center" style="display: none;">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Uploading...</span>
                         </div>
                         </div>
-                        <div id="uploadMessage" class="mt-3"></div>
+                        <div id="uploadMessage" class="mt-3"></div> -->
                     </div>
                     </div>
                     </div>
@@ -413,6 +414,43 @@ aria-hidden="true">
 {% block js %}
 
 <script src="{% static 'Js/uploadfile.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var uploadForm = document.getElementById('uploadFileForm');
+        uploadForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the normal form submission
+    
+            var formData = new FormData(uploadForm);
+            var xhr = new XMLHttpRequest();
+            // Use window.location to build the URL dynamically
+            xhr.open('POST', `${window.location.origin}/orphans/upload_file/`, true);
+    
+            // Set up what happens when the request comes back
+            xhr.onload = function () {
+                // document.getElementById('uploadProgress').style.display = 'none'; // Hide progress
+                if (xhr.status === 200) {
+                    alert('File uploaded successfully.');
+                    $('#uploadFileModal').modal('hide'); // Close the modal
+                    window.location.reload(); // Reload the page
+                } else if (xhr.status === 400) {
+                    alert('No file uploaded.');
+                } else if (xhr.status === 405) {
+                    alert('Invalid request method.');
+                } else {
+                    alert('Server error. Please try again later.');
+                }
+            };
+    
+            // Show uploading progress
+            // document.getElementById('uploadProgress').style.display = 'block';
+    
+            // Send the actual request
+            xhr.send(formData);
+        });
+    });
+    </script>
+    
+    
 
 <script>
 $('#searchFiles').autocomplete({

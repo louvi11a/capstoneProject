@@ -155,7 +155,6 @@ class Info(models.Model):
         avg_sentiment = recent_notes.aggregate(Avg('sentiment_score'))[
             'sentiment_score__avg']
         return avg_sentiment if avg_sentiment is not None else 0
-    # calculate_age(): Calculates the orphan's age based on their birthdate.
 
     def calculate_age(self):
         if self.birthDate:

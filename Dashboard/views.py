@@ -736,97 +736,6 @@ def dashboard_behavior_chart(request):
     return JsonResponse(data)
 
 
-# def intervention_behavior(request):
-#     current_year = datetime.now().year
-#     orphan_scores = Notes.objects.values('related_orphan').annotate(
-#         average_score=Avg('sentiment_score'),
-#         last_modified=Max('timestamp')  # Fetches the last modification date
-#     )
-#     # These colors are based on the sentiment category
-#     sentiment_status_colors = {
-#         'Needs critical improvement': 'danger',
-#         'Needs significant improvement': 'warning',
-#         'Meets expectations': 'success',
-#     }
-
-#     # These colors are based on the intervention status
-#     intervention_status_colors = {
-#         'unresolved': 'danger',
-#         'pending': 'warning',
-#         'resolved': 'success',
-#         None: 'info'
-#     }
-
-#     orphans_with_sentiment = []
-#     for orphan_score in orphan_scores:
-#         orphan_id = orphan_score['related_orphan']
-#         orphan = Info.objects.get(pk=orphan_id)
-#         average_score = orphan_score['average_score']
-#         last_modified = orphan_score['last_modified']
-
-#         latest_intervention = orphan.behaviorinterventions.order_by(
-#             '-last_modified').first()
-#         intervention_status = 'unresolved'
-
-#         if latest_intervention:
-#             intervention_status = latest_intervention.status
-#             intervention_plan = latest_intervention.description
-#             # The color for the intervention status
-#             intervention_color = intervention_status_colors.get(
-#                 intervention_status, 'info')
-#         else:
-#             # Set default values if no intervention exists
-#             if average_score > 0.5:
-#                 intervention_status = None
-#             intervention_plan = ''
-#             intervention_color = intervention_status_colors.get(
-#                 intervention_status, 'info')
-
-#         def determine_sentiment_category(average_score):
-#             if average_score > 0.5:
-#                 return 'Meets expectations'
-#             elif -0.5 <= average_score <= 0.5:
-#                 return 'Needs significant improvement'
-#             else:
-#                 return 'Needs critical improvement'
-
-#         # Determine sentiment category based on the average score
-#         sentiment_category = determine_sentiment_category(average_score)
-#         # The color for the sentiment status
-#         status_color = sentiment_status_colors.get(sentiment_category, 'info')
-
-#         orphans_with_sentiment.append({
-#             'orphan': orphan,
-#             'average_score': average_score,
-#             'status_color': status_color,
-#             'sentiment_category': sentiment_category,
-#             'last_modified': last_modified,
-#             'intervention_status': intervention_status,
-#             'intervention_color': intervention_color,
-#             'intervention_plan': intervention_plan
-#         })
-
-#     def sort_key(x):
-#         # Define sort priorities
-#         status_priority = {
-#             'Needs critical improvement': 1,
-#             'Needs significant improvement': 2,
-#             'Meets expectations': 3
-#         }
-#         intervention_priority = {
-#             'unresolved': 1,
-#             'pending': 2,
-#             None: 3,
-#             'resolved': 4
-#         }
-#         return (
-#             status_priority.get(x['sentiment_category'], 99),
-#             intervention_priority.get(x['intervention_status'], 99)
-#         )
-
-#     orphans_with_sentiment.sort(key=sort_key)
-
-#     return render(request, 'Dashboard/intervention_behavior.html', {'orphans_with_sentiment': orphans_with_sentiment})
 def intervention_behavior(request):
     current_year = now().year
 
@@ -958,6 +867,19 @@ def individual_behavior_summary(request, orphan_id):
 
     return JsonResponse(data, safe=False)
 
+    for orphan in orphans_with_average_sentiment:
+        average_score = orphan['average_score']
+        orphan_id = orphan['related_orphan']
+        if average_score > 0.5:
+            sentiment_counts['Positive'] += 1
+            category = 'Positive'
+        elif -0.5 < average_score <= 0.5:
+            sentiment_counts['Neutral'] += 1
+            category = 'Neutral'
+        else:
+            sentiment_counts['Negative'] += 1
+            category = 'Negative'
+
 
 def overall_behavior_summary(request):
     try:
@@ -978,12 +900,12 @@ def overall_behavior_summary(request):
             score = note['sentiment_score']
             year_index = years.index(year)
 
-            if score < -0.2:  # Negative threshold
-                negative_counts[year_index] += 1
-            elif score > 0.2:  # Positive threshold
+            if score > 0.5:  # Adjusted Positive threshold
                 positive_counts[year_index] += 1
-            else:  # Neutral
+            elif -0.5 < score <= 0.5:  # Adjusted Neutral threshold
                 neutral_counts[year_index] += 1
+            else:  # Adjusted Negative threshold
+                negative_counts[year_index] += 1
 
         datasets = [
             {'label': 'Negative', 'data': negative_counts,
@@ -1066,95 +988,6 @@ def dashboard_academic_chart(request):
     print('Educational chart data is', chart_data)
     return JsonResponse(chart_data)
 
-
-# def intervention_academics(request):
-#     # Define a dictionary to map academic statuses to colors
-#     academic_status_colors = {
-#         'Critical Improvement Needed': 'danger',  # Red for critical improvements
-#         # Yellow for significant improvements
-#         'Needs Significant Improvement': 'warning',
-#         'Meets Expectations': 'success',  # Green when expectations are met
-#     }
-
-#     # Define a dictionary to map intervention statuses to colors
-#     intervention_status_colors = {
-#         'unresolved': 'danger',  # Red for unresolved interventions
-#         'pending': 'warning',  # Yellow for pending interventions
-#         'resolved': 'success',  # Green for resolved interventions
-#         None: 'info'  # Blue when no intervention is needed
-#     }
-
-#     # Fetch all orphans and their latest academic intervention data
-#     orphans = Info.objects.prefetch_related(
-#         'educations__grades', 'academicinterventions').all()
-#     orphan_educations_status = []
-
-#     for orphan in orphans:
-#         latest_intervention = orphan.academicinterventions.order_by(
-#             '-last_modified').first()
-#         critical_needed = any(grade.grade < 70 for education in orphan.educations.all(
-#         ) for grade in education.grades.all())
-#         significant_needed = any(70 <= grade.grade < 75 for education in orphan.educations.all(
-#         ) for grade in education.grades.all())
-
-#         # Set up academic and intervention statuses
-#         if latest_intervention:
-#             intervention_status = latest_intervention.status
-#             remarks = latest_intervention.description
-#             last_modified = latest_intervention.last_modified
-#         else:
-#             intervention_status = 'unresolved' if critical_needed or significant_needed else None
-#             remarks = ''
-#             last_modified = None
-
-#         # Determine academic status and map to colors
-#         if critical_needed:
-#             academic_status = 'Critical Improvement Needed'
-#         elif significant_needed:
-#             academic_status = 'Needs Significant Improvement'
-#         else:
-#             academic_status = 'Meets Expectations'
-
-#         academic_status_color = academic_status_colors.get(
-#             academic_status, 'info')
-#         intervention_color = intervention_status_colors.get(
-#             intervention_status, 'info')
-
-#         # Collect data for rendering
-#         orphan_educations_status.append({
-#             'orphan': orphan,
-#             'academic_status': academic_status,
-#             'academic_status_color': academic_status_color,
-#             'intervention_status': intervention_status,
-#             'intervention_color': intervention_color,
-#             'last_modified': last_modified,
-#             'remarks': remarks,
-#         })
-
-#     # Sort based on defined priorities
-#     def sort_key(item):
-#         status_priority = {
-#             'Critical Improvement Needed': 1,
-#             'Needs Significant Improvement': 2,
-#             'Meets Expectations': 3
-#         }
-#         intervention_priority = {
-#             'unresolved': 1,
-#             'pending': 2,
-#             'resolved': 3,
-#             None: 4
-#         }
-#         return (status_priority.get(item['academic_status'], 99), intervention_priority.get(item['intervention_status'], 99))
-
-#     orphan_educations_status.sort(key=sort_key)
-
-#     context = {
-#         'orphan_educations_status': orphan_educations_status,
-#         'orphan_ids': [orphan.orphanID for orphan in Info.objects.all()],
-#         'orphan_count': Info.objects.count(),
-#     }
-
-#     return render(request, 'Dashboard/intervention_academics.html', context)
 
 def intervention_academics(request):
     current_year = now().year

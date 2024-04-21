@@ -580,20 +580,20 @@ def restore_files(request):
 
 def upload_file(request):
     if request.method != 'POST':
-        return JsonResponse({'message': 'Invalid request method.'}, status=405)
+        return HttpResponse(status=405)  # Method not allowed
 
     try:
         file = request.FILES.get('file')
         file_name = request.POST.get('fileName', '')
 
         if not file:
-            return JsonResponse({'message': 'No file uploaded.'}, status=400)
+            return HttpResponse(status=400)  # Bad request
 
         file_instance = Files(fileName=file_name, file=file)
         file_instance.save()
-        return JsonResponse({'message': 'File uploaded successfully.'})
+        return HttpResponse(status=200)  # OK - Success
     except Exception as e:
-        return JsonResponse({'message': 'Server error: ' + str(e)}, status=500)
+        return HttpResponse(status=500)  # Internal server error
 
 
 @require_POST

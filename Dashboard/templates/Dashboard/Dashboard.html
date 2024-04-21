@@ -25,7 +25,7 @@ current
       <div class="row d-flex justify-content-center">
           <a href="{% url 'overall_analysis' %}"
           class=" btn btn-primary col-md-2  d-flex flex-column justify-content-center bgdash rounded-2 border border-2 border-light rounded-4">
-              <h5>Orphans Summary 
+              <h5>Children's Status Overview
                   <i class="txtColor icon fa-solid fa-children fs-4   border-0"></i>
               </h5>
               <span style="font-size: 70%">A summary of information and current status for each orphan</span>
@@ -166,6 +166,10 @@ current
 
 {% block js%}
 <!-- for sentiment/behavior chart -->
+
+
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Fetch data from the Django view
