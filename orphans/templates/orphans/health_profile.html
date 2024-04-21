@@ -189,7 +189,7 @@
                                         {% if detail.sick_resolved %}
                                             Resolved 
                                         {% else %}
-                                            Mark as Resolved?
+                                            Mark as resolved?
                                         {% endif %}
                                     </button> 
                                 </td> 
@@ -334,16 +334,16 @@
         
             if (confirm("Are you sure you want to mark this record as resolved? This action is irreversible.")) {
                 // ... (Rest of your JavaScript code)
-
-                return true; 
+    
                 location.reload(); // Reload the page
-
+                // or redirect to another URL
+    
+                return true; // Indicate that the function has completed successfully
             } else {
-                return false; 
+                return false; // Indicate that the action was not confirmed
             }
         }
-        </script>
-        
+    </script>
         
 
 <!-- for marking sick as resolved -->

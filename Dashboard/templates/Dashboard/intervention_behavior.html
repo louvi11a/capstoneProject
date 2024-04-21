@@ -91,31 +91,26 @@ Behavior Intervention Details
                     <button class="btn btn-sm me-2" onclick="toggleDropdown('status')">
                         <i class="bi bi-filter"></i>
                     </button>
-                    <!-- Status filter dropdown -->
                     <div id="statusDropdown" class="dropdown-menu" style="display: none;">
                         <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('positive')">Positive</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('neutral')">Neutral</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('negative')">Negative</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('needs critical improvement')">Needs critical improvement</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('needs improvement')">Needs improvement</a>
+                        <a class="dropdown-item" href="#" onclick="filterByStatus('meets expectations')">Meets expectations</a>
                     </div>
                 </th>
                 <th scope="col">Intervention Plan</th>
 
                 <th scope="col">
                     Intervention Status
-                    <button class="btn btn-sm me-2" onclick="toggleDropdown('urgency')">
+                    <button class="btn btn-sm me-2" onclick="toggleDropdown('intervention')">
                         <i class="bi bi-filter"></i>
                     </button>
-                    <!-- Urgency filter dropdown -->
-                    <div id="urgencyDropdown" class="dropdown-menu" style="display: none;">
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('all')">All</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('none')">None</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('resolved')">Resolved</a>
-                        <a class="dropdown-item" href="#" onclick="filterByStatus('pending')">Pending</a>
-                        <!-- <a class="dropdown-item" href="#" onclick="filterByStatus('unresolved')">Unresolved</a> -->
-                        
-                        <!-- ... -->
-
+                    <div id="interventionDropdown" class="dropdown-menu" style="display: none;">
+                        <a class="dropdown-item" href="#" onclick="filterByintervention('all')">All</a>
+                        <a class="dropdown-item" href="#" onclick="filterByintervention('unresolved')">Unresolved</a>
+                        <a class="dropdown-item" href="#" onclick="filterByintervention('pending')">Pending</a>
+                        <a class="dropdown-item" href="#" onclick="filterByintervention('resolved')">Resolved</a>
+                        <a class="dropdown-item" href="#" onclick="filterByintervention('none')">None</a>
                     </div>
                 </th>
 
@@ -420,6 +415,10 @@ function getStatusColor(status) {
         // Implement filtering logic based on the filterValue (all, positive, neutral, negative)
         console.log('Filter by status:', filterValue);
     }
+    function filterByintervention(filterValue) {
+        // Implement filtering logic based on the filterValue (all, positive, neutral, negative)
+        console.log('Filter by status:', filterValue);
+    }
 </script>
 
 <script>
@@ -483,24 +482,36 @@ function getStatusColor(status) {
             tbody.appendChild(row);
         });
     }
-    function filterByStatus(filterValue) {
+
+function filterByStatus(filterValue) {
     console.log('Filter by status:', filterValue);
     document.getElementById('statusDropdown').style.display = 'none';
     var rows = document.querySelectorAll('#sentimentDetailsTable tbody tr');
-    rows.forEach(function(row) {
-        row.style.display = ''; // Reset to show all rows initially
+    rows.forEach(row => {
+        var statusText = row.cells[2].textContent.trim().toLowerCase(); // Check this index
+        console.log('Row status:', statusText); // Debugging log
+        if (filterValue.toLowerCase() !== 'all' && statusText !== filterValue.toLowerCase()) {
+            row.style.display = 'none';
+        } else {
+            row.style.display = '';
+        }
     });
-    if (filterValue !== 'all') {
-        rows.forEach(function(row) {
-            // Assuming Status is the fourth column, adjust index accordingly
-            var statusText = row.cells[3].textContent.trim().toLowerCase();
-            if (statusText !== filterValue) {
-                row.style.display = 'none';
-            }
-        });
-    }
 }
 
+function filterByintervention(filterValue) {
+    console.log('Filter by intervention:', filterValue);
+    document.getElementById('interventionDropdown').style.display = 'none';
+    var rows = document.querySelectorAll('#sentimentDetailsTable tbody tr');
+    rows.forEach(row => {
+        var interventionText = row.cells[4].textContent.trim().toLowerCase(); // Check this index
+        console.log('Row intervention:', interventionText); // Debugging log
+        if (filterValue.toLowerCase() !== 'all' && interventionText !== filterValue.toLowerCase()) {
+            row.style.display = 'none';
+        } else {
+            row.style.display = '';
+        }
+    });
+}
 </script>
 
 
