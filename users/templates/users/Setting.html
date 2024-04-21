@@ -17,13 +17,9 @@ current
 <body>
     <main>
         {% block content %}
-        <div class="container row bg-light">
-            <div class="container border border-2 rounded mt-3 bg-none w-100" style="background-color: #e8f4f8;">
-                <div class="form-container p-4 rounded "style="background-color: #e8f4f8;">
-                    <form id="myForm" method="post" action="{% url 'update_user_info' %}">
-        <div class="container row bg-light">
-            <div class="container border border-2 rounded mt-3 bg-none w-100" style="background-color: #e8f4f8;">
-                <div class="form-container p-4 rounded "style="background-color: #e8f4f8;">
+
+        <div class="container row bg-light p-lg-5">
+                <div class="form-container p-4 rounded "style="background-color: #a8c7e6;">
                   <form id="myForm" method="post" action="{% url 'update_user_info' %}">
                     {% csrf_token %}
                         <div class="mb-3">
@@ -45,9 +41,10 @@ current
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password:</label>
-                            <input type="password" class="form-control" id="password" placeholder="********" readonly autocomplete="current-password">                        </div>
+                            <input type="password" class="form-control" id="password" placeholder="********" readonly autocomplete="current-password">                        
+                        </div>
 
-                            <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <button type="button" class="btn btn-light btn-sm mb-3 text-bg-danger" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                               Change Password
                             </button>
                             
@@ -61,7 +58,7 @@ current
                     </div>
                 </div>
                 
-            </div>
+
           
 
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">

@@ -54,6 +54,39 @@ def settings_view(request):
 
 
 @login_required
+# def update_user_info(request):
+#     print('update_user_info view was called')
+#     if request.method == 'POST':
+#         # Get the new user information from the request
+#         username = request.POST.get('username')
+#         first_name = request.POST.get('firstName')
+#         last_name = request.POST.get('lastName')
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+#         print('Received the following data:')
+#         print('Username:', username)
+#         print('First name:', first_name)
+#         print('Last name:', last_name)
+#         print('Email:', email)
+#         print('Password:', password)
+#         # Get the current user
+#         user = User.objects.get(username=request.user.username)
+#         # Update the user's information
+#         user.username = username
+#         user.first_name = first_name
+#         user.last_name = last_name
+#         user.email = email
+#         user.set_password(password)
+#         user.save()
+#         print('Updated user information:')
+#         print('Username:', user.username)
+#         print('First name:', user.first_name)
+#         print('Last name:', user.last_name)
+#         print('Email:', user.email)
+#         print('Password:', user.password)
+#         return JsonResponse({'status': 'success'})
+#     else:
+#         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 def update_user_info(request):
     print('update_user_info view was called')
     if request.method == 'POST':
@@ -62,32 +95,40 @@ def update_user_info(request):
         first_name = request.POST.get('firstName')
         last_name = request.POST.get('lastName')
         email = request.POST.get('email')
-        password = request.POST.get('password')
+        # This will be None if no new password is set
+        new_password = request.POST.get('password')
 
         print('Received the following data:')
         print('Username:', username)
         print('First name:', first_name)
         print('Last name:', last_name)
         print('Email:', email)
-        print('Password:', password)
+        print('New Password:', new_password)
 
         # Get the current user
-        user = User.objects.get(username=request.user.username)
+        user = request.user  # Directly use request.user instead of fetching again
 
         # Update the user's information
-        user.username = username
-        user.first_name = first_name
-        user.last_name = last_name
-        user.email = email
-        user.set_password(password)
-        user.save()
+        user.username = username or user.username  # Update if provided
+        user.first_name = first_name or user.first_name  # Update if provided
+        user.last_name = last_name or user.last_name  # Update if provided
+        user.email = email or user.email  # Update if provided
+
+        if new_password:  # Only set new password if provided
+            user.set_password(new_password)
+            user.save()
+            # Important to keep the user logged in
+            update_session_auth_hash(request, user)
+            print('Password was changed.')
+        else:
+            user.save()  # Save other changes
 
         print('Updated user information:')
         print('Username:', user.username)
         print('First name:', user.first_name)
         print('Last name:', user.last_name)
         print('Email:', user.email)
-        print('Password:', user.password)
+
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})

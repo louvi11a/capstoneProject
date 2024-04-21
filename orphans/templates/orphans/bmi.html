@@ -34,21 +34,6 @@
                         <div class="row mt-3 info-icon text-end px-0 mx-5 d-flex flex-column">
                             <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#bmiModal">Add Details</button>
                             
-                        
-                  <!--  <div class="col text-end align-items-end justify-content-end">
-                        <!-- <div class="row mt-3 text-end px-0 mx-5">
-                                        <a class="btn btn-primary" href="./orphanSentiment_detail.html"> 
-                                          Academic Information </a>
-                                      </div>
-                                      <div class="row mt-3 text-end px-0 mx-5 info-icon">
-                                        <a class="btn btn-primary" href="./orphanSentiment_detail.html"> 
-                                          Health Information </a>
-                                      </div> -->
-                     <!---  <div class="row mt-3 info-icon text-end px-0 mx-5">
-                            <!-- <a class="btn btn-primary  " data-bs-toggle="modal" data-bs-target="#noteModal"> Add                                                                                           Notes </a> -->
-                      <!--  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bmiModal">Add BMI</button> -->    
-                            
-
 
 
                             <!-- modal for bmi add -->
@@ -83,7 +68,25 @@
                       </div>
                     </div>
                   </div>
+                  <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const bmiForm = document.getElementById('bmiForm');
                 
+                        bmiForm.addEventListener('submit', function(event) {
+                            // Prevent the form from submitting immediately
+                            event.preventDefault();
+                            
+                            // Show confirmation dialog
+                            const confirmSubmission = confirm('Are you sure you want to add this data?');
+                
+                            if (confirmSubmission) {
+                                // If user clicks 'OK', submit the form
+                                bmiForm.submit();
+                            }
+                            // If user clicks 'Cancel', do nothing
+                        });
+                    });
+                </script>
 
   <hr class="mt-3">
 <!-- Show number of Entries -->

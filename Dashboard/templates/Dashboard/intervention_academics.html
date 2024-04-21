@@ -12,7 +12,7 @@
 
 
 {% block title %}
-    Dashboard
+    Academic Intervention Details
 {% endblock %}
 
 {% block content %}
@@ -101,7 +101,7 @@
                                         <a class="dropdown-item" href="#" onclick="filterByUrgency('all')">All</a>
                                         <!-- ... other parts of your HTML ... -->
                                         <a class="dropdown-item" href="#" onclick="filterByUrgency('Meets Expectations')">Meets Expectations</a>
-                                        <a class="dropdown-item" href="#" onclick="filterByUrgency('Needs Significant Improvement')">Needs Significant Improvement</a>
+                                        <a class="dropdown-item" href="#" onclick="filterByUrgency('Needs Improvement')">Needs Improvement</a>
                                         <a class="dropdown-item" href="#" onclick="filterByUrgency('Critical Improvement Needed')">Critical Improvement Needed</a>
                                         
                                     </div>
@@ -193,6 +193,7 @@
                     <div class="mb-3">
                         <label for="statusSelect" class="form-label">Status:</label>
                         <select class="form-select" id="statusSelect"  name="status">
+                            <!-- <option value="none">None</option> -->
                             <option value="resolved">Resolved</option>
                             <option value="pending">Pending</option>
                             <option value="unresolved">Unresolved</option>

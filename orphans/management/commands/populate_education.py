@@ -22,7 +22,7 @@ class Command(BaseCommand):
         }
 
         infos = Info.objects.all()
-        total_grades = 150
+        total_grades = 300
         min_grades_per_info = 1  # Minimum number of grades per Info
 
         # Calculate grades per Info to evenly distribute

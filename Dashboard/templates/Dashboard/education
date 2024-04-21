@@ -1,0 +1,80 @@
+
+def intervention_academics(request):
+    # Color mappings
+    academic_status_colors = {
+        'Critical Improvement Needed': 'danger',
+        'Needs Improvement': 'warning',
+        'Meets Expectations': 'success',
+    }
+    intervention_status_colors = {
+        'unresolved': 'danger',
+        'pending': 'warning',
+        'resolved': 'success',
+        None: 'info'
+    }
+
+    # Fetch all orphans and their latest academic intervention data
+    orphans = Info.objects.prefetch_related(
+        'educations__grades', 'academicinterventions').all()
+    orphan_educations_status = []
+
+    for orphan in orphans:
+        latest_intervention = orphan.academicinterventions.order_by(
+            '-last_modified').first()
+        critical_needed = any(grade.grade < 70 for education in orphan.educations.all()
+                              for grade in education.grades.all())
+        significant_needed = any(70 <= grade.grade < 75 for education in orphan.educations.all()
+                                 for grade in education.grades.all())
+
+        # Set up academic and intervention statuses
+        if latest_intervention is None or latest_intervention.status != 'resolved':
+            if critical_needed or significant_needed:
+                new_status = 'unresolved' if critical_needed else 'pending'
+                intervention_status = latest_intervention.status if latest_intervention else new_status
+                remarks = latest_intervention.description if latest_intervention else "Intervention required due to academic performance."
+                last_modified = latest_intervention.last_modified if latest_intervention else now()
+
+                # Create or update intervention
+                AcademicIntervention.objects.update_or_create(
+                    orphan=orphan,
+                    defaults={
+                        'status': intervention_status,
+                        'description': remarks,
+                        'last_modified': now()
+                    }
+                )
+            else:
+                intervention_status = 'None'
+                remarks = latest_intervention.description if latest_intervention else "No academic intervention needed."
+                last_modified = latest_intervention.last_modified if latest_intervention else now()
+
+        academic_status = 'Critical Improvement Needed' if critical_needed else (
+            'Needs Improvement' if significant_needed else 'Meets Expectations')
+
+        academic_status_color = academic_status_colors.get(
+            academic_status, 'info')
+        intervention_color = intervention_status_colors.get(
+            intervention_status, 'info')
+
+        # Collect data for rendering
+        orphan_educations_status.append({
+            'orphan': orphan,
+            'academic_status': academic_status,
+            'academic_status_color': academic_status_color,
+            'intervention_status': intervention_status,
+            'intervention_color': intervention_color,
+            'last_modified': last_modified,
+            'remarks': remarks,
+        })
+
+    # Sort orphans by priority
+    orphan_educations_status.sort(key=lambda item: (
+        {'Critical Improvement Needed': 1, 'Needs Improvement': 2,
+            'Meets Expectations': 3}.get(item['academic_status'], 99),
+        {'unresolved': 1, 'pending': 2, 'resolved': 3,
+            None: 4}.get(item['intervention_status'], 99)
+    ))
+
+    return render(request, 'Dashboard/intervention_academics.html', {
+        'orphan_educations_status': orphan_educations_status
+    })

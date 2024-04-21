@@ -185,6 +185,7 @@ class Info(models.Model):
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
 
+
     def calculate_behavior_score(self, last_months=4):
         current_date = datetime.now().date()
         past_date = current_date - timedelta(days=last_months * 30)
@@ -299,7 +300,6 @@ class Info(models.Model):
 
 # Determines a status based on a weighted score that considers education, health, and behavior. It adjusts weights based on the health score and provides a final status indicating the level of attention needed.
 
-
     def calculate_status(self):
         # Define base weights
         weights = {
@@ -348,6 +348,8 @@ class BaseIntervention(models.Model):
         ('resolved', 'Resolved'),
         ('pending', 'Pending'),
         ('unresolved', 'Unresolved'),
+        ('none', 'None'),
+
     ]
 
     orphan = models.ForeignKey(
@@ -475,7 +477,7 @@ class HealthDetail(models.Model):
             scores.append(score)
 
         if scores:
-            return sum(scores) / len(scores)
+            return sum(scores) / len(scores) if scores else 0
         return 0
 
     def calculate_monthly_health_score(orphan, month, year):
@@ -498,9 +500,9 @@ class HealthDetail(models.Model):
 
         DURATION_THRESHOLDS = [
             (3, 1.5),  # 1-3 days: Multiplier of 1.5
-            (7, 2),  # 4-7 days: Multiplier of 2
-            (14, 2.5),  # 1 week to 2 weeks: Multiplier of 2.5
-            (None, 3)  # More than 2 weeks: Multiplier of 3
+            (7, 2.5),  # 4-7 days: Multiplier of 2
+            (14, 3.5),  # 1 week to 2 weeks: Multiplier of 2.5
+            (None, 4)  # More than 2 weeks: Multiplier of 3
         ]
 
         try:
