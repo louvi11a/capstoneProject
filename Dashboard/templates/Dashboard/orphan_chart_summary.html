@@ -75,14 +75,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             const ctx = document.getElementById('statusBreakdownChartCanvas').getContext('2d');
             new Chart(ctx, {
-                type: 'pie',
+                type: 'radar',
                 data: {
                     labels: data.labels,
                     datasets: [{
+                        label: 'Status Score', // Add this line
+
                         data: data.data,
                         backgroundColor: [
-                            'rgba(239, 74, 74, 0.6)', // Red for Education
-                            'rgba(255, 205, 86, 0.6)', // Orange for Health
+                            // 'rgba(239, 74, 74, 0.6)', // Red for Education
+                            // 'rgba(255, 205, 86, 0.6)', // Orange for Health
                             'rgba(75, 192, 192, 0.6)' // Green for Behavior
                         ],
                         borderColor: [
@@ -90,10 +92,32 @@ document.addEventListener('DOMContentLoaded', function() {
                             'rgba(255, 205, 86, 1)', // Orange border
                             'rgba(75, 192, 192, 1)' // Green border
                         ],
-                        borderWidth: 1
+                        borderWidth: 2,
+                        pointRadius: 4,   // Larger points
+
+                        pointStyle: 'circle' // Choose a distinct point style
+
                     }]
                 },
                 options: {
+                    scales: {
+              r: { 
+                min: 20, // Adjust this value as needed, closer to your minimum score
+            max: 30, // Adjust this value as needed, close to your maximum score
+            ticks: {
+                stepSize: 1 // Or any other step size that makes sense for your data
+            },
+                  grid: {
+                      color: 'lightgray' // Add gridlines
+                  },
+                  pointLabels: {
+                    display: true,
+                      font: {
+                          size: 15 
+                      }
+                  }
+              }
+          },
                     responsive: true,
                     plugins: {
                         legend: {
@@ -108,37 +132,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
             });
 
-            function getStatusBasedOnData(data) {
-            // Calculate the composite score
-            const compositeScore = Number(data[0]) + Number(data[1]) + Number(data[2]);
+            function getStatusBasedOnData(data, maxScores) {
+    // Calculate the composite score and maximum possible score
+    const compositeScore = data.reduce((sum, score) => sum + Number(score), 0);
+    const maxPossibleScore = maxScores.reduce((sum, maxScore) => sum + maxScore, 0);
 
-            // Determine status based on composite score
-            let status;
-            if (compositeScore < 50) {
-                status = 'Critical Attention Needed';
-            } else if (compositeScore < 70) {
-                status = 'Monitoring Required';
-            } else {
-                status = 'Stable';
-            }
-            // Return both the status and the composite score
-            return { status: status, score: compositeScore };
-        }
+    // Determine status based on the ratio of composite score to maximum possible score
+    const scoreRatio = compositeScore / maxPossibleScore;
+    let status;
+    if (scoreRatio < 0.5) {
+        status = 'Critical Attention Needed';
+    } else if (scoreRatio < 0.7) {
+        status = 'Monitoring Required';
+    } else {
+        status = 'Stable';
+    }
 
-        // Display the data and status textually
-        // After fetching the data and creating the chart...
+    // Return both the status and the composite score
+    return { status: status, score: compositeScore, maxScore: maxPossibleScore }; 
+}
 
-        const statusAndScore = getStatusBasedOnData(data.data); // Use the data array from the chart
-        const statusBreakdownDataDiv = document.getElementById('statusBreakdownData');
-        let statusBreakdownText = 'Status Breakdown:<br>';
-        data.labels.forEach((label, index) => {
-            // statusBreakdownText += `${label}: ${data.data[index]}<br>`;
-            statusBreakdownText += `${label}: ${Number(data.data[index]).toFixed(2)}<br>`;
+// Define your max scores
+const maxScores = [30, 30, 40]; 
+// Assume data.data is an array of actual scores [20, 30, 25]
+const statusAndScore = getStatusBasedOnData(data.data, maxScores); 
+const statusBreakdownDataDiv = document.getElementById('statusBreakdownData');
+let statusBreakdownText = 'Status Breakdown<br>';
 
-        });
-        statusBreakdownText += `Total Score: ${Number(statusAndScore.score).toFixed(2)}<br>`; // Display the total score with 2 decimal places
-        statusBreakdownText += `Resulting Status: ${statusAndScore.status}<br>`;
-        statusBreakdownDataDiv.innerHTML = statusBreakdownText;
+data.labels.forEach((label, index) => {
+    statusBreakdownText += `${label}: ${Number(data.data[index]).toFixed(2)} / ${maxScores[index]}<br>`;
+});
+statusBreakdownText += `Total Score: ${statusAndScore.score.toFixed(2)} / ${statusAndScore.maxScore}<br>`; // Display the total score and max possible score
+statusBreakdownText += `Resulting Status: ${statusAndScore.status}<br>`;
+statusBreakdownDataDiv.innerHTML = statusBreakdownText;
+
         });
 });
 

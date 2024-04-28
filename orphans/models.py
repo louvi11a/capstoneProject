@@ -382,6 +382,18 @@ class HealthIntervention(BaseIntervention):
     # other fields...
 
 
+# class InterventionHistory(models.Model):
+#     intervention = models.ForeignKey(
+#         # Key Change: Use string reference here
+#         'BaseIntervention', on_delete=models.CASCADE, related_name='history'
+#     )
+#     status = models.CharField(
+#         max_length=10, choices=BaseIntervention.STATUS_CHOICES
+#     )
+#     description = models.TextField()
+#     date_created = models.DateTimeField(auto_now_add=True)
+
+
 def get_sentiment_data():
     orphans = Info.objects.all()
     positive = 0

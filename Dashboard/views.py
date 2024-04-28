@@ -498,102 +498,6 @@ def dashboard_health_chart(request):
     return JsonResponse(data)
 
 
-# def intervention_health(request):
-#     current_year = datetime.now().year
-#     current_month = datetime.now().month
-
-#     # Define health status colors based on categories
-#     health_status_colors = {
-#         'Optimal Health': 'success',
-#         'Good Health': 'warning',
-#         'Marginal Health': 'primary',
-#         'Poor Health': 'danger',
-#     }
-
-#     # Define intervention status colors
-#     intervention_status_colors = {
-#         'unresolved': 'danger',
-#         'pending': 'warning',
-#         'resolved': 'success',
-#         None: 'info'
-#     }
-
-#     # Initialize list to gather data
-#     orphans_with_health = []
-
-#     # Get all orphans
-#     orphans = Info.objects.all()
-#     for orphan in orphans:
-#         # Calculate the monthly health score for the current month and year
-#         monthly_health_score = HealthDetail.calculate_monthly_health_score(
-#             orphan, current_month, current_year)
-
-#         # Get the latest intervention details
-#         latest_intervention = orphan.healthinterventions.order_by(
-#             '-last_modified').first()
-
-#         # Assign health category based on the score
-#         if monthly_health_score >= 95:
-#             health_category = 'Optimal Health'
-#         elif 75 <= monthly_health_score < 95:
-#             health_category = 'Good Health'
-#         elif 50 <= monthly_health_score < 75:
-#             health_category = 'Marginal Health'
-#         else:
-#             health_category = 'Poor Health'
-
-#         # Set default intervention status based on health category
-#         if not latest_intervention:
-#             if health_category == 'Optimal Health':
-#                 intervention_status = None  # Default to None for Excellent Health
-#             else:
-#                 intervention_status = 'unresolved'  # Default to unresolved for others
-#             intervention_plan = ''
-#             intervention_color = intervention_status_colors.get(
-#                 intervention_status, 'info')
-#         else:
-#             intervention_status = latest_intervention.status
-#             intervention_plan = latest_intervention.description
-#             intervention_color = intervention_status_colors.get(
-#                 intervention_status, 'info')
-
-#         if latest_intervention:  # Ensure it exists before updating
-#             latest_intervention.save()  # Save the change
-
-#         # Append data for rendering
-#         orphans_with_health.append({
-#             'orphan': orphan,
-#             'health_score': monthly_health_score,
-#             'health_category': health_category,
-#             'status_color': health_status_colors[health_category],
-#             'last_modified': latest_intervention.last_modified if latest_intervention else None,
-#             'intervention_status': intervention_status,
-#             'intervention_color': intervention_color,
-#             'intervention_plan': intervention_plan,
-
-#         })
-
-#     # Define sorting key based on priority mapping
-#     def sort_key(x):
-#         health_priority = {
-#             'Poor Health': 1,
-#             'Marginal Health': 2,
-#             'Good Health': 3,
-#             'Optimal Health': 4
-#         }
-#         intervention_priority = {
-#             'unresolved': 1,
-#             'pending': 2,
-#             'resolved': 3,
-#             None: 4
-#         }
-#         return (health_priority[x['health_category']], intervention_priority.get(x['intervention_status'], 99))
-
-#     # Sort the list based on the defined sort key
-#     orphans_with_health.sort(key=sort_key)
-
-#     # Render the data to the template
-#     return render(request, 'Dashboard/intervention_health.html', {'orphans_with_health': orphans_with_health})
 def intervention_health(request):
     current_year = now().year
     current_month = now().month
@@ -990,7 +894,6 @@ def dashboard_academic_chart(request):
 
 
 def intervention_academics(request):
-    current_year = now().year
 
     # Color mappings
     academic_status_colors = {
@@ -1006,9 +909,6 @@ def intervention_academics(request):
     }
 
     # Fetch all orphans and their latest academic intervention data
-    orphans = Info.objects.prefetch_related(
-        'educations__grades', 'academicinterventions').all()
-    orphan_educations_status = []
 
     current_year = now().year
     orphans = Info.objects.prefetch_related(
@@ -1023,20 +923,28 @@ def intervention_academics(request):
         significant_needed = any(70 <= grade.grade < 75 for education in orphan.educations.all(
         ) for grade in education.grades.all())
 
-        if latest_intervention:
+        # Determine if there's a change in academic status that requires a new intervention
+        new_intervention_needed = (latest_intervention is None or
+                                   (latest_intervention.status == 'resolved' and
+                                    (critical_needed or significant_needed)))
+
+        if latest_intervention and not new_intervention_needed:
             intervention_status = latest_intervention.status
             remarks = latest_intervention.description
         else:
             # Set default status if no intervention exists
             intervention_status = 'unresolved' if critical_needed else 'pending' if significant_needed else 'none'
             remarks = "Academic performance requires intervention." if intervention_status != 'none' else "No academic intervention needed."
-            # Create a new intervention record
-            AcademicIntervention.objects.create(
-                orphan=orphan,
-                status=intervention_status,
-                description=remarks,
-                last_modified=now()
-            )
+
+            # Create a new intervention record only if it's needed
+            # Create a new intervention record only if it's needed
+            if new_intervention_needed:
+                latest_intervention = AcademicIntervention.objects.create(
+                    orphan=orphan,
+                    status=intervention_status,
+                    description=remarks,
+                    last_modified=now()
+                )
 
         academic_status = 'Critical Improvement Needed' if critical_needed else (
             'Needs Improvement' if significant_needed else 'Meets Expectations')
@@ -1062,6 +970,17 @@ def intervention_academics(request):
     ))
 
     return render(request, 'Dashboard/intervention_academics.html', {'orphan_educations_status': orphan_educations_status})
+
+
+def intervention_history(request, orphan_id):
+    orphan = get_object_or_404(Info, pk=orphan_id)
+    interventions = orphan.academicinterventions.order_by(
+        '-last_modified').all()
+
+    return render(request, 'Dashboard/intervention_academics_history.html', {
+        'orphan': orphan,
+        'interventions': interventions,
+    })
 
 
 def get_behavior_intervention_count(request):

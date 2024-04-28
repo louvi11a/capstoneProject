@@ -258,7 +258,7 @@ aria-hidden="true">
                 
                     <td>{{ file.uploaded_at|date:"Y-m-d" }}</td>
                 <td>
-                    <a href="{% url 'serve_file' file_id=file.fileID %}" target="_blank">{{ file.fileName }}</a>
+                    <a class= " text-dark text-decoration-none" href="{% url 'serve_file' file_id=file.fileID %}" target="_blank">{{ file.fileName }}</a>
                 </td>
                 <td>
                     <div class="dropdown">
