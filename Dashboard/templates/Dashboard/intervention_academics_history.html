@@ -17,9 +17,38 @@
 
 {% block content %}
 <body>
+<div>
+  <a href="{% url 'intervention_academics' %}" class="btn btn-primary mt-3">
+    <i class="fa-solid fa-arrow-left"></i>
+  </a>
+</div>
 
+  <div class="row info mt-4 mb-lg-5">
+    {% if orphan.orphan_picture %}
+    <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}" height="100px" width="100px" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+    {% else %}
+    <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
+    {% endif %}                  
 
+    <div class="col-5 mt-3">
+      <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
+      <!-- Status Display -->
+      {% if orphan.status == "A" %}
+          <div class="d-flex flex-column align-items-start">
+              <span class="badge bg-success rounded-pill" id="admittedBadge">Admitted</span>
+              <button id="graduateBtn" class="btn btn-outline-danger mt-2" onclick="confirmGraduation({{ orphan.orphanID }});">Mark as discharged?</button>
+          </div>
+      {% elif orphan.status == "G" %}
+          <span class="badge bg-danger rounded-pill" id="graduatedBadge">Graduated</span>
+      {% elif orphan.status == "P" %}
+          <span class="badge bg-warning rounded-pill" id="pendingBadge">Pending</span>
+      {% else %}
+          <span class="badge bg-secondary rounded-pill">Status Unknown</span>
+      {% endif %}
+  </div>
+  </div>
 
+  <hr>
 
   <h2>{{ orphan.firstName }}'s Intervention History</h2>
 
