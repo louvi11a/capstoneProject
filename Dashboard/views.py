@@ -498,75 +498,6 @@ def dashboard_health_chart(request):
     return JsonResponse(data)
 
 
-def intervention_health(request):
-    current_year = now().year
-    current_month = now().month
-
-    health_status_colors = {
-        'Optimal Health': 'success',
-        'Good Health': 'warning',
-        'Marginal Health': 'primary',
-        'Poor Health': 'danger',
-    }
-
-    intervention_status_colors = {
-        'unresolved': 'danger',
-        'pending': 'warning',
-        'resolved': 'success',
-        'none': 'info'  # Assuming 'none' is a valid status in your model choices now
-    }
-
-    orphans = Info.objects.all()
-    orphans_with_health = []
-
-    for orphan in orphans:
-        monthly_health_score = HealthDetail.calculate_monthly_health_score(
-            orphan, current_month, current_year)
-        health_category = determine_health_category(monthly_health_score)
-        latest_intervention = orphan.healthinterventions.order_by(
-            '-last_modified').first()
-
-        if not latest_intervention:
-            # Create defaults only if no intervention exists
-            intervention_status = 'none' if health_category in [
-                'Optimal Health', 'Good Health'] else 'unresolved'
-            intervention_plan = "Health is optimal or good, no intervention required." if intervention_status == 'none' else "Immediate intervention required due to poor health status."
-            latest_intervention = HealthIntervention.objects.create(
-                orphan=orphan,
-                status=intervention_status,
-                description=intervention_plan,
-                last_modified=now()
-            )
-        else:
-            # Use existing data to prevent overwriting
-            intervention_status = latest_intervention.status
-            intervention_plan = latest_intervention.description
-
-        status_color = health_status_colors.get(health_category, 'info')
-        intervention_color = intervention_status_colors.get(
-            intervention_status, 'info')
-
-        orphans_with_health.append({
-            'orphan': orphan,
-            'health_score': monthly_health_score,
-            'health_category': health_category,
-            'status_color': status_color,
-            'last_modified': latest_intervention.last_modified,
-            'intervention_status': intervention_status,
-            'intervention_color': intervention_color,
-            'intervention_plan': intervention_plan,
-        })
-
-    orphans_with_health.sort(key=lambda x: (
-        {'Poor Health': 1, 'Marginal Health': 2, 'Good Health': 3,
-            'Optimal Health': 4}.get(x['health_category'], 99),
-        {'unresolved': 1, 'pending': 2, 'resolved': 3,
-            'none': 4}.get(x['intervention_status'], 99)
-    ))
-
-    return render(request, 'Dashboard/intervention_health.html', {'orphans_with_health': orphans_with_health})
-
-
 def determine_health_category(score):
     if score >= 95:
         return 'Optimal Health'
@@ -665,6 +596,7 @@ def intervention_behavior(request):
     orphans_with_sentiment = []
     for orphan_score in orphan_scores:
         orphan_id = orphan_score['related_orphan']
+
         orphan = Info.objects.get(pk=orphan_id)
         average_score = orphan_score['average_score']
         last_modified = orphan_score['last_modified']
@@ -673,18 +605,27 @@ def intervention_behavior(request):
             '-last_modified').first()
 
         sentiment_category = determine_sentiment_category(average_score)
-        if latest_intervention:
+
+        # Determine if a new intervention is needed
+        new_intervention_needed = (latest_intervention is None or
+                                   (latest_intervention.status == 'resolved' and
+                                    sentiment_category in ['Needs critical improvement', 'Needs improvement']))
+
+        if latest_intervention and not new_intervention_needed:
             intervention_status = latest_intervention.status
         else:
             intervention_status = determine_intervention_status(average_score)
             intervention_plan = determine_intervention_plan_behavior(
                 average_score)
-            latest_intervention = BehaviorIntervention.objects.create(
-                orphan=orphan,
-                status=intervention_status,
-                description=intervention_plan,
-                last_modified=now()
-            )
+
+            # Create a new intervention record only if it's needed
+            if new_intervention_needed:
+                latest_intervention = BehaviorIntervention.objects.create(
+                    orphan=orphan,
+                    status=intervention_status,
+                    description=intervention_plan,
+                    last_modified=now()
+                )
 
         status_color = sentiment_status_colors.get(sentiment_category, 'info')
         intervention_color = intervention_status_colors.get(
@@ -709,6 +650,17 @@ def intervention_behavior(request):
     ))
 
     return render(request, 'Dashboard/intervention_behavior.html', {'orphans_with_sentiment': orphans_with_sentiment})
+
+
+def behavior_intervention_history(request, orphan_id):
+    orphan = get_object_or_404(Info, pk=orphan_id)
+    interventions = orphan.behaviorinterventions.order_by(
+        '-last_modified').all()
+
+    return render(request, 'Dashboard/intervention_behavior_history.html', {
+        'orphan': orphan,
+        'interventions': interventions,
+    })
 
 
 def determine_sentiment_category(average_score):

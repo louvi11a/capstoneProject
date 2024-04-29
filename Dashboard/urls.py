@@ -2,7 +2,11 @@ from django.urls import path
 from . import views
 from django.contrib.auth.views import LogoutView
 urlpatterns = [
-    path('interventions/history/<int:orphan_id>/',
+
+    path('interventions/behavior/history/<int:orphan_id>/',
+         views.behavior_intervention_history, name='behavior_intervention_history'),
+
+    path('interventions/academic/history/<int:orphan_id>/',
          views.intervention_history, name='intervention_history'),
 
 

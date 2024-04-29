@@ -123,6 +123,7 @@ Behavior Intervention Details
 <!-- Behavior Intervention Table -->
 <tbody>
     {% for item in orphans_with_sentiment %}
+
     <tr>
         <td>{{ item.last_modified|date:"Y-m-d" }}</td>
         <td>{{ item.orphan.firstName }} {{ item.orphan.middleName }} {{ item.orphan.lastName }}</td>
@@ -151,6 +152,8 @@ Behavior Intervention Details
                            data-remarks="{{ item.intervention_plan }}" data-status="{{ item.intervention_status|default:'None' }}"
                            data-bs-toggle="modal" data-bs-target="#editBehaviorModal">Add/Edit Intervention Plan</a>
                     </li>
+                    <li><a class="dropdown-item" href="{% url 'behavior_intervention_history' item.orphan.orphanID %}">See Intervention History</a></li>
+
                     <li>
                         <a class="dropdown-item" href="{% url 'orphan_profile' item.orphan.orphanID %}">View Profile</a>
                     </li>
