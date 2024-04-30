@@ -138,7 +138,7 @@
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="actionsDropdownButton{{ forloop.counter }}">
                         <li><a class="dropdown-item edit-remarks-action" href="#" data-orphan-id="{{ item.orphan.orphanID }}" data-remarks="{{ item.intervention_plan }}" data-status="{{ item.intervention_status|default:'None' }}" data-bs-toggle="modal" data-bs-target="#editHealthModal">Add/Edit Intervention Plan</a></li>
-                        <li><a class="dropdown-item" href="{% url 'behavior_intervention_history' item.orphan.orphanID %}">See Intervention History</a></li>
+                        <li><a class="dropdown-item" href="{% url 'health_intervention_history' item.orphan.orphanID %}">See Intervention History</a></li>
 
                         <li><a class="dropdown-item" href="{% url 'orphan_profile' item.orphan.orphanID %}">View Profile</a></li>
                     </ul>
