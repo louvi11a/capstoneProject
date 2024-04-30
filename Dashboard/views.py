@@ -579,7 +579,7 @@ def health_intervention_history(request, orphan_id):
     orphan = get_object_or_404(Info, pk=orphan_id)
     interventions = orphan.healthinterventions.order_by('-last_modified').all()
 
-    return render(request, 'Dashboard/intervention_health_history.html', {
+    return render(request, 'Dashboard/health_intervention_history.html', {
         'orphan': orphan,
         'interventions': interventions,
     })
