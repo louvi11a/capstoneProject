@@ -498,6 +498,93 @@ def dashboard_health_chart(request):
     return JsonResponse(data)
 
 
+def intervention_health(request):
+    current_year = now().year
+    current_month = now().month
+
+    health_status_colors = {
+        'Optimal Health': 'success',
+        'Good Health': 'warning',
+        'Marginal Health': 'primary',
+        'Poor Health': 'danger',
+    }
+
+    intervention_status_colors = {
+        'unresolved': 'danger',
+        'pending': 'warning',
+        'resolved': 'success',
+        'none': 'info'  # Assuming 'none' is a valid status in your model choices now
+    }
+
+    orphans = Info.objects.all()
+    orphans_with_health = []
+
+    for orphan in orphans:
+        monthly_health_score = HealthDetail.calculate_monthly_health_score(
+            orphan, current_month, current_year)
+        health_category = determine_health_category(monthly_health_score)
+        latest_intervention = orphan.healthinterventions.order_by(
+            '-last_modified').first()
+
+        if not latest_intervention:
+            # Create defaults only if no intervention exists
+            intervention_status = 'none' if health_category in [
+                'Optimal Health', 'Good Health'] else 'unresolved'
+            intervention_plan = "Health is optimal or good, no intervention required." if intervention_status == 'none' else "Immediate intervention required due to poor health status."
+            if not latest_intervention:
+                latest_intervention = HealthIntervention.objects.create(
+                    orphan=orphan,
+                    status=intervention_status,
+                    description=intervention_plan,
+                    last_modified=now()
+                )
+            else:
+                latest_intervention.status = intervention_status
+                latest_intervention.description = intervention_plan
+                latest_intervention.save()
+
+        else:
+            # Use existing data to prevent overwriting
+            intervention_status = latest_intervention.status
+            intervention_plan = latest_intervention.description
+
+        status_color = health_status_colors.get(health_category, 'info')
+        intervention_color = intervention_status_colors.get(
+            intervention_status, 'info')
+
+        orphans_with_health.append({
+            'orphan': orphan,
+            'health_score': monthly_health_score,
+            'health_category': health_category,
+            'status_color': status_color,
+            'last_modified': latest_intervention.last_modified,
+            'intervention_status': intervention_status,
+            'intervention_color': intervention_color,
+            'intervention_plan': intervention_plan,
+        })
+
+    orphans_with_health.sort(key=lambda x: (
+        {'Poor Health': 1, 'Marginal Health': 2, 'Good Health': 3,
+            'Optimal Health': 4}.get(x['health_category'], 99),
+        {'unresolved': 1, 'pending': 2, 'resolved': 3,
+            'none': 4}.get(x['intervention_status'], 99)
+    ))
+
+    return render(request, 'Dashboard/intervention_health.html', {'orphans_with_health': orphans_with_health})
+
+# Add this function to handle the intervention history page:
+
+
+def health_intervention_history(request, orphan_id):
+    orphan = get_object_or_404(Info, pk=orphan_id)
+    interventions = orphan.healthinterventions.order_by('-last_modified').all()
+
+    return render(request, 'Dashboard/health_intervention_history.html', {
+        'orphan': orphan,
+        'interventions': interventions,
+    })
+
+
 def determine_health_category(score):
     if score >= 95:
         return 'Optimal Health'
