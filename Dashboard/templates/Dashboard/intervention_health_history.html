@@ -19,125 +19,25 @@
 
 
 {% block content %}
+  <h2>{{ orphan.firstName }}'s Health Intervention History</h2>
 
-<div>
-  <a href="{% url 'intervention_health' %}" class="btn btn-primary mt-3">
-    <i class="fa-solid fa-arrow-left"></i>
-  </a>
-</div>
-
-<div class="row info mt-4 mb-lg-5">
-  {% if orphan.orphan_picture %}
-  <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}" height="100px" width="100px" alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
-  {% else %}
-  <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
-  {% endif %}                  
-
-  <div class="col-5 mt-3">
-    <h3>{{ orphan.firstName }} {{ orphan.middleName }} {{ orphan.lastName }}</h3>
-    <!-- Status Display -->
-  </div>
-
-  <hr class="mt-3">
-
-  <h2>{{ orphan.firstName }}'s Intervention History</h2>
-
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col">
-        <table class="table table-striped">
-          <thead class="">
-            <tr>
-              <th scope="col">
-                Date 
-                <button class="btn btn-sm me-2" onclick="toggleDropdown('date')">
-                    <i class="bi bi-filter"></i>
-                </button>
-                <!-- Date filter dropdown -->
-                <div id="dateDropdown" class="dropdown-menu" style="display: none;">
-                    <a class="dropdown-item" href="#" onclick="filterByDate('all')">All</a>
-                    <a class="dropdown-item" href="#" onclick="filterByDate('ascending')">Ascending</a>
-                    <a class="dropdown-item" href="#" onclick="filterByDate('descending')">Descending</a>
-                </div>
-            </th>
-              <th class="col-3">Status</th>
-              <th class="col-5">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for intervention in interventions %}
-            <tr>
-              <td class="col">{{ intervention.last_modified|date:"Y-m-d" }}</td>
-              <td class="col">{% comment %} {{ intervention.get_status_display }} {% endcomment %}</td>
-              <td class="col">{{ intervention.description }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-<script>
-  function toggleDropdown(dropdownId) {
-    var dropdown = document.getElementById(dropdownId + 'Dropdown');
-    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-        dropdown.style.display = 'block';
-        // Add event listener to document to close dropdown when clicking outside
-        document.addEventListener('click', function closeDropdown(event) {
-            if (!dropdown.contains(event.target)) {
-                closeAllDropdowns(); // Close all dropdowns
-                // Remove the event listener after all dropdowns are closed
-                document.removeEventListener('click', closeDropdown);
-            }
-        });
-
-        // Add click event listener to each dropdown item to close the dropdown
-        var dropdownItems = dropdown.querySelectorAll('a');
-        dropdownItems.forEach(function(item) {
-            item.addEventListener('click', function() {
-                dropdown.style.display = 'none';
-            });
-        });
-    } else {
-        dropdown.style.display = 'none';
-    }
-}
-
-  function filterByDate(filterValue) {
-    console.log('Filter by date:', filterValue);
-    // Close dropdown after selection
-    document.getElementById('dateDropdown').style.display = 'none';
-    // Get all table rows
-    var rows = Array.from(document.querySelectorAll('#academicDetailsTable tbody tr'));
-    rows.forEach(function(row) {
-        row.style.display = ''; // Reset to show all rows
-    });
-
-    if (filterValue === 'ascending') {
-        // Code to sort by ascending date
-        rows.sort((a, b) => {
-            var dateA = new Date(a.cells[0].textContent);
-            var dateB = new Date(b.cells[0].textContent);
-            return dateA - dateB; // This will sort in ascending order
-        });
-    } else if (filterValue === 'descending') {
-        // Code to sort by descending date
-        rows.sort((a, b) => {
-            var dateA = new Date(a.cells[0].textContent);
-            var dateB = new Date(b.cells[0].textContent);
-            return dateB - dateA; // This will sort in descending order
-        });
-    }
-
-    // Re-append sorted rows to the table
-    var tbody = document.querySelector('#academicDetailsTable tbody');
-    tbody.innerHTML = ''; // Clear existing rows
-    rows.forEach(function(row) {
-        tbody.appendChild(row);
-    });
-}
-</script>
-  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for intervention in interventions %}
+      <tr>
+        <td>{{ intervention.last_modified|date:"Y-m-d" }}</td>
+        <td>{{ intervention.get_status_display }}</td>
+        <td>{{ intervention.description }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
 {% endblock %}
