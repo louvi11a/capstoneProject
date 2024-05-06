@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block title %}
-Academic Intervention Details
+Behavior Intervention History
 {% endblock %}
 
 {% block content %}
@@ -31,20 +31,19 @@ Academic Intervention Details
         <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
         {% endif %}                  
         <div class="col-5 mt-3">
-            <h2 class="text-nowrap">{{ orphan.firstName }} {{ orphan.lastName }}'s Behavior Intervention History</h2>
+            <h2 class="text-nowrap">{{ orphan.firstName }} {{ orphan.lastName }}'s Intervention History</h2>
             <!-- <p>Orphan ID: {{ orphan.orphanID }}</p> -->
         </div>
 
     </div>
 </div>
-
-
 <hr class="mt-3">
+<h2>Behavior Intervention History</h2>
 
 <table class="table table-striped" id="behavior_history">
     <thead>
         <tr>
-            <th scope="col-3">
+            <th class="text-center">
                 Date
                 <button class="btn btn-sm me-2" onclick="toggleDropdown('dateDropdown')">
                     <i class="bi bi-filter"></i>
@@ -56,7 +55,7 @@ Academic Intervention Details
                     <a class="dropdown-item" href="#" onclick="filterByDate('descending')">Descending</a>
                 </div>
             </th>
-            <th class=""> Intervention Status
+            <th class="text-center w-50"> Intervention Status
                 <button class="btn btn-sm me-2" onclick="toggleDropdown('interventionDropdown')">
                     <i class="bi bi-filter"></i>
                 </button>
@@ -69,21 +68,21 @@ Academic Intervention Details
             </div>
         </th>
 
-            <th class="col-5">Description</th>
+            <th class="text-center">Description</th>
         </tr>
     </thead>
     <tbody>
         {% for intervention in interventions %}
         <tr>
-            <td>{{ intervention.date_created|date:"Y-m-d" }}</td>
+            <td class="text-center">{{ intervention.date_created|date:"Y-m-d" }}</td>
             
-            <td>
+            <td class="text-center">
             <span class="{% if intervention.status == 'unresolved' %}badge bg-danger{% elif intervention.status == 'pending' %}badge bg-warning{% elif intervention.status == 'resolved' %}badge bg-success{% else %}badge bg-info{% endif %}">
                 {{ intervention.get_status_display }}
                 </span>
             </td>
 
-                <td>{{ intervention.description }}</td>
+            <td class="text-center">{{ intervention.description }}</td>
         </tr>
         {% endfor %}
     </tbody>

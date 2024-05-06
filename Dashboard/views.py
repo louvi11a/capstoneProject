@@ -2,6 +2,7 @@ from .forms import AcademicInterventionForm, BehaviorInterventionForm, HealthInt
 from decimal import Decimal
 from django.core.cache import cache
 from django.db.models import Prefetch
+from datetime import timedelta
 
 import json
 from django.db.models.functions import Concat
@@ -508,12 +509,11 @@ def intervention_health(request):
         'Marginal Health': 'primary',
         'Poor Health': 'danger',
     }
-
     intervention_status_colors = {
         'unresolved': 'danger',
         'pending': 'warning',
         'resolved': 'success',
-        'none': 'info'  # Assuming 'none' is a valid status in your model choices now
+        'none': 'info'
     }
 
     orphans = Info.objects.all()
@@ -526,25 +526,33 @@ def intervention_health(request):
         latest_intervention = orphan.healthinterventions.order_by(
             '-last_modified').first()
 
-        if not latest_intervention:
-            # Create defaults only if no intervention exists
-            intervention_status = 'none' if health_category in [
-                'Optimal Health', 'Good Health'] else 'unresolved'
-            intervention_plan = "Health is optimal or good, no intervention required." if intervention_status == 'none' else "Immediate intervention required due to poor health status."
-            if not latest_intervention:
-                latest_intervention = HealthIntervention.objects.create(
-                    orphan=orphan,
-                    status=intervention_status,
-                    description=intervention_plan,
-                    last_modified=now()
-                )
-            else:
-                latest_intervention.status = intervention_status
-                latest_intervention.description = intervention_plan
-                latest_intervention.save()
+        # Initialize new_intervention_needed at the top to ensure it always has a default value
+        new_intervention_needed = False
 
+        if latest_intervention:
+            if latest_intervention.status == 'resolved' and latest_intervention.baseline_health_score is not None:
+                time_since_last_resolved = now() - latest_intervention.last_modified
+                significant_change_needed = abs(
+                    latest_intervention.baseline_health_score - monthly_health_score) > 0.5
+                new_intervention_needed = time_since_last_resolved > timedelta(
+                    days=5) and significant_change_needed
+            else:
+                new_intervention_needed = True
         else:
-            # Use existing data to prevent overwriting
+            new_intervention_needed = True
+
+        if new_intervention_needed:
+            intervention_status = 'unresolved' if health_category in [
+                'Poor Health', 'Marginal Health'] else 'none'
+            intervention_plan = "Immediate intervention required due to poor health status." if intervention_status != 'none' else "Health is optimal or good, no intervention required."
+            HealthIntervention.objects.create(
+                orphan=orphan,
+                status=intervention_status,
+                description=intervention_plan,
+                last_modified=now(),
+                baseline_health_score=monthly_health_score
+            )
+        else:
             intervention_status = latest_intervention.status
             intervention_plan = latest_intervention.description
 
@@ -571,7 +579,6 @@ def intervention_health(request):
     ))
 
     return render(request, 'Dashboard/intervention_health.html', {'orphans_with_health': orphans_with_health})
-
 # Add this function to handle the intervention history page:
 
 
@@ -601,14 +608,30 @@ def save_health_intervention(request, orphan_id):
         form = HealthInterventionForm(request.POST)
         if form.is_valid():
             orphan = get_object_or_404(Info, pk=orphan_id)
-            # Update or create health intervention for the orphan
-            intervention, created = HealthIntervention.objects.update_or_create(
-                orphan=orphan,
-                defaults=form.cleaned_data
-            )
+            new_intervention_needed = True  # Default assumption
 
-            # Respond with a success message
-            return JsonResponse({'message': 'Health intervention saved successfully.'}, status=200)
+            try:
+                # Try to get the most recent intervention for updating
+                latest_intervention = HealthIntervention.objects.filter(
+                    orphan=orphan).latest('last_modified')
+
+                # Update the existing intervention with the form data
+                for key, value in form.cleaned_data.items():
+                    setattr(latest_intervention, key, value)
+                latest_intervention.last_modified = now()  # Update the last_modified to now
+                latest_intervention.save()
+
+                return JsonResponse({'message': 'Health intervention updated successfully.'}, status=200)
+
+            except HealthIntervention.DoesNotExist:
+                # No interventions exist, create a new one
+                new_intervention = HealthIntervention.objects.create(
+                    orphan=orphan,
+                    **form.cleaned_data,
+                    last_modified=now()
+                )
+                return JsonResponse({'message': 'New health intervention created successfully.'}, status=200)
+
         else:
             # Return form validation errors
             return JsonResponse({'error': form.errors.as_json()}, status=400)
@@ -660,14 +683,7 @@ def dashboard_behavior_chart(request):
 
 def intervention_behavior(request):
     current_year = now().year
-
-    # Fetch scores and calculate averages and latest modifications
-    orphan_scores = Notes.objects.values('related_orphan').annotate(
-        average_score=Avg('sentiment_score'),
-        last_modified=Max('timestamp')
-    )
-
-    # Color mappings for sentiment and intervention statuses
+   # Color mappings for sentiment and intervention statuses
     sentiment_status_colors = {
         'Needs critical improvement': 'danger',
         'Needs improvement': 'warning',
@@ -679,67 +695,73 @@ def intervention_behavior(request):
         'resolved': 'success',
         'none': 'info'
     }
+    # Fetch scores and calculate averages and latest modifications
+    orphan_scores = Notes.objects.values('related_orphan').annotate(
+        average_score=Avg('sentiment_score'),
+        last_modified=Max('timestamp')
+    )
 
     orphans_with_sentiment = []
     for orphan_score in orphan_scores:
         orphan_id = orphan_score['related_orphan']
-
         orphan = Info.objects.get(pk=orphan_id)
+
+        # Retrieve interventions in descending order of modification
+        interventions = orphan.behaviorinterventions.order_by(
+            '-last_modified', '-id')
+        latest_intervention = interventions.first()
+
         average_score = orphan_score['average_score']
-        last_modified = orphan_score['last_modified']
-
-        latest_intervention = orphan.behaviorinterventions.order_by(
-            '-last_modified').first()
-
         sentiment_category = determine_sentiment_category(average_score)
 
-        # Determine if a new intervention is needed
-        new_intervention_needed = (latest_intervention is None or
-                                   (latest_intervention.status == 'resolved' and
-                                    sentiment_category in ['Needs critical improvement', 'Needs improvement']))
-
-        if latest_intervention and not new_intervention_needed:
-            intervention_status = latest_intervention.status
+        # Calculate time since last resolved intervention and check sentiment change
+        if latest_intervention and latest_intervention.status == 'resolved':
+            time_since_last_resolved = now() - latest_intervention.last_modified
+            # Assume this field stores the sentiment at resolution
+            baseline_sentiment = latest_intervention.baseline_sentiment
+            significant_change_needed = abs(
+                baseline_sentiment - average_score) > 0.5
         else:
-            intervention_status = determine_intervention_status(average_score)
+            time_since_last_resolved = timedelta.max
+            significant_change_needed = False
+
+        # Determine new intervention need based on time and significant change
+        new_intervention_needed = time_since_last_resolved > timedelta(
+            days=5) and significant_change_needed
+
+        if new_intervention_needed:
             intervention_plan = determine_intervention_plan_behavior(
                 average_score)
+            latest_intervention = BehaviorIntervention.objects.create(
+                orphan=orphan,
+                status='unresolved',
+                description=intervention_plan,
+                baseline_sentiment=average_score,
+                last_modified=now()
+            )
 
-            # Create a new intervention record only if it's needed
-            try:
-
-                if new_intervention_needed:
-                    latest_intervention = BehaviorIntervention.objects.create(
-                        orphan=orphan,
-                        status=intervention_status,
-                        description=intervention_plan,
-                        last_modified=now()
-                    )
-            except IntegrityError as e:
-                logger.error(
-                    f"Failed to create a new intervention due to an integrity error: {e}")
-                # Handle the error appropriately, maybe notify the user or retry
-
+        # Append data for display
         status_color = sentiment_status_colors.get(sentiment_category, 'info')
         intervention_color = intervention_status_colors.get(
-            intervention_status, 'info')
+            latest_intervention.status if latest_intervention else 'none', 'info')
 
         orphans_with_sentiment.append({
             'orphan': orphan,
             'average_score': average_score,
             'status_color': status_color,
             'sentiment_category': sentiment_category,
-            'last_modified': last_modified,
-            'intervention_status': intervention_status,
+            'last_modified': orphan_score['last_modified'],
+            'intervention_status': latest_intervention.status if latest_intervention else 'none',
             'intervention_color': intervention_color,
-            'intervention_plan': latest_intervention.description
+            'intervention_plan': latest_intervention.description if latest_intervention else "No current intervention"
         })
 
+    # Sorting logic as before
     orphans_with_sentiment.sort(key=lambda x: (
         {'Needs critical improvement': 1, 'Needs improvement': 2,
             'Meets expectations': 3}.get(x['sentiment_category'], 99),
-        {'unresolved': 1, 'pending': 2, 'resolved': 4, 'none': 3}.get(
-            x['intervention_status'], 99)
+        {'unresolved': 1, 'pending': 2, 'resolved': 4,
+            'none': 3}.get(x['intervention_status'], 99)
     ))
 
     return render(request, 'Dashboard/intervention_behavior.html', {'orphans_with_sentiment': orphans_with_sentiment})
@@ -784,6 +806,9 @@ def determine_intervention_plan_behavior(average_score):
 
 
 def save_behavior_intervention(request, orphan_id):
+    logger.debug(
+        f"Received request to save intervention for orphan {orphan_id}.")
+
     if request.method == 'POST':
         form = BehaviorInterventionForm(request.POST)
         if form.is_valid():
@@ -792,11 +817,20 @@ def save_behavior_intervention(request, orphan_id):
                 # Try to get the most recent intervention for updating
                 latest_intervention = BehaviorIntervention.objects.filter(
                     orphan=orphan).latest('last_modified')
+                logger.debug(f"Updating latest intervention ID {
+                             latest_intervention.id} for orphan {orphan_id}.")
+
                 for key, value in form.cleaned_data.items():
                     setattr(latest_intervention, key, value)
                 latest_intervention.last_modified = now()  # Update the last_modified to now
                 latest_intervention.save()
+                logger.debug(f"Intervention ID {
+                             latest_intervention.id} updated successfully.")
+
             except BehaviorIntervention.DoesNotExist:
+                logger.debug(f"No existing interventions found for orphan {
+                             orphan_id}, creating new one.")
+
                 # No interventions exist, create a new one
                 latest_intervention = BehaviorIntervention.objects.create(
                     orphan=orphan,
@@ -806,6 +840,8 @@ def save_behavior_intervention(request, orphan_id):
 
             return JsonResponse({'message': 'Intervention saved successfully.'}, status=200)
         else:
+            logger.error(f"Form errors: {form.errors.as_json()}")
+
             return JsonResponse({'error': form.errors.as_json()}, status=400)
 
     return JsonResponse({'error': 'Invalid request.'}, status=400)
@@ -974,33 +1010,44 @@ def intervention_academics(request):
     for orphan in orphans:
         latest_intervention = orphan.academicinterventions.order_by(
             '-last_modified').first()
+
         critical_needed = any(grade.grade < 70 for education in orphan.educations.all(
         ) for grade in education.grades.all())
         significant_needed = any(70 <= grade.grade < 75 for education in orphan.educations.all(
         ) for grade in education.grades.all())
 
-        # Determine if there's a change in academic status that requires a new intervention
-        new_intervention_needed = (latest_intervention is None or
-                                   (latest_intervention.status == 'resolved' and
-                                    (critical_needed or significant_needed)))
+        new_intervention_needed = False
+        # Default to max if no intervention exists
+        time_since_last_resolved = timedelta.max
+        significant_change_needed = False  # Default to False
 
-        if latest_intervention and not new_intervention_needed:
-            intervention_status = latest_intervention.status
-            remarks = latest_intervention.description
-        else:
-            # Set default status if no intervention exists
+        if latest_intervention:
+            if latest_intervention.status == 'resolved':
+                time_since_last_resolved = now() - latest_intervention.last_modified
+                # Assume this field is added to the model
+                baseline_critical = latest_intervention.baseline_critical
+                # Assume this field is added to the model
+                baseline_significant = latest_intervention.baseline_significant
+                significant_change_needed = (critical_needed != baseline_critical) or (
+                    significant_needed != baseline_significant)
+
+            new_intervention_needed = (time_since_last_resolved > timedelta(
+                days=5)) and significant_change_needed
+
+        if new_intervention_needed:
+            remarks = "Academic performance requires intervention."
             intervention_status = 'unresolved' if critical_needed else 'pending' if significant_needed else 'none'
-            remarks = "Academic performance requires intervention." if intervention_status != 'none' else "No academic intervention needed."
-
-            # Create a new intervention record only if it's needed
-            # Create a new intervention record only if it's needed
-            if new_intervention_needed:
-                latest_intervention = AcademicIntervention.objects.create(
-                    orphan=orphan,
-                    status=intervention_status,
-                    description=remarks,
-                    last_modified=now()
-                )
+            latest_intervention = AcademicIntervention.objects.create(
+                orphan=orphan,
+                status=intervention_status,
+                description=remarks,
+                last_modified=now(),
+                baseline_critical=critical_needed,
+                baseline_significant=significant_needed
+            )
+        else:
+            intervention_status = latest_intervention.status if latest_intervention else 'none'
+            remarks = latest_intervention.description if latest_intervention else "No academic intervention needed."
 
         academic_status = 'Critical Improvement Needed' if critical_needed else (
             'Needs Improvement' if significant_needed else 'Meets Expectations')
@@ -1017,7 +1064,6 @@ def intervention_academics(request):
             'remarks': remarks,
         })
 
-    # Sort orphans by priority
     orphan_educations_status.sort(key=lambda item: (
         {'Critical Improvement Needed': 1, 'Needs Improvement': 2,
             'Meets Expectations': 3}.get(item['academic_status'], 99),
@@ -1082,13 +1128,30 @@ def save_academic_intervention(request, orphan_id):
         form = AcademicInterventionForm(request.POST)
         if form.is_valid():
             orphan = get_object_or_404(Info, pk=orphan_id)
-            intervention, created = AcademicIntervention.objects.update_or_create(
-                orphan=orphan,
-                defaults=form.cleaned_data
-            )
+            try:
+                # Attempt to update the most recent intervention for the orphan
+                latest_intervention = AcademicIntervention.objects.filter(
+                    orphan=orphan).latest('last_modified')
 
-            return JsonResponse({'message': 'Intervention saved successfully.'}, status=200)
+                # Update the existing intervention with form data
+                for key, value in form.cleaned_data.items():
+                    setattr(latest_intervention, key, value)
+                latest_intervention.last_modified = now()  # Update the last_modified to now
+                latest_intervention.save()
+
+                return JsonResponse({'message': 'Academic intervention updated successfully.'}, status=200)
+
+            except AcademicIntervention.DoesNotExist:
+                # No interventions exist, create a new one
+                new_intervention = AcademicIntervention.objects.create(
+                    orphan=orphan,
+                    **form.cleaned_data,
+                    last_modified=now()
+                )
+                return JsonResponse({'message': 'New academic intervention created successfully.'}, status=200)
+
         else:
+            # Return form validation errors
             return JsonResponse({'error': form.errors.as_json()}, status=400)
 
     return JsonResponse({'error': 'Invalid request.'}, status=400)

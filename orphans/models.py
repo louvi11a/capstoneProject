@@ -12,6 +12,8 @@ from datetime import date, datetime, timedelta, timezone
 from django.utils import timezone
 from django.db.models import Avg
 from django.db.models import Prefetch
+from datetime import timedelta
+
 logger = logging.getLogger(__name__)
 
 # Fetch health details with related orphan info preloaded
@@ -184,7 +186,6 @@ class Info(models.Model):
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
 
-
     def calculate_behavior_score(self, last_months=4):
         current_date = datetime.now().date()
         past_date = current_date - timedelta(days=last_months * 30)
@@ -299,6 +300,7 @@ class Info(models.Model):
 
 # Determines a status based on a weighted score that considers education, health, and behavior. It adjusts weights based on the health score and provides a final status indicating the level of attention needed.
 
+
     def calculate_status(self):
         # Define base weights
         weights = {
@@ -356,8 +358,8 @@ class BaseIntervention(models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default='pending')
     description = models.TextField()
-    date_created = models.DateField(auto_now_add=True)
-    last_modified = models.DateField(auto_now=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -366,18 +368,71 @@ class BaseIntervention(models.Model):
 class AcademicIntervention(BaseIntervention):
     orphan = models.ForeignKey(
         Info, on_delete=models.CASCADE, related_name='academicinterventions')
-    # other fields...
+
+    # New fields to store baseline data at the time of intervention resolution
+    baseline_critical = models.BooleanField(
+        default=False, help_text="Indicates if critical improvement was needed at the time of resolving the intervention.")
+    baseline_significant = models.BooleanField(
+        default=False, help_text="Indicates if significant improvement was needed at the time of resolving the intervention.")
+
+    def save(self, *args, **kwargs):
+        # Automatically set baseline data when an intervention is resolved
+        if self.status == 'resolved' and not self.pk:
+            self.set_baseline_data()
+        super().save(*args, **kwargs)
+
+    def set_baseline_data(self):
+        # Logic to determine if critical or significant improvements are needed at the time of resolution
+        # This method should be defined based on how you determine 'critical_needed' and 'significant_needed'
+        self.baseline_critical = self.determine_critical_needed()
+        self.baseline_significant = self.determine_significant_needed()
+
+    def determine_critical_needed(self):
+        # Placeholder method - implement the logic to determine if critical improvement is needed
+        return any(grade.grade < 70 for education in self.orphan.educations.all() for grade in education.grades.all())
+
+    def determine_significant_needed(self):
+        # Placeholder method - implement the logic to determine if significant improvement is needed
+        return any(70 <= grade.grade < 75 for education in self.orphan.educations.all() for grade in education.grades.all())
 
 
 class BehaviorIntervention(BaseIntervention):
     orphan = models.ForeignKey(
         Info, on_delete=models.CASCADE, related_name='behaviorinterventions')
+    baseline_sentiment = models.FloatField(
+        null=True, blank=True, help_text="Sentiment score at the time of resolving the intervention.")
+
+    def save(self, *args, **kwargs):
+        if self.status == 'resolved' and self.baseline_sentiment is None:
+            # Assuming you have a method to calculate the current sentiment or it's passed in some way
+            self.baseline_sentiment = self.calculate_current_sentiment()
+        super().save(*args, **kwargs)
+
+    def calculate_current_sentiment(self):
+        # Placeholder for sentiment calculation logic
+        # You would need to define how to calculate this based on your application's requirements
+        return 0.0  # Example default value
+
     # other fields...
 
 
 class HealthIntervention(BaseIntervention):
     orphan = models.ForeignKey(
         Info, on_delete=models.CASCADE, related_name='healthinterventions')
+
+    # Add fields to store baseline health status
+    baseline_health_score = models.FloatField(
+        null=True, blank=True, help_text="Health score at the time of resolving the intervention.")
+
+    def save(self, *args, **kwargs):
+        if self.status == 'resolved' and self.baseline_health_score is None:
+            # This assumes there's a method to calculate the health score that needs to be reliably available
+            self.baseline_health_score = self.calculate_current_health_score()
+        super().save(*args, **kwargs)
+
+    def calculate_current_health_score(self):
+        # Placeholder method - implement based on your application's health scoring logic
+        return 0.0  # Example default value
 
     # other fields...
 
