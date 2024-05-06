@@ -7,7 +7,11 @@
 
 {% block extra_meta %}
   <!-- Custom styles for this template-->
-
+  <style>
+    #interventionDropdownButton.dropdown-toggle::after {
+        display: none;  /* Hide the default arrow */
+    }
+    </style>
 {% endblock %}
 
 
@@ -57,18 +61,23 @@
         </th>
 
         
-        <th class="text-center w-50"> Intervention Status
-          <button class="btn btn-sm me-2" onclick="toggleDropdown('interventionDropdown')">
-            <i class="bi bi-filter"></i>
-        </button>
-        <div id="interventionDropdown" class="dropdown-menu" style="display: none;">
-          <a class="dropdown-item" href="#" onclick="filterByintervention('all')">All</a>
-          <a class="dropdown-item" href="#" onclick="filterByintervention('unresolved')">Unresolved</a>
-          <a class="dropdown-item" href="#" onclick="filterByintervention('pending')">Pending</a>
-          <a class="dropdown-item" href="#" onclick="filterByintervention('resolved')">Resolved</a>
-          <a class="dropdown-item" href="#" onclick="filterByintervention('none')">None</a>
-      </div>
-        </th>
+        <th class="text-center w-50">
+          Intervention Status
+          <div class="dropdown">
+              <button class="btn btn-sm dropdown-toggle" onclick="toggleDropdown('interventionDropdown')" type="button" id="interventionDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-filter"></i>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="interventionDropdownButton">
+                  <li><a class="dropdown-item" href="#" onclick="filterByintervention('all')">All</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="filterByintervention('unresolved')">Unresolved</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="filterByintervention('pending')">Pending</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="filterByintervention('resolved')">Resolved</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="filterByintervention('none')">None</a></li>
+              </ul>
+          </div>
+      </th>
+
+
         <th class="text-center">Description</th>
       </tr>
     </thead>
@@ -119,9 +128,18 @@
             tbody.appendChild(row); // Re-add sorted rows
         });
     }
+
+
     function filterByintervention(filterValue) {
     console.log('Filter by intervention:', filterValue);
-    document.getElementById('interventionDropdown').style.display = 'none';
+
+    // Hide the dropdown using Bootstrap's JavaScript method
+    var dropdownElement = document.getElementById('interventionDropdownButton');
+    var dropdownInstance = bootstrap.Dropdown.getInstance(dropdownElement);
+    if (dropdownInstance) {
+        dropdownInstance.hide();
+    }
+
     var rows = document.querySelectorAll('#health_history tbody tr');
     rows.forEach(row => {
         var interventionText = row.cells[1].textContent.trim().toLowerCase();
@@ -133,6 +151,6 @@
             row.style.display = '';
         }
     });
-}
+    }
 </script>
 {% endblock %}

@@ -278,72 +278,6 @@ aria-hidden="true">
     </table>
 </div>
 
-<!-- Dropdown Functions -->
-<script>
-    function toggleDropdown(dropdownId) {
-        var dropdown = document.getElementById(dropdownId + 'Dropdown');
-        var dropdownStyle = window.getComputedStyle(dropdown);
-        if (dropdownStyle.display === 'none') {
-            dropdown.style.display = 'block';
-        } else {
-            dropdown.style.display = 'none';
-        }
-    }
-  
-    function closeDropdown(dropdownId) {
-        var dropdown = document.getElementById(dropdownId + 'Dropdown');
-        dropdown.style.display = 'none';
-    }
-  
-    function filterByFileName(order) {
-        var rows = document.querySelectorAll('#filesTable tbody tr');
-        var sortedRows = Array.from(rows).sort(function(a, b) {
-            var fileNameA = a.querySelector('td:nth-child(2) a').textContent.toLowerCase();
-            var fileNameB = b.querySelector('td:nth-child(2) a').textContent.toLowerCase();
-            if (order === 'ascending') {
-                return fileNameA.localeCompare(fileNameB);
-            } else if (order === 'descending') {
-                return fileNameB.localeCompare(fileNameA);
-            } else {
-                // No sorting
-                return 0;
-            }
-        });
-  
-        var tbody = document.querySelector('#filesTable tbody');
-        tbody.innerHTML = ''; // Clear existing rows
-        sortedRows.forEach(function(row) {
-            tbody.appendChild(row);
-        });
-  
-        closeDropdown('fileName');
-    }
-  
-    function filterByDateUploaded(order) {
-        var rows = document.querySelectorAll('#filesTable tbody tr');
-        var sortedRows = Array.from(rows).sort(function(a, b) {
-            var dateUploadedA = new Date(a.querySelector('td:first-child').textContent);
-            var dateUploadedB = new Date(b.querySelector('td:first-child').textContent);
-  
-            if (order === 'ascending') {
-                return dateUploadedA - dateUploadedB;
-            } else if (order === 'descending') {
-                return dateUploadedB - dateUploadedA;
-            } else {
-                // No sorting
-                return 0;
-            }
-        });
-  
-        var tbody = document.querySelector('#filesTable tbody');
-        tbody.innerHTML = ''; // Clear existing rows
-        sortedRows.forEach(function(row) {
-            tbody.appendChild(row);
-        });
-  
-        closeDropdown('dateUploaded');
-    }
-</script>
 
 
 
@@ -414,6 +348,73 @@ aria-hidden="true">
 {% block js %}
 
 <script src="{% static 'Js/uploadfile.js' %}"></script>
+<!-- Dropdown Functions -->
+<script>
+    function toggleDropdown(dropdownId) {
+        var dropdown = document.getElementById(dropdownId + 'Dropdown');
+        var dropdownStyle = window.getComputedStyle(dropdown);
+        if (dropdownStyle.display === 'none') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+  
+    function closeDropdown(dropdownId) {
+        var dropdown = document.getElementById(dropdownId + 'Dropdown');
+        dropdown.style.display = 'none';
+    }
+  
+    function filterByFileName(order) {
+        var rows = document.querySelectorAll('#filesTable tbody tr');
+        var sortedRows = Array.from(rows).sort(function(a, b) {
+            var fileNameA = a.querySelector('td:nth-child(2) a').textContent.toLowerCase();
+            var fileNameB = b.querySelector('td:nth-child(2) a').textContent.toLowerCase();
+            if (order === 'ascending') {
+                return fileNameA.localeCompare(fileNameB);
+            } else if (order === 'descending') {
+                return fileNameB.localeCompare(fileNameA);
+            } else {
+                // No sorting
+                return 0;
+            }
+        });
+  
+        var tbody = document.querySelector('#filesTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+        sortedRows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+  
+        closeDropdown('fileName');
+    }
+  
+    function filterByDateUploaded(order) {
+        var rows = document.querySelectorAll('#filesTable tbody tr');
+        var sortedRows = Array.from(rows).sort(function(a, b) {
+            var dateUploadedA = new Date(a.querySelector('td:first-child').textContent);
+            var dateUploadedB = new Date(b.querySelector('td:first-child').textContent);
+  
+            if (order === 'ascending') {
+                return dateUploadedA - dateUploadedB;
+            } else if (order === 'descending') {
+                return dateUploadedB - dateUploadedA;
+            } else {
+                // No sorting
+                return 0;
+            }
+        });
+  
+        var tbody = document.querySelector('#filesTable tbody');
+        tbody.innerHTML = ''; // Clear existing rows
+        sortedRows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+  
+        closeDropdown('dateUploaded');
+    }
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var uploadForm = document.getElementById('uploadFileForm');
