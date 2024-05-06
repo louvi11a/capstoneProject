@@ -28,7 +28,7 @@ from django.shortcuts import render
 from orphans.models import Education, Grade, Info, Subject
 from django.db.models import Max
 from datetime import date
-from django.db import models
+from django.db import IntegrityError, models
 from orphans.models import models
 from django.db.models import Count
 from django.core import serializers
@@ -706,13 +706,19 @@ def intervention_behavior(request):
                 average_score)
 
             # Create a new intervention record only if it's needed
-            if new_intervention_needed:
-                latest_intervention = BehaviorIntervention.objects.create(
-                    orphan=orphan,
-                    status=intervention_status,
-                    description=intervention_plan,
-                    last_modified=now()
-                )
+            try:
+
+                if new_intervention_needed:
+                    latest_intervention = BehaviorIntervention.objects.create(
+                        orphan=orphan,
+                        status=intervention_status,
+                        description=intervention_plan,
+                        last_modified=now()
+                    )
+            except IntegrityError as e:
+                logger.error(
+                    f"Failed to create a new intervention due to an integrity error: {e}")
+                # Handle the error appropriately, maybe notify the user or retry
 
         status_color = sentiment_status_colors.get(sentiment_category, 'info')
         intervention_color = intervention_status_colors.get(
@@ -782,10 +788,21 @@ def save_behavior_intervention(request, orphan_id):
         form = BehaviorInterventionForm(request.POST)
         if form.is_valid():
             orphan = get_object_or_404(Info, pk=orphan_id)
-            intervention, created = BehaviorIntervention.objects.update_or_create(
-                orphan=orphan,
-                defaults=form.cleaned_data
-            )
+            try:
+                # Try to get the most recent intervention for updating
+                latest_intervention = BehaviorIntervention.objects.filter(
+                    orphan=orphan).latest('last_modified')
+                for key, value in form.cleaned_data.items():
+                    setattr(latest_intervention, key, value)
+                latest_intervention.last_modified = now()  # Update the last_modified to now
+                latest_intervention.save()
+            except BehaviorIntervention.DoesNotExist:
+                # No interventions exist, create a new one
+                latest_intervention = BehaviorIntervention.objects.create(
+                    orphan=orphan,
+                    **form.cleaned_data,
+                    last_modified=now()
+                )
 
             return JsonResponse({'message': 'Intervention saved successfully.'}, status=200)
         else:

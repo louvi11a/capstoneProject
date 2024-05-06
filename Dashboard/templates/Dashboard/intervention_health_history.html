@@ -12,32 +12,127 @@
 
 
 {% block title %}
-    Academic Intervention Details
+    Health Intervention History
 {% endblock %}
 
-
-
-
 {% block content %}
+<div>
+                     
+  <div class="m-2">
+      <a href="{% url 'intervention_health' %}" class="btn btn-primary mt-3">
+                      <i class="fa-solid fa-arrow-left"></i>
+      </a>
+  </div> 
+  <div class="row info mt-3">
+    {% if orphan.orphan_picture %}
+    <img class="col-3 file-icon fs-1 img-fluid picsize" src="{{ orphan.orphan_picture.url }}"  height="100px" width="100px"
+    alt="{{ orphan.firstName }} {{ orphan.lastName }}'s profile picture">
+    {% else %}
+    <img class="col-3 file-icon fs-1 img-fluid picsize"  src="{% static 'images/default_orphan_picture.png' %}" height="100px" width="100px" alt="Default profile picture">
+    {% endif %}                  
+    <div class="col-5 mt-3">
+        <h2 class="text-nowrap">{{ orphan.firstName }} {{ orphan.lastName }}'s Behavior Intervention History</h2>
+        <!-- <p>Orphan ID: {{ orphan.orphanID }}</p> -->
+    </div>
+</div>
+</div>
+<hr class="mt-3">
+
   <h2>{{ orphan.firstName }}'s Health Intervention History</h2>
 
-  <table class="table">
+  <table class="table table-striped" id="health_history">
     <thead>
       <tr>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Description</th>
+        <th scope="col-3">
+            Date
+            <button class="btn btn-sm me-2" onclick="toggleDropdown('dateDropdown')">
+              <i class="bi bi-filter"></i>
+          </button>
+          <!-- Date filter dropdown -->
+          <div id="dateDropdown" class="dropdown-menu" style="display: none;">
+              <a class="dropdown-item" href="#" onclick="filterByDate('all')">All</a>
+              <a class="dropdown-item" href="#" onclick="filterByDate('ascending')">Ascending</a>
+              <a class="dropdown-item" href="#" onclick="filterByDate('descending')">Descending</a>
+          </div>
+        </th>
+
+        
+        <th class=""> Intervention Status
+          <button class="btn btn-sm me-2" onclick="toggleDropdown('interventionDropdown')">
+            <i class="bi bi-filter"></i>
+        </button>
+        <div id="interventionDropdown" class="dropdown-menu" style="display: none;">
+          <a class="dropdown-item" href="#" onclick="filterByintervention('all')">All</a>
+          <a class="dropdown-item" href="#" onclick="filterByintervention('unresolved')">Unresolved</a>
+          <a class="dropdown-item" href="#" onclick="filterByintervention('pending')">Pending</a>
+          <a class="dropdown-item" href="#" onclick="filterByintervention('resolved')">Resolved</a>
+          <a class="dropdown-item" href="#" onclick="filterByintervention('none')">None</a>
+      </div>
+        </th>
+        <th class="col-5">Description</th>
       </tr>
     </thead>
     <tbody>
       {% for intervention in interventions %}
       <tr>
         <td>{{ intervention.last_modified|date:"Y-m-d" }}</td>
-        <td>{{ intervention.get_status_display }}</td>
+        <td>
+          <span class="{% if intervention.status == 'unresolved' %}badge bg-danger{% elif intervention.status == 'pending' %}badge bg-warning{% elif intervention.status == 'resolved' %}badge bg-success{% else %}badge bg-info{% endif %}">
+          {{ intervention.get_status_display }}
+        </span>
+        </td>
         <td>{{ intervention.description }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
+  <script>
+    function toggleDropdown(dropdownId) {
+        var dropdown = document.getElementById(dropdownId);
+        if (dropdown) {
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        } else {
+            console.error('Dropdown with ID "' + dropdownId + '" not found.');
+        }
+    }
+
+    function filterByDate(filterValue) {
+        var rows = Array.from(document.querySelectorAll('#behavior_history tbody tr'));
+        rows.forEach(function(row) {
+            row.style.display = ''; // Reset display
+        });
+
+        if (filterValue === 'ascending') {
+            rows.sort((a, b) => new Date(a.cells[0].textContent) - new Date(b.cells[0].textContent));
+        } else if (filterValue === 'descending') {
+            rows.sort((a, b) => new Date(b.cells[0].textContent) - new Date(a.cells[0].textContent));
+        }
+
+        var tbody = document.querySelector('#behavior_history tbody');
+        tbody.innerHTML = ''; // Clear current rows
+        rows.forEach(function(row) {
+            tbody.appendChild(row); // Re-add sorted rows
+        });
+    }
+    function filterByintervention(filterValue) {
+    console.log('Filter by intervention:', filterValue);
+    document.getElementById('interventionDropdown').style.display = 'none';
+    var rows = document.querySelectorAll('#behavior_history tbody tr');
+    rows.forEach(row => {
+        var interventionText = row.cells[1].textContent.trim().toLowerCase();
+        console.log('Row intervention status:', interventionText);  // Added to debug the actual text being compared
+
+        if (filterValue.toLowerCase() !== 'all' && interventionText !== filterValue.toLowerCase()) {
+            row.style.display = 'none';
+        } else {
+            row.style.display = '';
+        }
+    });
+}
+</script>
 {% endblock %}
