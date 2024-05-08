@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.db.models import Avg
 from django.db.models import Prefetch
 from datetime import timedelta
+from decimal import Decimal, getcontext
 
 logger = logging.getLogger(__name__)
 
@@ -756,6 +757,9 @@ class Education(models.Model):
     history = HistoricalRecords()
 
 
+getcontext().prec = 5  # Set precision for Decimal calculations
+
+
 class Grade(models.Model):
     GRADE_CHOICES = [(i, i) for i in range(1, 101)] + [(i/100, i/100)
                                                        # Grades from 1 to 100 and 1.00 to 5.00
@@ -785,25 +789,29 @@ class Grade(models.Model):
 
 # Converts different scoring formats (like letters) into a standard numeric format for easier analysis.
     def standardize_grade(self):
-        # Convert float literals to Decimal
+        # Define constants for grade ranges and thresholds
         high_school_max_score = Decimal('100')
         high_school_min_passing_score = Decimal('75')
-        college_max_score = Decimal('1.00')
-        college_min_score = Decimal('5.00')
+        college_max_score_1_to_100 = Decimal('100')
+        college_max_score_1_to_5 = Decimal('1.00')
+        college_min_score_1_to_5 = Decimal('5.00')
 
         education_level = self.education.education_level
 
+        # Check if the grade belongs to the College and what grading scale it's using
         if education_level == 'College':
-            if self.grade >= college_min_score:
-                # Return a Decimal value
-                return high_school_min_passing_score - Decimal('1')
-            # Ensure all operands are Decimal instances
-            standardized_grade = ((high_school_max_score - high_school_min_passing_score) /
-                                  (college_min_score - college_max_score)) * (self.grade - college_max_score) + high_school_max_score
-            standardized_grade = min(standardized_grade, high_school_max_score)
-        else:  # Elementary or High School
-            if self.grade < high_school_min_passing_score:
+            if Decimal('1.00') <= self.grade <= Decimal('5.00'):
+                # Convert 1.00 to 5.00 scale to 1 to 100 scale
+                standardized_grade = (high_school_max_score - high_school_min_passing_score) * \
+                                     (college_min_score_1_to_5 - self.grade) / \
+                                     (college_min_score_1_to_5 - college_max_score_1_to_5) + \
+                    high_school_min_passing_score
+                return min(standardized_grade, high_school_max_score)
+            elif Decimal('1') <= self.grade <= Decimal('100'):
+                # No conversion needed if the grade is already on a 1 to 100 scale
                 return self.grade
-            standardized_grade = self.grade  # No conversion needed
+        else:
+            # Elementary or High School grading (assumed to be on a 1 to 100 scale)
+            return self.grade if self.grade < high_school_min_passing_score else high_school_max_score
 
-        return standardized_grade
+        return self.grade

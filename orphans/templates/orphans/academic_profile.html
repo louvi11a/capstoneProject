@@ -271,23 +271,31 @@
     {% for education in educations %}
         {% for grade in education.grades.all %}
             <tr>
-                <td>{{ education.date_recorded |date:"Y-m-d"  }}</td>
+                <td>{{ education.date_recorded | date:"Y-m-d" }}</td>
                 <td>{{ education.year_level }}</td>
                 <td>{{ grade.get_quarter_display }}</td>
                 <td>{{ grade.subject.name }}</td>
                 <td>{{ grade.grade }}</td>
                 <td>
-                    {% if education.education_level == 'College' %} 
-                      {% if grade.grade <= 3.0 %} Passed {% else %} Failed {% endif %}
-                    {% else %} {% if grade.grade >= 75 %} Passed {% else %} Failed {% endif %}
-                    {% endif %} 
-                  </td>
+                    {% if education.education_level == 'College' %}
+                        {% if grade.grade >= 1 and grade.grade <= 5 %}
+                            {% if grade.grade <= 3.0 %} Passed {% else %} Failed {% endif %}
+                        {% elif grade.grade >= 1 and grade.grade <= 100 %}
+                            {% if grade.grade >= 75 %} Passed {% else %} Failed {% endif %}
+                        {% else %}
+                            Unknown Grade Scale
+                        {% endif %}
+                    {% else %}
+                        {% if grade.grade >= 75 %} Passed {% else %} Failed {% endif %}
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
     {% empty %}
-        <tr><td colspan="7">No academic details available.</td></tr>
+        <tr><td colspan="6">No academic details available.</td></tr>
     {% endfor %}
 </tbody>
+
     </table>
     
 </div>

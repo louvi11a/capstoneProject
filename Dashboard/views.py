@@ -459,7 +459,7 @@ def dashboard_health_chart(request):
     orphans = Info.objects.all()
 
     health_categories = {
-        'Optimal Health': 0,
+        # 'Optimal Health': 0,
         'Good Health': 0,
         'Marginal Health': 0,
         'Poor Health': 0,
@@ -472,11 +472,9 @@ def dashboard_health_chart(request):
 
         # Update health_categories based on the calculated score
         # print(health_categories)
-        if score >= 95:
-            health_categories['Optimal Health'] += 1
-        elif score >= 75:
+        if score >= 85:
             health_categories['Good Health'] += 1
-        elif score >= 50:
+        elif 75 <= score < 85:
             health_categories['Marginal Health'] += 1
         else:
             health_categories['Poor Health'] += 1
@@ -504,8 +502,8 @@ def intervention_health(request):
     current_month = now().month
 
     health_status_colors = {
-        'Optimal Health': 'success',
-        'Good Health': 'warning',
+        # 'Optimal Health': 'success',
+        'Good Health': 'success',
         'Marginal Health': 'primary',
         'Poor Health': 'danger',
     }
@@ -572,8 +570,8 @@ def intervention_health(request):
         })
 
     orphans_with_health.sort(key=lambda x: (
-        {'Poor Health': 1, 'Marginal Health': 2, 'Good Health': 3,
-            'Optimal Health': 4}.get(x['health_category'], 99),
+        {'Poor Health': 1, 'Marginal Health': 2,
+            'Good Health': 3}.get(x['health_category'], 99),
         {'unresolved': 1, 'pending': 2, 'resolved': 3,
             'none': 4}.get(x['intervention_status'], 99)
     ))
@@ -593,11 +591,9 @@ def health_intervention_history(request, orphan_id):
 
 
 def determine_health_category(score):
-    if score >= 95:
-        return 'Optimal Health'
-    elif 75 <= score < 95:
+    if score >= 85:
         return 'Good Health'
-    elif 50 <= score < 75:
+    elif 75 <= score < 85:
         return 'Marginal Health'
     else:
         return 'Poor Health'
