@@ -187,6 +187,8 @@ def save_academic_details(request, orphan_id):
         school_name = request.POST.get('school_name')
         education_level = request.POST.get('education_level')
         year_level = request.POST.get('year_level')
+        # Capture school year from the form
+        school_year = request.POST.get('school_year')
         quarter_or_semester = request.POST.get('quarter')
 
         # Initialize lists to hold all subjects and grades
@@ -217,6 +219,8 @@ def save_academic_details(request, orphan_id):
                 school_name=school_name,
                 education_level=education_level,
                 year_level=year_level,
+                school_year=school_year,  # Save the school year
+
             )
             is_college = education_level == 'College'
 

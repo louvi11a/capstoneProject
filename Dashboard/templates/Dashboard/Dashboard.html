@@ -176,6 +176,8 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/Dashboard/dashboard_behavior_chart/')
         .then(response => response.json())
         .then(data => {
+            const totalOrphans = data.total_orphans;
+
             // Verify the data has the expected structure
             if (!data.labels || !data.datasets || !data.datasets.length) {
                 throw new Error('Data format is incorrect');
@@ -228,11 +230,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             font: {size: 12}
                         },
                         tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                }
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const totalOrphans = data.total_orphans;  // Use the corrected total orphans count
+                                const count = tooltipItem.raw;
+                                const percentage = ((count / totalOrphans) * 100).toFixed(2);
+                                return `${tooltipItem.chart.data.labels[tooltipItem.dataIndex]}: ${count} (${percentage}%)`;
                             }
-                }
+                        }
+                    }
+
             }
                 }
             });
@@ -264,6 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
           return response.json();
       })
       .then(data => {
+        const totalOrphans = data.total_orphans;  // Fetch total orphans dynamically
+
           if (academicStatusChart) {
               academicStatusChart.destroy();
           }
@@ -297,6 +306,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     },
                     plugins: {
+                        tooltip: {
+                          callbacks: {
+                              label: function(tooltipItem) {
+                                  const count = tooltipItem.raw;
+                                  const percentage = ((count / totalOrphans) * 100).toFixed(2); // Calculate percentage
+                                  return `Number and percentage of orphans ${count} (${percentage}%)`;
+                              }
+                          }
+                      },
                         legend: {
                             display: true // Optionally turn off if not needed
                         },
@@ -376,17 +394,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             padding: { bottom: 10 }
                         },
                         tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            let label = tooltipItem.dataset.label || '';
-
-                            if (label) {
-                                label += ': ';
-                            }
-                            label += tooltipItem.raw; // Show the number of orphans in that category
-
-                            return label; // Simplified
-                        }
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const totalOrphans = data.total_orphans;
+                                    const count = tooltipItem.raw;
+                                    const percentage = ((count / totalOrphans) * 100).toFixed(2);
+                                    return `Number and percentage of orphans: ${count} (${percentage}%)`;
+                                }
                     }
                 }
             }

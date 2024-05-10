@@ -457,6 +457,7 @@ def dashboard_health_chart(request):
     current_month = datetime.now().month
     current_year = datetime.now().year
     orphans = Info.objects.all()
+    total_orphans = orphans.count()  # Get total number of orphans
 
     health_categories = {
         # 'Optimal Health': 0,
@@ -481,6 +482,8 @@ def dashboard_health_chart(request):
 
    # Format the data for the chart
     data = {
+        'total_orphans': total_orphans,  # Include total number of orphans in the response
+
         'labels': list(health_categories.keys()),
         'datasets': [{
             'label': 'Health Status Distribution',
@@ -638,6 +641,8 @@ def save_health_intervention(request, orphan_id):
 
 def dashboard_behavior_chart(request):
     current_month = datetime.now().month
+    all_orphans = Info.objects.count()  # Count all orphans, not just those with notes
+
     orphans_with_average_sentiment = Notes.objects.filter(
         timestamp__month=current_month
     ).values(
@@ -666,8 +671,10 @@ def dashboard_behavior_chart(request):
         # Log the information
         # print(f"Orphan ID: {orphan_id}, Average Score: {
         #       average_score}, Sentiment Category: {category}")
+    total_orphans = len(orphans_with_average_sentiment)
 
     data = {
+        'total_orphans': all_orphans,
         'labels': ['Negative', 'Neutral', 'Positive'],
         'datasets': [{
             'data': [sentiment_counts['Negative'], sentiment_counts['Neutral'], sentiment_counts['Positive']]
@@ -922,9 +929,11 @@ def overall_behavior_summary(request):
 def dashboard_academic_chart(request):
     current_month_start = now().replace(
         day=1, hour=0, minute=0, second=0, microsecond=0)
+    total_orphans = Info.objects.count()  # Counting all orphans
 
     chart_data = {
-        'labels': ['Meets Expectations', 'Needs Improvement', 'Critical Improvement Needed'],
+        'total_orphans': total_orphans,  # Include total orphans in the response
+        'labels': ['High Achieving', 'Average', 'Underperforming'],
         'datasets': [{
             'label': 'Number of Orphans',
             'data': [0, 0, 0],
@@ -985,9 +994,9 @@ def intervention_academics(request):
 
     # Color mappings
     academic_status_colors = {
-        'Critical Improvement Needed': 'danger',
-        'Needs Improvement': 'warning',
-        'Meets Expectations': 'success',
+        'Underperforming': 'danger',
+        'Average': 'warning',
+        'High Achieving': 'success',
     }
     intervention_status_colors = {
         'unresolved': 'danger',
@@ -1045,8 +1054,8 @@ def intervention_academics(request):
             intervention_status = latest_intervention.status if latest_intervention else 'none'
             remarks = latest_intervention.description if latest_intervention else "No academic intervention needed."
 
-        academic_status = 'Critical Improvement Needed' if critical_needed else (
-            'Needs Improvement' if significant_needed else 'Meets Expectations')
+        academic_status = 'Underperforming' if critical_needed else (
+            'Average' if significant_needed else 'High Achieving')
         academic_status_color = academic_status_colors[academic_status]
         intervention_color = intervention_status_colors[intervention_status]
 
@@ -1061,8 +1070,8 @@ def intervention_academics(request):
         })
 
     orphan_educations_status.sort(key=lambda item: (
-        {'Critical Improvement Needed': 1, 'Needs Improvement': 2,
-            'Meets Expectations': 3}.get(item['academic_status'], 99),
+        {'Underperforming': 1, 'Average': 2,
+            'High Achieving': 3}.get(item['academic_status'], 99),
         {'unresolved': 1, 'pending': 2, 'resolved': 3,
             'none': 4}.get(item['intervention_status'], 99)
     ))

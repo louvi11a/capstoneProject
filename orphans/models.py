@@ -202,6 +202,7 @@ class Info(models.Model):
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
 
+
     def calculate_behavior_score(self, last_months=4):
         current_date = datetime.now().date()
         past_date = current_date - timedelta(days=last_months * 30)
@@ -315,7 +316,6 @@ class Info(models.Model):
 
 
 # Determines a status based on a weighted score that considers education, health, and behavior. It adjusts weights based on the health score and provides a final status indicating the level of attention needed.
-
 
     def calculate_status(self):
         # Define base weights
@@ -762,6 +762,8 @@ class Education(models.Model):
         blank=True,
         null=True
     )
+    school_year = models.CharField(
+        max_length=9, null=True, blank=True)  # for format "YYYY-YYYY"
     school_name = models.CharField(max_length=255)
     year_level = models.IntegerField(null=True, blank=True)
 

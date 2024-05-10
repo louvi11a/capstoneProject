@@ -185,6 +185,10 @@
                 </div>
             </th>
             <th scope="col">
+                School Year
+             </th>
+ 
+            <th scope="col">
                 Year Level
                 <button class="btn btn-sm me-2" onclick="toggleDropdown('year')">
                     <i class="bi bi-filter"></i>
@@ -272,6 +276,7 @@
         {% for grade in education.grades.all %}
             <tr>
                 <td>{{ education.date_recorded | date:"Y-m-d" }}</td>
+                <td>{{ education.school_year }}</td>
                 <td>{{ education.year_level }}</td>
                 <td>{{ grade.get_quarter_display }}</td>
                 <td>{{ grade.subject.name }}</td>
@@ -457,7 +462,11 @@ function filterBySubject(subjectName) {
                         <label for="school_name">School Name</label>
                         <input id="school_name" name="school_name" class="form-control" required></input>
                     </div>
-
+                    <div class="mb-3">
+                        <label for="schoolYearInput" class="form-label">School Year</label>
+                        <input id="schoolYearInput" name="school_year" type="text" class="form-control" placeholder="e.g., 2021-2022" required>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="educationLevelInput" class="form-label">Education Level</label>
                         <select id="educationLevelInput" name="education_level" class="form-control">
