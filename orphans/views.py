@@ -322,10 +322,15 @@ def orphan_profile(request, orphanID):
     orphan = Info.objects.prefetch_related(
         'physical_health', 'orphan_files').get(orphanID=orphanID)
 
-    # Determine the status based on the presence of a birth certificate
-    if orphan.status != 'G' and orphan.has_birth_certificate():
-        orphan.status = 'A'
+    # Determine the status based on the absence of any missing documents
+    new_status = orphan.get_dynamic_status()
+    if orphan.status != 'G' and orphan.status != new_status:
+        orphan.status = new_status
         orphan.save()
+    # # Determine the status based on the presence of a birth certificate
+    # if orphan.status != 'G' and orphan.has_birth_certificate():
+    #     orphan.status = 'A'
+    #     orphan.save()
 
     # Save the updated status
     orphan.save()

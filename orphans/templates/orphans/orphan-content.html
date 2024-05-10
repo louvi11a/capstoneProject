@@ -30,10 +30,14 @@
               </div>
           {% elif orphan.status == "G" %}
               <span class="badge bg-danger rounded-pill" id="graduatedBadge">Graduated</span>
+
           {% elif orphan.status == "P" %}
-              <span class="badge bg-warning rounded-pill" id="pendingBadge">Pending</span>
-          {% else %}
-              <span class="badge bg-secondary rounded-pill">Status Unknown</span>
+              <div class="badge bg-warning rounded-pill" id="pendingBadge">Pending</div>
+              <ul>
+              {% for document in orphan.missing_documents %}
+                  <li class="text-danger">{{ document }} missing</li>
+              {% endfor %}
+              </ul>
           {% endif %}
       </div>
       

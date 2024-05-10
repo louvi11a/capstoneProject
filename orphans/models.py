@@ -103,6 +103,7 @@ class Notes(models.Model):
 
 
 class Info(models.Model):
+
     STATUS_CHOICES = (
         ('P', 'Pending'),
         ('A', 'Admitted'),
@@ -137,12 +138,26 @@ class Info(models.Model):
     def __str__(self):
         return self.firstName or 'No name'
 
-    # checks if an orphan has birth certificate and sets a status
-    def has_birth_certificate(self):
-        return self.orphan_files.filter(type_of_document='Birth Certificate').exists()
+    REQUIRED_DOCUMENTS = ['Birth Certificate',
+                          'Admission Form']  # Example additional document
+
+    # # checks if an orphan has birth certificate and sets a status
+    # def has_birth_certificate(self):
+    #     return self.orphan_files.filter(type_of_document='Birth Certificate').exists()
+
+    # def get_dynamic_status(self):
+    #     return "Admitted" if self.has_birth_certificate() else "Pending"
+    def missing_documents(self):
+        required_documents = ['Birth Certificate',
+                              'Identification', 'Medical Certificates']
+        existing_documents = self.orphan_files.values_list(
+            'type_of_document', flat=True)
+        return [doc for doc in required_documents if doc not in existing_documents]
 
     def get_dynamic_status(self):
-        return "Admitted" if self.has_birth_certificate() else "Pending"
+        if not self.missing_documents():
+            return 'A'  # Admitted
+        return 'P'  # Pending
 
     def get_absolute_url(self):
         url = reverse('orphan_profile', kwargs={'orphanID': self.orphanID})

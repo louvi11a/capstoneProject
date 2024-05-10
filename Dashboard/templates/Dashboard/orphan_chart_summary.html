@@ -153,18 +153,22 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 // Define your max scores
-const maxScores = [30, 30, 40]; 
+// Define your max scores
+const maxScores = [30, 30, 40];  // Assumed to be whole numbers
 // Assume data.data is an array of actual scores [20, 30, 25]
 const statusAndScore = getStatusBasedOnData(data.data, maxScores); 
 const statusBreakdownDataDiv = document.getElementById('statusBreakdownData');
 let statusBreakdownText = 'Status Breakdown<br>';
 
 data.labels.forEach((label, index) => {
-    statusBreakdownText += `${label}: ${Number(data.data[index]).toFixed(2)} / ${maxScores[index]}<br>`;
+    // Use Math.round to ensure whole number display if necessary
+    const score = Math.round(data.data[index]); // Ensures the score is a whole number
+    statusBreakdownText += `${label}: ${score} / ${maxScores[index]}<br>`;
 });
-statusBreakdownText += `Total Score: ${statusAndScore.score.toFixed(2)} / ${statusAndScore.maxScore}<br>`; // Display the total score and max possible score
+statusBreakdownText += `Total Score: ${Math.round(statusAndScore.score)} / ${statusAndScore.maxScore}<br>`; // Display the total score and max possible score
 statusBreakdownText += `Resulting Status: ${statusAndScore.status}<br>`;
 statusBreakdownDataDiv.innerHTML = statusBreakdownText;
+
 
         });
 });
