@@ -64,7 +64,6 @@ def add_note(request, orphan_id):
                     source='ceb', target='english').translate(bisaya_text)
 
                 # Conduct sentiment analysis using
-
                 sentiment = sid.polarity_scores(translated_text)
 
                 # Save the Bisaya text, translated text, and sentiment to the Note instance
@@ -331,10 +330,6 @@ def orphan_profile(request, orphanID):
     if orphan.status != 'G' and orphan.status != new_status:
         orphan.status = new_status
         orphan.save()
-    # # Determine the status based on the presence of a birth certificate
-    # if orphan.status != 'G' and orphan.has_birth_certificate():
-    #     orphan.status = 'A'
-    #     orphan.save()
 
     # Save the updated status
     orphan.save()

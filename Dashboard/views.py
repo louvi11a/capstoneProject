@@ -1,3 +1,4 @@
+import math
 from .forms import AcademicInterventionForm, BehaviorInterventionForm, HealthInterventionForm
 from decimal import Decimal
 from django.core.cache import cache
@@ -524,52 +525,48 @@ def intervention_health(request):
         monthly_health_score = HealthDetail.calculate_monthly_health_score(
             orphan, current_month, current_year)
         health_category = determine_health_category(monthly_health_score)
-        latest_intervention = orphan.healthinterventions.order_by(
-            '-last_modified').first()
+        interventions = orphan.healthinterventions.order_by(
+            '-last_modified', '-id')
+        latest_intervention = interventions.first()
 
-        # Initialize new_intervention_needed at the top to ensure it always has a default value
         new_intervention_needed = False
+        significant_change_needed = False
 
-        if latest_intervention:
-            if latest_intervention.status == 'resolved' and latest_intervention.baseline_health_score is not None:
-                time_since_last_resolved = now() - latest_intervention.last_modified
+        if latest_intervention and latest_intervention.status == 'resolved':
+            time_since_last_resolved = now() - latest_intervention.last_modified
+            if latest_intervention.baseline_health_score is not None:
                 significant_change_needed = abs(
                     latest_intervention.baseline_health_score - monthly_health_score) > 0.5
-                new_intervention_needed = time_since_last_resolved > timedelta(
-                    days=5) and significant_change_needed
-            else:
-                new_intervention_needed = True
+            new_intervention_needed = time_since_last_resolved > timedelta(
+                days=5) and significant_change_needed
         else:
-            new_intervention_needed = True
+            time_since_last_resolved = timedelta.max
 
         if new_intervention_needed:
             intervention_status = 'unresolved' if health_category in [
                 'Poor Health', 'Marginal Health'] else 'none'
             intervention_plan = "Immediate intervention required due to poor health status." if intervention_status != 'none' else "Health is optimal or good, no intervention required."
-            HealthIntervention.objects.create(
+            latest_intervention = HealthIntervention.objects.create(
                 orphan=orphan,
                 status=intervention_status,
                 description=intervention_plan,
                 last_modified=now(),
                 baseline_health_score=monthly_health_score
             )
-        else:
-            intervention_status = latest_intervention.status
-            intervention_plan = latest_intervention.description
 
         status_color = health_status_colors.get(health_category, 'info')
         intervention_color = intervention_status_colors.get(
-            intervention_status, 'info')
+            latest_intervention.status if latest_intervention else 'none', 'info')
 
         orphans_with_health.append({
             'orphan': orphan,
             'health_score': monthly_health_score,
             'health_category': health_category,
             'status_color': status_color,
-            'last_modified': latest_intervention.last_modified,
-            'intervention_status': intervention_status,
+            'last_modified': latest_intervention.last_modified if latest_intervention else None,
+            'intervention_status': latest_intervention.status if latest_intervention else 'none',
             'intervention_color': intervention_color,
-            'intervention_plan': intervention_plan,
+            'intervention_plan': latest_intervention.description if latest_intervention else "No current intervention"
         })
 
     orphans_with_health.sort(key=lambda x: (
@@ -580,7 +577,6 @@ def intervention_health(request):
     ))
 
     return render(request, 'Dashboard/intervention_health.html', {'orphans_with_health': orphans_with_health})
-# Add this function to handle the intervention history page:
 
 
 def health_intervention_history(request, orphan_id):
@@ -927,8 +923,17 @@ def overall_behavior_summary(request):
 
 
 def dashboard_academic_chart(request):
-    current_month_start = now().replace(
-        day=1, hour=0, minute=0, second=0, microsecond=0)
+    # Determine the current quarter
+    current_date = datetime.now()
+    current_quarter = math.ceil(current_date.month / 3.0)
+    quarter_start_month = 3 * current_quarter - 2
+    quarter_end_month = quarter_start_month + 2
+
+    # Set start and end date for the quarter
+    start_of_quarter = datetime(current_date.year, quarter_start_month, 1)
+    end_of_quarter = datetime(
+        current_date.year, quarter_end_month + 1, 1) - timedelta(days=1)
+
     total_orphans = Info.objects.count()  # Counting all orphans
 
     chart_data = {
@@ -946,32 +951,18 @@ def dashboard_academic_chart(request):
     }
 
     education_levels = ['College', 'Elementary', 'High School']
-
     for level in education_levels:
-        failing_threshold = 3.0 if level == 'College' else 75
-
-        # Aggregate all grades for this month and year by orphan
         grades = Grade.objects.filter(
             education__education_level=level,
-            education__date_recorded__month=current_month_start.month,
-            education__date_recorded__year=current_month_start.year
+            education__date_recorded__range=(start_of_quarter, end_of_quarter)
         ).values('education__orphan').annotate(
             total_grades=Count('id'),
-            failing_grades=Count('id', filter=Q(grade__gte=failing_threshold))
+            failing_grades=Count('id', filter=Q(grade__lt=75))
         )
 
-        orphan_status_counts = {
-            'Meeting': 0,
-            'Significant': 0,
-            'Critical': 0
-        }
+        orphan_status_counts = {'Meeting': 0, 'Significant': 0, 'Critical': 0}
 
-        # Print the count of grades and the aggregation results
-        print(f"Processing {level}: Total graded entries: {grades.count()}")
         for grade in grades:
-            print(f"Orphan ID {grade['education__orphan']} - Total Grades: {
-                  grade['total_grades']}, Failing Grades: {grade['failing_grades']}")
-
             if grade['failing_grades'] == 0:
                 orphan_status_counts['Meeting'] += 1
             elif grade['failing_grades'] == 1:
@@ -979,14 +970,10 @@ def dashboard_academic_chart(request):
             elif grade['failing_grades'] > 1:
                 orphan_status_counts['Critical'] += 1
 
-        print(f"{level} - Meeting: {orphan_status_counts['Meeting']}, Significant: {
-              orphan_status_counts['Significant']}, Critical: {orphan_status_counts['Critical']}")
-
         chart_data['datasets'][0]['data'][0] += orphan_status_counts['Meeting']
         chart_data['datasets'][0]['data'][1] += orphan_status_counts['Significant']
         chart_data['datasets'][0]['data'][2] += orphan_status_counts['Critical']
 
-    print('Educational chart data is', chart_data)
     return JsonResponse(chart_data)
 
 

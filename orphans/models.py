@@ -148,8 +148,7 @@ class Info(models.Model):
     # def get_dynamic_status(self):
     #     return "Admitted" if self.has_birth_certificate() else "Pending"
     def missing_documents(self):
-        required_documents = ['Birth Certificate',
-                              'Identification', 'Medical Certificates']
+        required_documents = ['Birth Certificate']
         existing_documents = self.orphan_files.values_list(
             'type_of_document', flat=True)
         return [doc for doc in required_documents if doc not in existing_documents]
@@ -201,7 +200,6 @@ class Info(models.Model):
 
 
 # Calculates a behavior score based on sentiment scores from notes, applying a decay factor to give more importance to recent entries.
-
 
     def calculate_behavior_score(self, last_months=4):
         current_date = datetime.now().date()
@@ -315,8 +313,7 @@ class Info(models.Model):
         return trend_analysis_result
 
 
-# Determines a status based on a weighted score that considers education, health, and behavior. It adjusts weights based on the health score and provides a final status indicating the level of attention needed.
-
+# Determines a status based on a weighted score that considers education, health, and behavior.
     def calculate_status(self):
         # Define base weights
         weights = {
@@ -332,19 +329,9 @@ class Info(models.Model):
         behavior_score = Decimal(
             self.calculate_behavior_score(last_months=4) or 0)
 
-        # Decide based on your needs which method to use:
-        # For more responsive health assessments:
-        # health_score = Decimal(HealthDetail.calculate_monthly_health_score(self, current_month, current_year) or 0)
         # For averaging over the last three months:
         health_score = Decimal(
             HealthDetail.calculate_average_health_score(self, months=4) or 0)
-
-        # Apply conditional weightings based on specific criteria
-        # if health_score < Decimal('50'):
-        #     weights['health'] += Decimal('0.2')
-        #     weights['education'] -= Decimal('0.1')
-        #     weights['behavior'] -= Decimal('0.1')
-        # Add more conditions as necessary
 
         # Calculate the composite score using Decimal for all arithmetic
         composite_score = (education_score * weights['education'] +
